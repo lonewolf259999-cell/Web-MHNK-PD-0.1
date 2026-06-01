@@ -130,13 +130,36 @@ class ProfilePage {
     }
 
     /**
-     * Called after payment completes - clears cache and refreshes the active week's stats panel
-     * Skips re-fetching paid weeks from server to avoid Google Sheets propagation delay
-     * (which could return stale "unpaid" data and revert the optimistic update)
+     * Called after payment completes.
+     * Instead of reloading the page (which causes Google Sheets propagation delay
+     * to revert the optimistic update), we simply refresh the currently active
+     * week's stats panel. The button styles and client cache have already been
+     * updated optimistically in PaymentManager.handleBatchPayment().
      */
     async _onPaymentCompleted(paidWeeks = []) {
-        // Reload the page once to refresh all data from server
-        window.location.reload();
+        // Refresh the active week stats panel (keeps server cache warm)
+        if (this.currentActiveWeek && this.officerName) {
+            // Clear cache for the paid weeks to force fresh data from server
+            paidWeeks.forEach(weekName => {
+                ApiService.clearCache('week:' + weekName);
+                ApiService.clearCache('week_' + weekName);
+            });
+            
+            try {
+                const weekData = await ApiService.getWeekData(this.currentActiveWeek);
+                const result = this.weekStats.render(weekData, this.currentActiveWeek, this.officerName);
+                if (result) {
+                    this.weekSelector.updateButtonStyle(this.currentActiveWeek, result.isPaid, result.amount);
+                }
+                // Re-check all weeks' status silently (using fresh data from server)
+                // This will re-apply button styles based on latest sheet data,
+                // but since patchCacheWeek already marked paid weeks in client cache,
+                // paid weeks will stay paid even if GViz hasn't propagated yet.
+                this.weekSelector.checkAllStatus(this.weeks, this.officerName);
+            } catch (e) {
+                console.warn('Payment complete: failed to refresh stats panel', e);
+            }
+        }
     }
 
     _isNameMatch(officerObj) {
