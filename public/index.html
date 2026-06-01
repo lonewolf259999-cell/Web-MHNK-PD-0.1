@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MHNK Police Department - Mahahorn Diwa</title>
+    
+    <!-- Preconnect to critical third-party origins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://docs.google.com" />
+    
+    <!-- Preload critical assets -->
+    <link rel="preload" href="src/styles/main.css" as="style" />
+    <link rel="preload" href="logo.gif" as="image" />
+    
+    <!-- DNS Prefetch for Google Sheets API -->
+    <link rel="dns-prefetch" href="//docs.google.com" />
+    <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="//fonts.gstatic.com" />
+    
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" />
+    <link rel="stylesheet" href="src/styles/main.css" />
+</head>
+<body>
+    <!-- Background Effects -->
+    <div class="scanner-line"></div>
+    <div class="bg-glow"></div>
+    <div class="bg-dots"></div>
+
+    <!-- Header -->
+    <header class="site-header">
+        <div class="header-top">
+            <img src="logo.gif" alt="MHNK PD Logo" class="header-logo" onerror="this.src='logo.png'" width="64" height="64" />
+            <div class="header-title">
+                <h1>Mahahorn Diwa Police Department</h1>
+                <div class="header-subtitle">กรมตำรวจ <span>MHNK</span> &mdash; Mahahorn Diwa</div>
+            </div>
+            <div class="header-badges">
+                <span class="header-badge">&#9670; FIVEM</span>
+                <span class="header-badge">&#9878; POLICE</span>
+            </div>
+        </div>
+
+        <div class="header-nav-row">
+            <!-- Search Component -->
+            <div class="search-section">
+                <div class="search-wrapper">
+                    <span class="search-icon">&#128269;</span>
+                    <input type="text" class="search-input" id="searchInput" placeholder="ค้นหา..." autocomplete="off" />
+                    <button class="search-clear" id="clearBtn">&times;</button>
+                </div>
+                <div class="search-stats">
+                    พบ <strong id="resultCount">0</strong> นาย &middot; ทั้งหมด <strong id="totalCount">0</strong>
+                </div>
+            </div>
+
+            <!-- Navigation Tabs -->
+            <nav class="nav-tabs">
+                <button class="nav-tab active" data-page="roster">
+                    <span>&#9878;</span> รายชื่อ
+                </button>
+                <button class="nav-tab" data-page="conduct">
+                    <span>&#128218;</span> ข้อปฏิบัติ
+                </button>
+                <button class="nav-tab" data-page="rules">
+                    <span>&#128214;</span> กฎตำรวจ
+                </button>
+                <button class="nav-tab" data-page="fines">
+                    <span>&#128176;</span> ค่าปรับ
+                </button>
+                <button class="nav-tab" data-page="schedule">
+                    <span>&#128197;</span> ตารางเวร
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Layout -->
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-card">
+                <div class="sidebar-header">
+                    <h3>&#9733; <span>TOP 10</span> เคส</h3>
+                    <span class="sidebar-badge">TOP</span>
+                </div>
+                <div class="top-list" id="topList">
+                    <div class="top-empty">กำลังโหลด...</div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Roster Page (default page - always loaded first) -->
+            <div class="page-content active" id="page-roster">
+                <div class="section-header">
+                    <h2><span class="icon">&#9878;</span> รายชื่อเจ้าหน้าที่</h2>
+                    <span class="section-total">ทั้งหมด <strong id="totalBadge">0</strong> นาย</span>
+                </div>
+                <div class="officer-grid" id="officerGrid">
+                    <div class="loading-container">
+                        <div class="loader"></div>
+                        <div class="loading-text">กำลังโหลด...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Conduct Page (lazy loaded) -->
+            <div class="page-content" id="page-conduct">
+                <div class="section-header">
+                    <h2><span class="icon">&#128218;</span> ข้อปฏิบัติเจ้าหน้าที่</h2>
+                </div>
+                <div class="rules-container" id="conductContainer">
+                    <div class="rules-loading">
+                        <div class="loader"></div>
+                        <div class="loading-text">กำลังโหลด...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rules Page (lazy loaded) -->
+            <div class="page-content" id="page-rules">
+                <div class="section-header">
+                    <h2><span class="icon">&#128214;</span> กฎหมายและระเบียบตำรวจ</h2>
+                </div>
+                <div class="rules-container" id="rulesContainer">
+                    <div class="rules-loading">
+                        <div class="loader"></div>
+                        <div class="loading-text">กำลังโหลด...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fines Page (lazy loaded) -->
+            <div class="page-content" id="page-fines">
+                <div class="section-header">
+                    <h2><span class="icon">&#128176;</span> อัตราค่าปรับ</h2>
+                </div>
+                <div class="fines-container" id="finesContainer">
+                    <div class="rules-loading">
+                        <div class="loader"></div>
+                        <div class="loading-text">กำลังโหลด...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Schedule Page (lazy loaded) -->
+            <div class="page-content" id="page-schedule">
+                <div class="section-header">
+                    <h2><span class="icon">&#128197;</span> ตารางเวรเจ้าหน้าที่ (จันทร์-อาทิตย์)</h2>
+                </div>
+                <div class="schedule-container" id="scheduleContainer">
+                    <div class="loading-container">
+                        <div class="loader"></div>
+                        <div class="loading-text">กำลังโหลด...</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <p>&copy; 2026 <span>MHNK POLICE DEPARTMENT</span> &mdash; FiveM Server</p>
+    </footer>
+
+    <!-- Critical scripts (loaded first - needed for initial render) -->
+    <script defer src="src/utils/html.js"></script>
+    <script defer src="src/utils/api.js"></script>
+    <script defer src="src/utils/NotificationSystem.js"></script>
+    
+    <!-- Core components (loaded second) -->
+    <script defer src="src/components/Navigation.js"></script>
+    <script defer src="src/components/Search.js"></script>
+    <script defer src="src/components/Sidebar.js"></script>
+    
+    <!-- Page scripts (load in parallel, non-blocking) -->
+    <script defer src="src/pages/RosterPage.js"></script>
+    <script defer src="src/pages/RulesPage.js"></script>
+    <script defer src="src/pages/ConductPage.js"></script>
+    <script defer src="src/pages/FinesPage.js"></script>
+    <script defer src="src/pages/SchedulePage.js"></script>
+    
+    <!-- Application entry point -->
+    <script defer src="src/app.js"></script>
+    
+    <!-- Performance: Register service worker for offline cache (future) -->
+    <script>
+        // Measure page load performance (optional analytics)
+        if (window.performance) {
+            window.addEventListener('load', () => {
+                setTimeout(() => {
+                    const perfData = window.performance.timing;
+                    const loadTime = perfData.loadEventEnd - perfData.navigationStart;
+                    console.log(`⏱️ Page loaded in ${loadTime}ms`);
+                }, 0);
+            });
+        }
+    </script>
+</body>
+</html>

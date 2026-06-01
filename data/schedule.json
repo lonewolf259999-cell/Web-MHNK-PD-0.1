@@ -1,0 +1,17 @@
+{
+  "days": [
+    { "key": "monday", "label": "จันทร์", "short": "จ." },
+    { "key": "tuesday", "label": "อังคาร", "short": "อ." },
+    { "key": "wednesday", "label": "พุธ", "short": "พ." },
+    { "key": "thursday", "label": "พฤหัส", "short": "พฤ." },
+    { "key": "friday", "label": "ศุกร์", "short": "ศ." },
+    { "key": "saturday", "label": "เสาร์", "short": "ส." },
+    { "key": "sunday", "label": "อาทิตย์", "short": "อา." }
+  ],
+  "shifts": [
+    { "key": "morning", "label": "เวรเช้า", "time": "06:00 - 14:00", "color": "#1dc9b7" },
+    { "key": "afternoon", "label": "เวรบ่าย", "time": "14:00 - 22:00", "color": "#fbbf24" },
+    { "key": "night", "label": "เวรดึก", "time": "22:00 - 06:00", "color": "#6366f1" }
+  ],
+  "maxDisplay": 50
+}

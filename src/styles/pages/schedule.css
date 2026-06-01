@@ -1,0 +1,82 @@
+/* ========================================
+   Schedule Page (ตารางเวร)
+   ======================================== */
+.schedule-container {
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    backdrop-filter: blur(12px);
+}
+
+.schedule-table-wrapper {
+    overflow-x: auto;
+    border-radius: 12px;
+    border: 1px solid var(--color-border);
+}
+
+.schedule-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.schedule-table th,
+.schedule-table td {
+    padding: 14px 18px;
+    white-space: nowrap;
+    text-align: center;
+    border-bottom: 1px solid var(--color-border-subtle);
+}
+.schedule-table th {
+    color: var(--color-accent);
+    font-weight: 600;
+    font-size: 0.85rem;
+    border-bottom: 2px solid var(--color-accent);
+    background: var(--color-accent-soft);
+    position: sticky;
+    top: 0;
+}
+.schedule-table th:first-child { text-align: center; border-top-left-radius: 12px; }
+.schedule-table th:last-child { border-top-right-radius: 12px; }
+.schedule-table td {
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+    transition: background 0.2s ease;
+}
+.schedule-table tbody tr:hover td { background: rgba(29, 201, 183, 0.05); }
+.schedule-table tbody tr:last-child td { border-bottom: none; }
+
+.sched-name-cell {
+    max-width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+    text-align: left !important;
+    font-weight: 500;
+}
+.sched-name-cell small { font-size: 0.75rem; opacity: 0.6; }
+
+.sched-shift {
+    display: inline-block;
+    padding: 4px 10px;
+    background: rgba(29, 201, 183, 0.15);
+    border: 1px solid rgba(29, 201, 183, 0.2);
+    border-radius: 6px;
+    color: var(--color-accent);
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+.sched-no-shift { opacity: 0.3; font-size: 0.85rem; }
+
+.sched-note {
+    margin-top: 16px;
+    font-size: 0.7rem;
+    color: var(--color-text-secondary);
+    opacity: 0.5;
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .schedule-container { padding: 16px; }
+}

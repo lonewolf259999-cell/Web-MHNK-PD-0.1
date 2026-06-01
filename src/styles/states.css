@@ -1,0 +1,82 @@
+/* ========================================
+   Loading / Empty / Error States
+   ======================================== */
+
+/* Loading */
+.loading-container {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    gap: 14px;
+}
+
+.loader {
+    width: 30px; height: 30px;
+    border: 2px solid rgba(255,255,255,0.03);
+    border-top: 2px solid var(--color-accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+    color: var(--color-text-secondary);
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+}
+
+/* Empty / No Results */
+.no-results {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 50px 20px;
+    color: var(--color-text-secondary);
+}
+.no-results .icon { font-size: 2rem; margin-bottom: 10px; opacity: 0.25; }
+.no-results h3 { font-size: 1rem; font-weight: 500; margin-bottom: 4px; color: var(--color-text-primary); }
+.no-results p { font-size: 0.8rem; }
+
+/* Rules Loading */
+.rules-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    gap: 14px;
+}
+
+/* Error toast */
+.toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+.toast.visible {
+    transform: translateY(0);
+    opacity: 1;
+}
+.toast-error {
+    background: rgba(239, 68, 68, 0.9);
+    color: white;
+    border: 1px solid rgba(239, 68, 68, 0.5);
+}
+.toast-success {
+    background: rgba(34, 197, 94, 0.9);
+    color: white;
+    border: 1px solid rgba(34, 197, 94, 0.5);
+}

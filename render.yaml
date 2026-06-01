@@ -1,0 +1,27 @@
+# ========================================
+# Render Blueprint Configuration
+# MHNK Police Department v2.0
+# ========================================
+
+services:
+  - type: web
+    name: mhnk-pd
+    env: node
+    region: singapore
+    branch: main
+    buildCommand: npm install && npm run build
+    startCommand: node server/index.js
+    healthCheckPath: /
+    envVars:
+      - key: NODE_VERSION
+        value: 18.18.0
+      - key: PORT
+        value: 3001
+      - key: SHEET_ID
+        sync: false
+      - key: CASES_SHEET_ID
+        sync: false
+      - key: ADMIN_PIN
+        sync: false
+      - key: GOOGLE_JSON_KEY
+        sync: false

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ประวัติเจ้าหน้าที่ - MHNK Police Department</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" />
+    <link rel="stylesheet" href="src/styles/main.css" />
+</head>
+<body>
+    <div class="scanner-line"></div>
+    <div class="bg-glow"></div>
+    <div class="bg-dots"></div>
+
+    <header class="site-header">
+        <div class="header-top">
+            <a href="index.html" class="back-link">
+                <span class="back-icon">&#8592;</span>
+                <span class="back-text">กลับ</span>
+            </a>
+            <img src="logo.gif" alt="MHNK PD Logo" class="header-logo" onerror="this.src='logo.png'">
+            <div class="header-title">
+                <h1>ประวัติเจ้าหน้าที่</h1>
+                <div class="header-subtitle">กรมตำรวจ <span>MHNK</span> &mdash; Mahahorn Diwa</div>
+            </div>
+            <div class="header-badges">
+                <span class="header-badge">&#9670; PROFILE</span>
+                <span class="header-badge">&#9878; POLICE</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="profile-main">
+        <div class="profile-card">
+            <div class="profile-loading" id="profileLoading">
+                <div class="loader"></div>
+                <p>กำลังโหลดข้อมูล...</p>
+            </div>
+
+            <div id="profileContent" style="display: none;">
+                <div class="profile-hero">
+                    <h2 class="profile-name" id="profileName">-</h2>
+                    <span class="profile-dept" id="profileDept">-</span>
+                    <div class="week-selector-container" id="weekSelector"></div>
+                </div>
+
+                <div class="profile-body">
+                    <div class="week-data-wrapper">
+                        <div id="weekData"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-error" id="profileError" style="display: none;">
+                <p>ไม่พบข้อมูลเจ้าหน้าที่</p>
+                <a href="index.html" class="btn btn-primary">กลับหน้าหลัก</a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <p>&copy; 2026 <span>MHNK POLICE DEPARTMENT</span> &mdash; FiveM Server</p>
+    </footer>
+
+    <script src="src/utils/html.js"></script>
+    <script src="src/utils/api.js"></script>
+    <script src="src/utils/NotificationSystem.js"></script>
+    <script src="src/profile/WeekSelector.js"></script>
+    <script src="src/profile/WeekStatsRenderer.js"></script>
+    <script src="src/profile/PaymentManager.js"></script>
+    <script src="src/profile/ProfilePage.js"></script>
+</body>
+</html>

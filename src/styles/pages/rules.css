@@ -1,0 +1,59 @@
+/* ========================================
+   Rules Page (กฎหมายและระเบียบ)
+   ======================================== */
+.rules-container {
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    backdrop-filter: blur(12px);
+}
+
+.rule-group {
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--color-border-subtle);
+}
+.rule-group:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+
+.rule-group h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--color-accent);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.rule-list { display: flex; flex-direction: column; gap: 8px; }
+
+.rule-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.02);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--color-text-secondary);
+}
+.rule-item .rule-num {
+    font-weight: 700;
+    color: var(--color-gold);
+    flex-shrink: 0;
+    width: 24px;
+    text-align: right;
+}
+.rule-item .rule-text { flex: 1; }
+
+@media (max-width: 768px) {
+    .rules-container { padding: 16px; }
+    .rule-group h3 { font-size: 1rem; }
+    .rule-item { padding: 8px 10px; font-size: 0.85rem; }
+}
+@media (max-width: 480px) {
+    .rules-container { padding: 12px; }
+    .rule-group { margin-bottom: 16px; padding-bottom: 12px; }
+}

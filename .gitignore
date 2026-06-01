@@ -1,0 +1,13 @@
+# Dependency
+node_modules/
+
+# Environment variables
+.env
+
+# Google Cloud Credentials
+*.json
+!package.json
+!data/*.json
+
+# Cache files
+data/.officers-cache.json
