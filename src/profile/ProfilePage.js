@@ -12,6 +12,11 @@ class ProfilePage {
         this.refreshInterval = null;
         this.weeks = [];
 
+        // Track which weeks have been paid in this session.
+        // This prevents Google GViz CDN cache from reverting the paid status
+        // after payment (since GViz takes time to propagate changes).
+        this._paidWeeks = new Set();
+
         // UI references
         const loadingEl = document.getElementById('profileLoading');
         const contentEl = document.getElementById('profileContent');
@@ -92,13 +97,27 @@ class ProfilePage {
         }
 
         // Check all weeks' payment status in background
-        this.weekSelector.checkAllStatus(weeks, this.officerName);
+        // Pass _paidWeeks so already-paid weeks skip server fetch (avoid GViz stale data)
+        this.weekSelector.checkAllStatus(weeks, this.officerName, this._paidWeeks);
     }
 
     async selectWeek(weekName, isBackgroundRefresh = false) {
         this.currentActiveWeek = weekName;
         try {
             const weekData = await ApiService.getWeekData(weekName);
+
+            // Force isPaid to true if this week was already paid in this session.
+            // This prevents Google GViz CDN cache from reverting the status.
+            if (weekData && this._paidWeeks.has(weekName)) {
+                const searchName = this.officerName.toLowerCase();
+                for (const key of Object.keys(weekData)) {
+                    if (key.toLowerCase().includes(searchName) || searchName.includes(key.toLowerCase())) {
+                        weekData[key].paid = 'จ่ายแล้ว';
+                        break;
+                    }
+                }
+            }
+
             const result = this.weekStats.render(weekData, weekName, this.officerName);
 
             // Update button style based on payment status from render result
@@ -131,31 +150,45 @@ class ProfilePage {
 
     /**
      * Called after payment completes.
+     *
      * Instead of reloading the page (which causes Google Sheets propagation delay
      * to revert the optimistic update), we simply refresh the currently active
      * week's stats panel. The button styles and client cache have already been
      * updated optimistically in PaymentManager.handleBatchPayment().
+     *
+     * We also track paid weeks in _paidWeeks so that any subsequent re-fetch
+     * (e.g. clicking the week button again, or auto-refresh) will override the
+     * paid status to "จ่ายแล้ว" — preventing Google GViz CDN cache from
+     * reverting the UI back to "unpaid" state.
      */
     async _onPaymentCompleted(paidWeeks = []) {
-        // Refresh the active week stats panel (keeps server cache warm)
+        // Track these weeks as paid in this session
+        paidWeeks.forEach(w => this._paidWeeks.add(w));
+
+        // Refresh the active week stats panel
         if (this.currentActiveWeek && this.officerName) {
-            // Clear cache for the paid weeks to force fresh data from server
-            paidWeeks.forEach(weekName => {
-                ApiService.clearCache('week:' + weekName);
-                ApiService.clearCache('week_' + weekName);
-            });
-            
             try {
+                // Force paid status for the active week in the data
                 const weekData = await ApiService.getWeekData(this.currentActiveWeek);
+                if (weekData && this._paidWeeks.has(this.currentActiveWeek)) {
+                    const searchName = this.officerName.toLowerCase();
+                    for (const key of Object.keys(weekData)) {
+                        if (key.toLowerCase().includes(searchName) || searchName.includes(key.toLowerCase())) {
+                            weekData[key].paid = 'จ่ายแล้ว';
+                            break;
+                        }
+                    }
+                }
+
                 const result = this.weekStats.render(weekData, this.currentActiveWeek, this.officerName);
                 if (result) {
-                    this.weekSelector.updateButtonStyle(this.currentActiveWeek, result.isPaid, result.amount);
+                    this.weekSelector.updateButtonStyle(this.currentActiveWeek, true, result.amount);
                 }
-                // Re-check all weeks' status silently (using fresh data from server)
-                // This will re-apply button styles based on latest sheet data,
-                // but since patchCacheWeek already marked paid weeks in client cache,
-                // paid weeks will stay paid even if GViz hasn't propagated yet.
-                this.weekSelector.checkAllStatus(this.weeks, this.officerName);
+
+                // Re-check all weeks' status. Since we pass _paidWeeks as the override set,
+                // paid weeks will skip server fetch entirely — staying "paid" even if
+                // GViz returns stale data.
+                this.weekSelector.checkAllStatus(this.weeks, this.officerName, this._paidWeeks);
             } catch (e) {
                 console.warn('Payment complete: failed to refresh stats panel', e);
             }

@@ -67,9 +67,20 @@ class WeekSelector {
 
     /**
      * Check payment status for all weeks in parallel
+     * @param {string[]} weeks - List of week names
+     * @param {string} officerName - Officer name to check
+     * @param {Set<string>} [paidWeeksOverride] - Set of week names that should be forced as paid
+     *        This prevents Google GViz CDN cache from reverting optimistically-updated paid status.
      */
-    async checkAllStatus(weeks, officerName) {
+    async checkAllStatus(weeks, officerName, paidWeeksOverride = new Set()) {
         await Promise.all(weeks.map(async (weekName) => {
+            // If this week was already paid in this session, force paid status
+            // without fetching from server (avoids GViz stale data)
+            if (paidWeeksOverride.has(weekName)) {
+                this.updateButtonStyle(weekName, true, 0);
+                return;
+            }
+
             try {
                 const weekData = await ApiService.getWeekData(weekName);
                 let data = null;
