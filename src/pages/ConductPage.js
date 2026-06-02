@@ -1,10 +1,14 @@
 /* ========================================
-   Conduct Page Controller
-   ======================================== */
+    Conduct Page Controller
+    - Display conduct from Google Sheets
+    - Same structure as RulesPage (Category + Text, no hardcoded header)
+    - Users can create categories freely
+    ======================================== */
 class ConductPage {
     constructor() {
         this.container = document.getElementById('conductContainer');
         this.data = null;
+        this.adminMode = false;
     }
 
     async load() {
@@ -24,39 +28,66 @@ class ConductPage {
             return;
         }
 
+        // Group conduct by category (column D = title/category) — same as rules
+        const grouped = this.groupByCategory(this.data);
         const q = query.toLowerCase();
-        let items = this.data.items || [];
+        let html = '';
 
-        if (q) {
-            items = items.filter(item =>
-                item.title.toLowerCase().includes(q) ||
-                item.text.toLowerCase().includes(q)
-            );
-        }
+        for (const [category, items] of Object.entries(grouped)) {
+            const matchedItems = q
+                ? items.filter(r => r.text.toLowerCase().includes(q) || (r.title || '').toLowerCase().includes(q))
+                : items;
 
-        if (items.length === 0) {
-            this.container.innerHTML = this.createEmptyState();
-            return;
-        }
+            if (matchedItems.length === 0) continue;
 
-        let html = `
-            <div class="rule-group">
-                <h3>${HtmlUtils.escape(this.data.title)}</h3>
-                <div class="rule-list">
-        `;
+            const categoryTitle = this.getCategoryTitle(category);
 
-        items.forEach((item, i) => {
-            const text = HtmlUtils.escape(item.text).replace(/\n/g, '<br>');
             html += `
-                <div class="rule-item" data-id="${item.id}">
-                    <span class="rule-num">${i + 1}.</span>
-                    <span class="rule-text"><strong>${HtmlUtils.escape(item.title)}</strong><br>${text}</span>
+                <div class="rule-group" data-category="${HtmlUtils.escape(category)}">
+                    <h3>${HtmlUtils.escape(categoryTitle)}</h3>
+                    <div class="rule-list">
+                        ${matchedItems.map((item, i) => this.createConductItem(item, i + 1)).join('')}
+                    </div>
                 </div>
             `;
-        });
+        }
 
-        html += '</div></div>';
-        this.container.innerHTML = html;
+        this.container.innerHTML = html || this.createEmptyState();
+    }
+
+    createConductItem(item, index) {
+        return `
+            <div class="rule-item rule-item-admin" data-id="${HtmlUtils.escape(item.id)}">
+                <span class="rule-num">${index}.</span>
+                <span class="rule-text">${HtmlUtils.escape(item.text).replace(/\n/g, '<br>')}</span>
+                <div class="admin-actions">
+                    ${AdminActions.renderButtons('conduct', item.id)}
+                </div>
+            </div>
+        `;
+    }
+
+    groupByCategory(items) {
+        const grouped = {};
+        for (const item of items) {
+            const cat = item.title || 'อื่นๆ'; // column D = category/title
+            if (!grouped[cat]) grouped[cat] = [];
+            grouped[cat].push(item);
+        }
+        return grouped;
+    }
+
+    getCategoryTitle(category) {
+        const titles = {
+            'conduct': '⚖️ พฤติการณ์และกฎระเบียบ',
+            'arrest': '📌 การจับกุม',
+            'redCase': '🚨 คดีแดง',
+            'curfew': '⚠️ เคอร์ฟิว',
+            'illegal_items': '📦 สิ่งผิดกฎหมาย',
+            'evasion': '🏃 การหลบหนี',
+            'red_cases': '🔴 คดีแดง (Red Cases)'
+        };
+        return titles[category] || category;
     }
 
     createEmptyState() {

@@ -1,10 +1,14 @@
 /* ========================================
-   Fines Page Controller
-   ======================================== */
+    Fines Page Controller
+    - Display fines from Google Sheets
+    - Admin CRUD operations (Add/Edit/Delete)
+    - Uses AdminActions.renderButtons with inline onclick
+    ======================================== */
 class FinesPage {
     constructor() {
         this.container = document.getElementById('finesContainer');
         this.data = null;
+        this.adminMode = false;
     }
 
     async load() {
@@ -24,33 +28,64 @@ class FinesPage {
             return;
         }
 
+        // Group fines by category
+        const grouped = this.groupByCategory(this.data);
         const q = query.toLowerCase();
         let html = '';
 
-        for (const [key, category] of Object.entries(this.data)) {
+        for (const [category, items] of Object.entries(grouped)) {
             const matchedItems = q
-                ? category.items.filter(i => i.text.toLowerCase().includes(q))
-                : category.items;
+                ? items.filter(i => i.text.toLowerCase().includes(q) || i.category.toLowerCase().includes(q))
+                : items;
 
             if (matchedItems.length === 0) continue;
 
+            const categoryTitle = this.getCategoryTitle(category);
+
             html += `
-                <div class="fine-category">
-                    <h3 class="fine-category-title">${HtmlUtils.escape(category.title)}</h3>
+                <div class="fine-category" data-category="${HtmlUtils.escape(category)}">
+                    <h3 class="fine-category-title">${HtmlUtils.escape(categoryTitle)}</h3>
                     <div class="fine-list">
-                        ${matchedItems.map(item => `
-                            <div class="fine-item" data-id="${item.id}">
-                                <span class="fine-text">${HtmlUtils.escape(item.text).replace(/\n/g, '<br>')}</span>
-                                <span class="fine-amount">${HtmlUtils.formatCurrency(item.amount)}</span>
-                                <span class="fine-time">${HtmlUtils.formatTime(item.time)}</span>
-                            </div>
-                        `).join('')}
+                        ${matchedItems.map(item => this.createFineItem(item)).join('')}
                     </div>
                 </div>
             `;
         }
 
         this.container.innerHTML = html || this.createEmptyState();
+    }
+
+    createFineItem(item) {
+        return `
+            <div class="fine-item rule-item-admin" data-id="${HtmlUtils.escape(item.id)}">
+                <span class="fine-text">${HtmlUtils.escape(item.text).replace(/\n/g, '<br>')}</span>
+                <span class="fine-amount">${HtmlUtils.formatCurrency(item.amount)}</span>
+                <span class="fine-time">${HtmlUtils.formatTime(item.time)}</span>
+                <div class="admin-actions">
+                    ${AdminActions.renderButtons('fines', item.id)}
+                </div>
+            </div>
+        `;
+    }
+
+    groupByCategory(fines) {
+        const grouped = {};
+        for (const fine of fines) {
+            const cat = fine.category || 'อื่นๆ';
+            if (!grouped[cat]) grouped[cat] = [];
+            grouped[cat].push(fine);
+        }
+        return grouped;
+    }
+
+    getCategoryTitle(category) {
+        const titles = {
+            'illegal_items': '📦 สิ่งผิดกฎหมาย',
+            'evasion': '🏃 การหลบหนี',
+            'conduct': '⚖️ พฤติการณ์และกฎระเบียบ',
+            'red_cases': '🔴 คดีแดง (Red Cases)'
+        };
+        return titles[category] || category;
     }
 
     createEmptyState() {

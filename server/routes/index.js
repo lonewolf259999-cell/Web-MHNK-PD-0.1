@@ -14,6 +14,7 @@ const officersController = require('../controllers/officersController');
 const weeksController = require('../controllers/weeksController');
 const adminController = require('../controllers/adminController');
 const staticController = require('../controllers/staticController');
+const rulesController = require('../controllers/rulesController');
 
 const router = Router();
 
@@ -30,5 +31,11 @@ router.post('/api/mark-paid', verifyPin, asyncHandler(adminController.markPaid))
 
 // ==================== Static Data ====================
 router.get('/api/:type(rules|conduct|fines|schedule-config)', asyncHandler(staticController.getStaticData));
+
+// ==================== Rules/Conduct/Fines CRUD (Google Sheets) ====================
+router.get('/api/rules-data/:type(conduct|rules|fines)', setNoCache, asyncHandler(rulesController.getRulesData));
+router.post('/api/rules-data/:type(conduct|rules|fines)', verifyPin, asyncHandler(rulesController.addRule));
+router.put('/api/rules-data/:type(conduct|rules|fines)/:id', verifyPin, asyncHandler(rulesController.updateRule));
+router.delete('/api/rules-data/:type(conduct|rules|fines)/:id', verifyPin, asyncHandler(rulesController.deleteRule));
 
 module.exports = router;

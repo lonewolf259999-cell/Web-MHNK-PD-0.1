@@ -1,6 +1,6 @@
 /* ========================================
    PaymentManager - Handle payment operations
-   - PIN modal dialog
+   - Uses shared PinModal component
    - Batch payment processing
    - Total calculation + clipboard copy
    ======================================== */
@@ -93,46 +93,11 @@ class PaymentManager {
     }
 
     /**
-     * Show PIN modal dialog
+     * Show PIN modal dialog (using shared PinModal)
+     * @returns {Promise<string|null>} - PIN string or null if cancelled
      */
-    requestPin() {
-        return new Promise((resolve) => {
-            const modal = document.createElement('div');
-            modal.style = `
-                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-                background: rgba(0,0,0,0.8); display: flex; align-items: center;
-                justify-content: center; z-index: 10000; backdrop-filter: blur(5px);
-            `;
-
-            modal.innerHTML = `
-                <div style="background: #1a1a1a; padding: 25px; border-radius: 15px; width: 300px; text-align: center; border: 1px solid #333; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
-                    <h3 style="margin-bottom: 15px; color: #fff;">Admin PIN</h3>
-                    <p style="font-size: 0.85rem; color: #888; margin-bottom: 20px;">กรุณาระบุรหัสผ่านเพื่อยืนยันการจ่าย</p>
-                    <input type="password" id="modalPinInput" maxlength="6"
-                        style="width: 100%; padding: 12px; background: #000; border: 1px solid #444; color: #fff; text-align: center; font-size: 1.5rem; letter-spacing: 10px; border-radius: 8px; margin-bottom: 20px;">
-                    <div style="display: flex; gap: 10px;">
-                        <button id="modalCancel" style="flex: 1; padding: 10px; background: #333; color: #ccc; border: none; border-radius: 6px; cursor: pointer;">ยกเลิก</button>
-                        <button id="modalConfirm" style="flex: 1; padding: 10px; background: #f77f07; color: #fff; border: none; border-radius: 6px; cursor: pointer;">ยืนยัน</button>
-                    </div>
-                </div>
-            `;
-
-            document.body.appendChild(modal);
-            const input = modal.querySelector('#modalPinInput');
-            input.focus();
-
-            const cleanup = (val) => {
-                document.body.removeChild(modal);
-                resolve(val);
-            };
-
-            modal.querySelector('#modalConfirm').onclick = () => cleanup(input.value);
-            modal.querySelector('#modalCancel').onclick = () => cleanup(null);
-            input.onkeydown = (e) => {
-                if (e.key === 'Enter') cleanup(input.value);
-                if (e.key === 'Escape') cleanup(null);
-            };
-        });
+    async requestPin() {
+        return PinModal.request('กรุณาระบุรหัสผ่านเพื่อยืนยันการจ่าย');
     }
 
     /**

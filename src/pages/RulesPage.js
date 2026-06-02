@@ -1,10 +1,13 @@
 /* ========================================
-   Rules Page Controller
-   ======================================== */
+    Rules Page Controller
+    - Display rules from Google Sheets
+    - Admin CRUD operations (Add/Edit/Delete)
+    ======================================== */
 class RulesPage {
     constructor() {
         this.container = document.getElementById('rulesContainer');
         this.rulesData = null;
+        this.adminMode = false;
     }
 
     async load() {
@@ -24,26 +27,25 @@ class RulesPage {
             return;
         }
 
+        // Group rules by category
+        const grouped = this.groupByCategory(this.rulesData);
         const q = query.toLowerCase();
         let html = '';
 
-        for (const [key, category] of Object.entries(this.rulesData)) {
+        for (const [category, rules] of Object.entries(grouped)) {
             const matchedRules = q
-                ? category.rules.filter(r => r.text.toLowerCase().includes(q))
-                : category.rules;
+                ? rules.filter(r => r.text.toLowerCase().includes(q) || r.category.toLowerCase().includes(q))
+                : rules;
 
             if (matchedRules.length === 0) continue;
 
+            const categoryTitle = this.getCategoryTitle(category);
+
             html += `
-                <div class="rule-group" data-category="${HtmlUtils.escape(category.title)}">
-                    <h3>${HtmlUtils.escape(category.title)}</h3>
+                <div class="rule-group" data-category="${HtmlUtils.escape(category)}">
+                    <h3>${HtmlUtils.escape(categoryTitle)}</h3>
                     <div class="rule-list">
-                        ${matchedRules.map((rule, i) => `
-                            <div class="rule-item" data-id="${rule.id}">
-                                <span class="rule-num">${i + 1}.</span>
-                                <span class="rule-text">${HtmlUtils.escape(rule.text).replace(/\n/g, '<br>')}</span>
-                            </div>
-                        `).join('')}
+                        ${matchedRules.map((rule, i) => this.createRuleItem(rule, i + 1)).join('')}
                     </div>
                 </div>
             `;
@@ -51,6 +53,39 @@ class RulesPage {
 
         this.container.innerHTML = html || this.createEmptyState();
     }
+
+    createRuleItem(rule, index) {
+        return `
+            <div class="rule-item rule-item-admin" data-id="${HtmlUtils.escape(rule.id)}">
+                <span class="rule-num">${index}.</span>
+                <span class="rule-text">${HtmlUtils.escape(rule.text).replace(/\n/g, '<br>')}</span>
+                <div class="admin-actions">
+                    ${AdminActions.renderButtons('rules', rule.id)}
+                </div>
+            </div>
+        `;
+    }
+
+    groupByCategory(rules) {
+        const grouped = {};
+        for (const rule of rules) {
+            const cat = rule.category || 'อื่นๆ';
+            if (!grouped[cat]) grouped[cat] = [];
+            grouped[cat].push(rule);
+        }
+        return grouped;
+    }
+
+    getCategoryTitle(category) {
+        const titles = {
+            'arrest': '📌 การจับกุมผู้ต้องหา / กฎงานดำ',
+            'redCase': '🚨 คดีแดง (Red Case Rules)',
+            'curfew': '⚠️ เคอร์ฟิว (Curfew Rules)'
+        };
+        return titles[category] || category;
+    }
+
+    // No attachAdminEvents needed — inline onclick in AdminActions.renderButtons handles it
 
     createEmptyState() {
         return `

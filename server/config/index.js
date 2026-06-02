@@ -7,7 +7,7 @@ const path = require('path');
 require('dotenv').config();
 
 // Validate required env vars
-const requiredEnvs = ['SHEET_ID', 'CASES_SHEET_ID'];
+const requiredEnvs = ['SHEET_ID', 'CASES_SHEET_ID', 'RULES_SHEET_ID'];
 requiredEnvs.forEach(env => {
     if (!process.env[env]) console.warn(`⚠️ Warning: ${env} is not defined in .env file`);
 });
@@ -21,8 +21,12 @@ module.exports = {
     PORT: process.env.PORT || 3001,
     SHEET_ID: process.env.SHEET_ID,
     CASES_SHEET_ID: process.env.CASES_SHEET_ID,
+    RULES_SHEET_ID: process.env.RULES_SHEET_ID,
     SHEET_NAME: 'NamePD',
     CASES_SHEET_NAME: 'CaseAll',
+    CONDUCT_SHEET_NAME: 'conduct',
+    RULES_SHEET_NAME: 'rules',
+    FINES_SHEET_NAME: 'fines',
     ADMIN_PIN: process.env.ADMIN_PIN || '1234',
     CREDENTIALS_PATH,
     CACHE_TTL: 15000,          // 15 seconds memory cache

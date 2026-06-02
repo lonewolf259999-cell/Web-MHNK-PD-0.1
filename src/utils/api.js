@@ -82,24 +82,79 @@ const ApiService = {
     },
 
     /**
-     * Get static rules data
+     * Get rules data from Google Sheets
      */
     async getRules() {
-        return this.fetch('/api/rules', 'rules');
+        return this.fetch('/api/rules-data/rules', 'rules_data');
     },
 
     /**
-     * Get static conduct data
+     * Get conduct data from Google Sheets
      */
     async getConduct() {
-        return this.fetch('/api/conduct', 'conduct');
+        return this.fetch('/api/rules-data/conduct', 'conduct_data');
     },
 
     /**
-     * Get static fines data
+     * Get fines data from Google Sheets
      */
     async getFines() {
-        return this.fetch('/api/fines', 'fines');
+        return this.fetch('/api/rules-data/fines', 'fines_data');
+    },
+
+    /**
+     * Add new rule/conduct/fine
+     */
+    async addRule(type, data, pin) {
+        const response = await fetch(`/api/rules-data/${type}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ...data, pin })
+        });
+        if (!response.ok) {
+            const err = await response.json();
+            throw new Error(err.error || 'Failed to add rule');
+        }
+        // Clear client cache so next read fetches fresh data
+        // Cache key format: {type}_data (e.g. 'rules_data', 'conduct_data', 'fines_data')
+        this._clearCache(type + '_data');
+        return response.json();
+    },
+
+    /**
+     * Update existing rule/conduct/fine
+     */
+    async updateRule(type, id, data, pin) {
+        const response = await fetch(`/api/rules-data/${type}/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ...data, pin })
+        });
+        if (!response.ok) {
+            const err = await response.json();
+            throw new Error(err.error || 'Failed to update rule');
+        }
+        // Clear client cache: {type}_data
+        this._clearCache(type + '_data');
+        return response.json();
+    },
+
+    /**
+     * Delete rule/conduct/fine
+     */
+    async deleteRule(type, id, pin) {
+        const response = await fetch(`/api/rules-data/${type}/${id}`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ pin })
+        });
+        if (!response.ok) {
+            const err = await response.json();
+            throw new Error(err.error || 'Failed to delete rule');
+        }
+        // Clear client cache: {type}_data
+        this._clearCache(type + '_data');
+        return response.json();
     },
 
     /**

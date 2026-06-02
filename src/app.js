@@ -58,7 +58,6 @@ const App = {
         // Start auto-refresh polling
         this.startAutoRefresh();
 
-
         console.log('Application initialized successfully');
     },
 
@@ -179,12 +178,15 @@ const App = {
                 break;
             case 'conduct':
                 this.conductPage.render(query);
+                this.updateAdminBar('conduct');
                 break;
             case 'rules':
                 this.rulesPage.render(query);
+                this.updateAdminBar('rules');
                 break;
             case 'fines':
                 this.finesPage.render(query);
+                this.updateAdminBar('fines');
                 break;
             case 'schedule':
                 this.schedulePage.render(this.officers, query);
@@ -195,6 +197,22 @@ const App = {
         if (!query) {
             this.updateCounts();
         }
+    },
+
+    /**
+     * Update admin bar visibility based on current page and admin mode
+     */
+    updateAdminBar(page) {
+        const adminBars = document.querySelectorAll('.admin-bar');
+        adminBars.forEach(bar => {
+            const barPage = bar.dataset.page;
+            // Only show if admin mode is on AND this is the current page
+            if (barPage === page && window.AppAdmin && window.AppAdmin.adminMode) {
+                bar.classList.add('show');
+            } else {
+                bar.classList.remove('show');
+            }
+        });
     },
 
     /**
@@ -309,6 +327,9 @@ const App = {
         }, 4000);
     }
 };
+
+// Export App globally (const at top level doesn't create window.App)
+window.App = App;
 
 /* ========================================
    Start Application

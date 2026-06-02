@@ -22,6 +22,7 @@
     <!-- Stylesheet -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" />
     <link rel="stylesheet" href="src/styles/main.css" />
+    <link rel="stylesheet" href="src/styles/admin.css?v=4.0" />
 </head>
 <body>
     <!-- Background Effects -->
@@ -171,21 +172,25 @@
     <script defer src="src/utils/html.js"></script>
     <script defer src="src/utils/api.js"></script>
     <script defer src="src/utils/NotificationSystem.js"></script>
+    <script defer src="src/utils/adminActions.js?v=4.0"></script>
     
     <!-- Core components (loaded second) -->
     <script defer src="src/components/Navigation.js"></script>
     <script defer src="src/components/Search.js"></script>
     <script defer src="src/components/Sidebar.js"></script>
+    <script defer src="src/components/AdminBar.js"></script>
+    <script defer src="src/components/shared/PinModal.js?v=3.1"></script>
+    <script defer src="src/components/AdminPanel.js?v=4.0"></script>
     
     <!-- Page scripts (load in parallel, non-blocking) -->
     <script defer src="src/pages/RosterPage.js"></script>
-    <script defer src="src/pages/RulesPage.js"></script>
-    <script defer src="src/pages/ConductPage.js"></script>
-    <script defer src="src/pages/FinesPage.js"></script>
+    <script defer src="src/pages/RulesPage.js?v=3.1"></script>
+    <script defer src="src/pages/ConductPage.js?v=3.1"></script>
+    <script defer src="src/pages/FinesPage.js?v=3.1"></script>
     <script defer src="src/pages/SchedulePage.js"></script>
     
     <!-- Application entry point -->
-    <script defer src="src/app.js"></script>
+    <script defer src="src/app.js?v=4.0"></script>
     
     <!-- Performance: Register service worker for offline cache (future) -->
     <script>

@@ -19,20 +19,29 @@ function fetchGvizCSV(sheetId, sheetName) {
         const encodedName = encodeURIComponent(sheetName);
         const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&tq&sheet=${encodedName}&_t=${Date.now()}`;
 
+        console.log(`[GViz] Fetching: ${sheetName} from ${sheetId}`);
+
         const request = https.get(url, (res) => {
+            console.log(`[GViz] Response: ${res.statusCode} for ${sheetName}`);
             if (res.statusCode !== 200) {
                 res.resume();
-                reject(new Error(`HTTP ${res.statusCode}`));
+                reject(new Error(`HTTP ${res.statusCode} for sheet ${sheetName}`));
                 return;
             }
             let data = '';
             res.on('data', chunk => data += chunk);
-            res.on('end', () => resolve(data));
-        }).on('error', reject);
+            res.on('end', () => {
+                console.log(`[GViz] Received ${data.length} bytes for ${sheetName}`);
+                resolve(data);
+            });
+        }).on('error', (err) => {
+            console.error(`[GViz] Error fetching ${sheetName}:`, err.message);
+            reject(err);
+        });
 
         request.setTimeout(config.REQUEST_TIMEOUT, () => {
             request.destroy();
-            reject(new Error('Request timeout fetching sheet data'));
+            reject(new Error(`Request timeout fetching sheet ${sheetName}`));
         });
     });
 }
@@ -92,10 +101,235 @@ async function getWeekData(weekName) {
     return data;
 }
 
+// ==================== Rules/Conduct/Fines (Google Sheets) ====================
+
+/**
+ * Fetch rules/conduct/fines from Google Sheets using Sheets API
+ * Data starts at row 3, columns C, D, E, F, G
+ * conduct: C=id, D=title, E=text
+ * rules: C=id, D=category, E=text
+ * fines: C=id, D=category, E=text, F=amount, G=time
+ */
+async function fetchRulesData(type) {
+    const cacheKey = 'rules_' + type;
+    const cached = cacheService.get(cacheKey);
+    if (cached) return cached;
+
+    const sheetName = type === 'conduct' ? config.CONDUCT_SHEET_NAME :
+                      type === 'rules' ? config.RULES_SHEET_NAME :
+                      config.FINES_SHEET_NAME;
+
+    console.log(`[Rules] Fetching ${type} from sheet: ${sheetName} (ID: ${config.RULES_SHEET_ID})`);
+
+    try {
+        // Use Google Sheets API directly (more reliable than GViz)
+        const sheets = getSheets();
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId: config.RULES_SHEET_ID,
+            range: `${sheetName}!C:G`,
+        });
+
+        const rows = response.data.values || [];
+        console.log(`[Rules] Received ${rows.length} rows for ${type} from API`);
+
+        // Skip first 2 rows (row 1-2 are empty), data starts at row 3 (index 2)
+        const dataRows = rows.slice(2);
+
+        const items = [];
+        for (const row of dataRows) {
+            // Column C = index 0, D = index 1, E = index 2, F = index 3, G = index 4
+            const id = row[0] ? String(row[0]).trim() : '';
+            if (!id) continue;
+
+            const item = { id };
+
+            if (type === 'conduct') {
+                item.title = row[1] ? String(row[1]).trim() : '';
+                item.text = row[2] ? String(row[2]).trim() : '';
+            } else if (type === 'rules') {
+                item.category = row[1] ? String(row[1]).trim() : '';
+                item.text = row[2] ? String(row[2]).trim() : '';
+            } else if (type === 'fines') {
+                item.category = row[1] ? String(row[1]).trim() : '';
+                item.text = row[2] ? String(row[2]).trim() : '';
+                item.amount = row[3] ? String(row[3]).trim() : '';
+                item.time = row[4] ? String(row[4]).trim() : '';
+            }
+
+            items.push(item);
+        }
+
+        console.log(`[Rules] Loaded ${items.length} ${type} items`);
+
+        cacheService.set(cacheKey, items);
+        return items;
+    } catch (err) {
+        console.error(`[Rules] Error fetching ${type}:`, err.message);
+        throw err;
+    }
+}
+
+async function getConduct() {
+    return fetchRulesData('conduct');
+}
+
+async function getRules() {
+    return fetchRulesData('rules');
+}
+
+async function getFines() {
+    return fetchRulesData('fines');
+}
+
+/**
+ * Add a new rule/conduct/fine to Google Sheets
+ */
+async function addRule(type, data) {
+    const sheets = getSheets();
+    const sheetName = type === 'conduct' ? config.CONDUCT_SHEET_NAME :
+                      type === 'rules' ? config.RULES_SHEET_NAME :
+                      config.FINES_SHEET_NAME;
+
+    console.log(`[Rules] Adding ${type} to sheet: ${sheetName}`);
+
+    // Get all data to find the next empty row
+    const response = await sheets.spreadsheets.values.get({
+        spreadsheetId: config.RULES_SHEET_ID,
+        range: `${sheetName}!C:G`,
+    });
+
+    const rows = response.data.values || [];
+    // Data starts at row 3 (index 2), find next empty row
+    let nextRow = 3; // Default to row 3
+    for (let i = 2; i < rows.length; i++) {
+        if (!rows[i] || !rows[i][0] || String(rows[i][0]).trim() === '') {
+            nextRow = i + 1; // Convert to 1-based
+            break;
+        }
+        nextRow = i + 2; // Next row after last data row
+    }
+
+    const rowData = buildRowData(type, data);
+    console.log(`[Rules] Writing to row ${nextRow}:`, rowData);
+
+    await sheets.spreadsheets.values.update({
+        spreadsheetId: config.RULES_SHEET_ID,
+        range: `${sheetName}!C${nextRow}`,
+        valueInputOption: 'USER_ENTERED',
+        resource: { values: [rowData] },
+    });
+
+    cacheService.invalidate('rules_' + type);
+    return { id: data.id, row: nextRow };
+}
+
+/**
+ * Update an existing rule/conduct/fine in Google Sheets
+ */
+async function updateRule(type, id, data) {
+    const sheets = getSheets();
+    const sheetName = type === 'conduct' ? config.CONDUCT_SHEET_NAME :
+                      type === 'rules' ? config.RULES_SHEET_NAME :
+                      config.FINES_SHEET_NAME;
+
+    console.log(`[Rules] Updating ${type} id=${id} in sheet: ${sheetName}`);
+
+    const response = await sheets.spreadsheets.values.get({
+        spreadsheetId: config.RULES_SHEET_ID,
+        range: `${sheetName}!C:G`,
+    });
+
+    const rows = response.data.values || [];
+    let rowIndex = -1;
+
+    // Data starts at row 3 (index 2)
+    for (let i = 2; i < rows.length; i++) {
+        const cellValue = rows[i] && rows[i][0] ? String(rows[i][0]).trim() : '';
+        if (cellValue === id) {
+            rowIndex = i + 1; // Convert to 1-based
+            break;
+        }
+    }
+
+    if (rowIndex === -1) {
+        throw new Error('ไม่พบข้อมูลที่ต้องการแก้ไข');
+    }
+
+    const rowData = buildRowData(type, data);
+    console.log(`[Rules] Writing to row ${rowIndex}:`, rowData);
+
+    await sheets.spreadsheets.values.update({
+        spreadsheetId: config.RULES_SHEET_ID,
+        range: `${sheetName}!C${rowIndex}`,
+        valueInputOption: 'USER_ENTERED',
+        resource: { values: [rowData] },
+    });
+
+    cacheService.invalidate('rules_' + type);
+    return { id, row: rowIndex };
+}
+
+/**
+ * Delete a rule/conduct/fine from Google Sheets
+ */
+async function deleteRule(type, id) {
+    const sheets = getSheets();
+    const sheetName = type === 'conduct' ? config.CONDUCT_SHEET_NAME :
+                      type === 'rules' ? config.RULES_SHEET_NAME :
+                      config.FINES_SHEET_NAME;
+
+    console.log(`[Rules] Deleting ${type} id=${id} from sheet: ${sheetName}`);
+
+    const response = await sheets.spreadsheets.values.get({
+        spreadsheetId: config.RULES_SHEET_ID,
+        range: `${sheetName}!C:G`,
+    });
+
+    const rows = response.data.values || [];
+    let rowIndex = -1;
+
+    for (let i = 2; i < rows.length; i++) {
+        const cellValue = rows[i] && rows[i][0] ? String(rows[i][0]).trim() : '';
+        if (cellValue === id) {
+            rowIndex = i + 1;
+            break;
+        }
+    }
+
+    if (rowIndex === -1) {
+        throw new Error('ไม่พบข้อมูลที่ต้องการลบ');
+    }
+
+    // Clear the row
+    const emptyRow = ['', '', '', '', ''];
+    await sheets.spreadsheets.values.update({
+        spreadsheetId: config.RULES_SHEET_ID,
+        range: `${sheetName}!C${rowIndex}`,
+        valueInputOption: 'USER_ENTERED',
+        resource: { values: [emptyRow] },
+    });
+
+    cacheService.invalidate('rules_' + type);
+    return { id, row: rowIndex };
+}
+
+/**
+ * Build row data array based on type
+ */
+function buildRowData(type, data) {
+    if (type === 'conduct') {
+        return [data.id, data.title || '', data.text || ''];
+    } else if (type === 'rules') {
+        return [data.id, data.category || '', data.text || ''];
+    } else if (type === 'fines') {
+        return [data.id, data.category || '', data.text || '', data.amount || '', data.time || ''];
+    }
+    return [];
+}
+
 async function markOfficerAsPaid(weekName, officerName) {
     const sheets = getSheets();
 
-    // Find the officer's row in the sheet
     const response = await sheets.spreadsheets.values.get({
         spreadsheetId: config.CASES_SHEET_ID,
         range: `${weekName}!A:A`,
@@ -112,7 +346,7 @@ async function markOfficerAsPaid(weekName, officerName) {
         if (!cellValue) continue;
 
         if (cellValue.includes(searchName) || searchName.includes(cellValue)) {
-            rowIndex = i + 1; // Google Sheets 1-based index
+            rowIndex = i + 1;
             break;
         }
     }
@@ -121,7 +355,6 @@ async function markOfficerAsPaid(weekName, officerName) {
         throw new Error('ไม่พบชื่อเจ้าหน้าที่ในชีตสัปดาห์นี้');
     }
 
-    // Update checkbox in column X
     await sheets.spreadsheets.values.update({
         spreadsheetId: config.CASES_SHEET_ID,
         range: `'${weekName}'!X${rowIndex}:X${rowIndex}`,
@@ -129,17 +362,13 @@ async function markOfficerAsPaid(weekName, officerName) {
         resource: { values: [[true]] },
     });
 
-    // Invalidate cache for this week
     cacheService.invalidate('week_' + weekName);
-
     return { rowIndex };
 }
 
 async function refreshAll() {
-    // Clear all memory cache
     cacheService.clearAll();
 
-    // Fetch fresh officers data
     const csvText = await fetchGvizCSV(config.SHEET_ID, config.SHEET_NAME);
     const rows = csvParser.parseCSV(csvText);
     const freshOfficers = csvParser.mapOfficers(rows);
@@ -153,12 +382,10 @@ async function refreshAll() {
 }
 
 async function preWarmCache() {
-    console.log('🔥 Pre-warming cache...');
+    console.log('[Cache] Pre-warming cache...');
 
-    // Try loading from file cache first
     const hasFileCache = cacheService.loadFileCache();
 
-    // Still fetch from Google Sheets in background (silent update)
     try {
         const csvText = await fetchGvizCSV(config.SHEET_ID, config.SHEET_NAME);
         const rows = csvParser.parseCSV(csvText);
@@ -167,13 +394,13 @@ async function preWarmCache() {
         if (freshOfficers.length > 0) {
             cacheService.set('officers', freshOfficers);
             cacheService.saveFileCache(freshOfficers);
-            console.log(`🔥 Pre-warm complete: ${freshOfficers.length} officers loaded from Google Sheets`);
+            console.log(`[Cache] Pre-warm complete: ${freshOfficers.length} officers loaded`);
         }
     } catch (err) {
         if (hasFileCache) {
-            console.log('🔥 Google Sheets fetch failed, using file cache (serving stale data temporarily)');
+            console.log('[Cache] Google Sheets fetch failed, using file cache');
         } else {
-            console.warn('🔥 Pre-warm failed (no cache available):', err.message);
+            console.warn('[Cache] Pre-warm failed:', err.message);
         }
     }
 }
@@ -186,5 +413,11 @@ module.exports = {
     refreshAll,
     preWarmCache,
     getStaticJSON,
-    fetchGvizCSV // exposed for testing
+    fetchGvizCSV,
+    getConduct,
+    getRules,
+    getFines,
+    addRule,
+    updateRule,
+    deleteRule
 };
