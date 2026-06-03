@@ -3,6 +3,9 @@
    ======================================== */
 
 const discordAuth = require('../services/discordAuth');
+const { createLogger } = require('../utils/logger');
+
+const logger = createLogger('AuthController');
 
 /**
  * Redirect ไป Discord OAuth2 Login
@@ -45,8 +48,8 @@ async function discordCallback(req, res) {
 
         res.redirect(`/register?${params.toString()}`);
 
-    } catch (err) {
-        console.error('[Discord Auth] Error:', err.message);
+} catch (err) {
+        logger.error(`Discord auth error: ${err.message}`);
         res.redirect('/register?auth=failed');
     }
 }

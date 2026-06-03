@@ -9,11 +9,13 @@ const express = require('express');
 const compression = require('compression');
 const cors = require('cors');
 const path = require('path');
+const { createLogger } = require('./utils/logger');
 
 const routes = require('./routes');
 const { errorHandler } = require('./middleware/errorHandler');
 const { preWarmCache } = require('./services/sheetsService');
 
+const logger = createLogger('Server');
 const app = express();
 
 // ==================== MIDDLEWARE ====================
@@ -67,27 +69,9 @@ app.use(errorHandler);
 
 // ==================== START SERVER ====================
 app.listen(config.PORT, () => {
-    console.log('========================================');
-    console.log('  MHNK Police Department v2.0');
-    console.log('  ======================================');
-    console.log(`  Server running at http://localhost:${config.PORT}`);
-    console.log('  API Endpoints:');
-    console.log(`    GET /api/officers     - Officer list`);
-    console.log(`    GET /api/weeks        - Week names`);
-    console.log(`    GET /api/week-data?name=X  - Week data`);
-    console.log(`    GET /api/rules        - Police rules`);
-    console.log(`    GET /api/conduct      - Conduct rules`);
-    console.log(`    GET /api/fines        - Fine rates`);
-    console.log(`    GET /api/schedule-config - Schedule config`);
-    console.log(`    POST /api/register    - Registration`);
-    console.log('  Pages:');
-    console.log(`    GET /register         - Registration page`);
-    console.log('  Performance:');
-    console.log('    ✅ Gzip/Brotli compression enabled');
-    console.log('    ✅ Browser cache with ETag enabled');
-    console.log('    ✅ Centralized error handling');
-    console.log('    ✅ Modular architecture');
-    console.log('========================================');
+    logger.info(`Server running at http://localhost:${config.PORT}`);
+    logger.info('API Endpoints: /api/officers, /api/weeks, /api/week-data, /api/rules, /api/conduct, /api/fines, /api/schedule-config, /api/register');
+    logger.info('Features: Gzip/Brotli compression, Browser cache with ETag, Centralized error handling');
 
     // Pre-warm cache on startup
     preWarmCache();

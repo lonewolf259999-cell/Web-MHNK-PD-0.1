@@ -4,6 +4,13 @@
    - Data loading and lifecycle
    ======================================== */
 
+const profileLogger = window.Logger ? window.Logger.createLogger('ProfilePage') : {
+    error: (...args) => console.error(...args),
+    warn: (...args) => console.warn(...args),
+    info: (...args) => console.log(...args),
+    debug: () => {}
+};
+
 class ProfilePage {
     constructor() {
         this.officerName = null;
@@ -71,7 +78,7 @@ class ProfilePage {
 
             this.renderProfile(this.officer, weeks);
         } catch (error) {
-            console.error('Error loading profile:', error);
+            profileLogger.error(`Error loading profile: ${error.message}`);
             this.showError();
         }
     }
@@ -125,7 +132,7 @@ class ProfilePage {
                 this.weekSelector.updateButtonStyle(weekName, result.isPaid, result.amount);
             }
         } catch (error) {
-            console.error('Error loading week data:', error);
+            profileLogger.error(`Error loading week data: ${error.message}`);
             this.weekStats.showError();
         }
     }
@@ -190,7 +197,7 @@ class ProfilePage {
                 // GViz returns stale data.
                 this.weekSelector.checkAllStatus(this.weeks, this.officerName, this._paidWeeks);
             } catch (e) {
-                console.warn('Payment complete: failed to refresh stats panel', e);
+                profileLogger.warn(`Payment complete: failed to refresh stats panel: ${e.message}`);
             }
         }
     }

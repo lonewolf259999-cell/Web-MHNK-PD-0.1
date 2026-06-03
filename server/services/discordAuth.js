@@ -5,16 +5,12 @@
 
 const https = require('https');
 const config = require('../config');
+const { createLogger } = require('../utils/logger');
 
+const logger = createLogger('DiscordAuth');
 const REDIRECT_URI = `${config.APP_URL}/auth/discord/callback`;
 
-// Debug log
-console.log('========================================');
-console.log('[Discord Auth] Config loaded:');
-console.log('  APP_URL:', config.APP_URL);
-console.log('  REDIRECT_URI:', REDIRECT_URI);
-console.log('  CLIENT_ID:', config.DISCORD_CLIENT_ID ? '***' + config.DISCORD_CLIENT_ID.slice(-4) : 'NOT SET');
-console.log('========================================');
+logger.info(`Config loaded - APP_URL: ${config.APP_URL}, REDIRECT_URI: ${REDIRECT_URI}`);
 
 /**
  * สร้าง URL สำหรับ Discord OAuth2 Login
@@ -29,7 +25,7 @@ function getAuthUrl() {
     });
     
     const authUrl = `https://discord.com/api/oauth2/authorize?${params.toString()}`;
-    console.log('[Discord Auth] Auth URL:', authUrl);
+    logger.debug('Auth URL generated');
     
     return authUrl;
 }
@@ -38,7 +34,7 @@ function getAuthUrl() {
  * แลก Authorization Code เป็น Access Token
  */
 function exchangeCode(code) {
-    console.log('[Discord Auth] Exchanging code with redirect_uri:', REDIRECT_URI);
+    logger.debug('Exchanging authorization code');
     
     return new Promise((resolve, reject) => {
         const data = new URLSearchParams({
@@ -63,11 +59,10 @@ function exchangeCode(code) {
             let body = '';
             res.on('data', chunk => body += chunk);
             res.on('end', () => {
-                console.log('[Discord Auth] Token response status:', res.statusCode);
-                console.log('[Discord Auth] Token response body:', body);
                 try {
                     const json = JSON.parse(body);
                     if (json.access_token) {
+                        logger.debug('Token exchange successful');
                         resolve(json.access_token);
                     } else {
                         reject(new Error(json.error_description || 'Failed to get access token'));

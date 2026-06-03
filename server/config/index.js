@@ -3,18 +3,21 @@
    ======================================== */
 
 const path = require('path');
+const { createLogger } = require('../utils/logger');
+
+const logger = createLogger('Config');
 
 require('dotenv').config();
 
 // Validate required env vars
 const requiredEnvs = ['SHEET_ID', 'CASES_SHEET_ID', 'RULES_SHEET_ID'];
 requiredEnvs.forEach(env => {
-    if (!process.env[env]) console.warn(`⚠️ Warning: ${env} is not defined in .env file`);
+    if (!process.env[env]) logger.warn(`${env} is not defined in .env file`);
 });
 
 const CREDENTIALS_PATH = path.join(__dirname, '..', '..', 'credentials.json');
 if (!process.env.GOOGLE_JSON_KEY && !require('fs').existsSync(CREDENTIALS_PATH)) {
-    console.warn('⚠️ Warning: Google credentials (GOOGLE_JSON_KEY or credentials.json file) not found.');
+    logger.warn('Google credentials (GOOGLE_JSON_KEY or credentials.json file) not found');
 }
 
 module.exports = {

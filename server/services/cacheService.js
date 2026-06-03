@@ -4,6 +4,9 @@
 
 const fs = require('fs');
 const config = require('../config');
+const { createLogger } = require('../utils/logger');
+
+const logger = createLogger('Cache');
 
 class CacheService {
     constructor() {
@@ -73,22 +76,22 @@ class CacheService {
     /**
      * Load officers from file cache
      */
-    loadFileCache() {
+loadFileCache() {
         try {
             if (fs.existsSync(config.CACHE_FILE)) {
                 const raw = fs.readFileSync(config.CACHE_FILE, 'utf-8');
                 const data = JSON.parse(raw);
                 if (Date.now() - data.timestamp < config.FILE_CACHE_TTL) {
                     this._officersCache = data.officers;
-                    console.log(`📦 Loaded ${data.officers.length} officers from file cache`);
+                    logger.info(`Loaded ${data.officers.length} officers from file cache`);
                     return true;
                 } else {
-                    console.log('📦 File cache expired, will fetch fresh data');
+                    logger.info('File cache expired, will fetch fresh data');
                     fs.unlink(config.CACHE_FILE, () => {});
                 }
             }
         } catch (e) {
-            console.warn('⚠️ Failed to load file cache:', e.message);
+            logger.warn(`Failed to load file cache: ${e.message}`);
         }
         return false;
     }
@@ -96,14 +99,14 @@ class CacheService {
     /**
      * Save officers to file cache
      */
-    saveFileCache(officers) {
+saveFileCache(officers) {
         try {
             fs.writeFileSync(config.CACHE_FILE, JSON.stringify({
                 timestamp: Date.now(),
                 officers
             }), 'utf-8');
         } catch (e) {
-            console.warn('⚠️ Failed to save file cache:', e.message);
+            logger.warn(`Failed to save file cache: ${e.message}`);
         }
     }
 }

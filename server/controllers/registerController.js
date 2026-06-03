@@ -3,6 +3,9 @@
    ======================================== */
 
 const discordWebhook = require('../services/discordWebhook');
+const { createLogger } = require('../utils/logger');
+
+const logger = createLogger('RegisterController');
 
 /**
  * Validate registration data
@@ -63,7 +66,7 @@ async function register(req, res) {
             });
         }
 
-        // Send to Discord Webhook
+// Send to Discord Webhook
         await discordWebhook.sendRegistration({
             ocName: ocName.trim(),
             icName: icName.trim(),
@@ -74,7 +77,7 @@ async function register(req, res) {
             steamUrl: steamUrl.trim()
         });
 
-        console.log(`[Register] New registration: ${ocName} (${discordId})`);
+        logger.info(`New registration: ${ocName} (${discordId})`);
 
         res.json({
             success: true,
@@ -82,7 +85,7 @@ async function register(req, res) {
         });
 
     } catch (err) {
-        console.error('[Register] Error:', err.message);
+        logger.error(`Registration error: ${err.message}`);
         res.status(500).json({
             success: false,
             message: 'เกิดข้อผิดพลาดในการสมัคร กรุณาลองใหม่อีกครั้ง'

@@ -4,6 +4,14 @@
     - Admin CRUD operations (Add/Edit/Delete)
     - Uses AdminActions.renderButtons with inline onclick
     ======================================== */
+
+const finesLogger = window.Logger ? window.Logger.createLogger('FinesPage') : {
+    error: (...args) => console.error(...args),
+    warn: (...args) => console.warn(...args),
+    info: (...args) => console.log(...args),
+    debug: () => {}
+};
+
 class FinesPage {
     constructor() {
         this.container = document.getElementById('finesContainer');
@@ -15,7 +23,7 @@ class FinesPage {
         try {
             this.data = await ApiService.getFines();
         } catch (e) {
-            console.error('Failed to load fines:', e);
+            finesLogger.error(`Failed to load fines: ${e.message}`);
             this.data = null;
         }
     }

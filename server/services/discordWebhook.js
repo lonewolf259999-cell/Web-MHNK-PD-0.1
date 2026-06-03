@@ -5,6 +5,9 @@
 
 const https = require('https');
 const config = require('../config');
+const { createLogger } = require('../utils/logger');
+
+const logger = createLogger('DiscordWebhook');
 
 /**
  * ส่งข้อมูลสมัครไปยัง Discord Webhook
@@ -92,8 +95,8 @@ async function sendRegistration(registrationData) {
             });
         });
 
-        request.on('error', (err) => {
-            console.error('[Discord Webhook] Error:', err.message);
+request.on('error', (err) => {
+            logger.error(`Error: ${err.message}`);
             reject(err);
         });
 

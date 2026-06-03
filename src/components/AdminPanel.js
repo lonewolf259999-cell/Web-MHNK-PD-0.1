@@ -5,6 +5,13 @@
     - CSS moved to src/styles/admin.css
     ======================================== */
 
+const adminPanelLogger = window.Logger ? window.Logger.createLogger('AdminPanel') : {
+    error: (...args) => console.error(...args),
+    warn: (...args) => console.warn(...args),
+    info: (...args) => console.log(...args),
+    debug: () => {}
+};
+
 (function() {
     'use strict';
 
@@ -100,7 +107,7 @@
             _adminMode = !_adminMode;
             btn.classList.toggle('active', _adminMode);
 
-            console.log('[AdminPanel] Toggle admin mode:', _adminMode);
+            adminPanelLogger.info(`Admin mode: ${_adminMode ? 'ON' : 'OFF'}`);
 
             if (window.App) {
                 if (window.App.rulesPage) window.App.rulesPage.adminMode = _adminMode;
@@ -121,7 +128,7 @@
             try {
                 window.Notification.show(_adminMode ? '🔧 เข้าสู่โหมดผู้ดูแล' : '🔒 ออกจากโหมดผู้ดูแล', 'success');
             } catch (e) {
-                console.warn('[AdminPanel] Toast failed:', e);
+                adminPanelLogger.warn(`Toast failed: ${e.message}`);
             }
         };
         headerBadges.appendChild(btn);
@@ -253,7 +260,7 @@
             data.category = category; // rules/fines: column D = category
         }
 
-        console.log(`[AdminPanel] handleSave: type=${type}, id=${id}, isEdit=${_isEdit}`);
+        adminPanelLogger.info(`Save: type=${type}, id=${id}, isEdit=${_isEdit}`);
 
         try {
             if (_isEdit) {

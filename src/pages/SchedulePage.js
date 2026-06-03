@@ -1,6 +1,14 @@
 /* ========================================
    Schedule Page Controller
    ======================================== */
+
+const scheduleLogger = window.Logger ? window.Logger.createLogger('SchedulePage') : {
+    error: (...args) => console.error(...args),
+    warn: (...args) => console.warn(...args),
+    info: (...args) => console.log(...args),
+    debug: () => {}
+};
+
 class SchedulePage {
     constructor() {
         this.container = document.getElementById('scheduleContainer');
@@ -11,7 +19,7 @@ class SchedulePage {
         try {
             this.config = await ApiService.getScheduleConfig();
         } catch (e) {
-            console.error('Failed to load schedule config:', e);
+            scheduleLogger.error(`Failed to load schedule config: ${e.message}`);
             this.config = null;
         }
     }

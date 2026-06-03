@@ -4,6 +4,13 @@
    - Check all weeks' payment status in parallel
    ======================================== */
 
+const weekLogger = window.Logger ? window.Logger.createLogger('WeekSelector') : {
+    error: (...args) => console.error(...args),
+    warn: (...args) => console.warn(...args),
+    info: (...args) => console.log(...args),
+    debug: () => {}
+};
+
 class WeekSelector {
     constructor(container) {
         this.container = container;
@@ -99,13 +106,13 @@ class WeekSelector {
                     const isPaid = ['yes', 'จ่ายแล้ว', 'true', '1'].includes(paidStatus);
                     const amount = data.totalAmount || 0;
                     this.updateButtonStyle(weekName, isPaid, amount);
-                } else {
+} else {
                     // Data not found for this officer in this week - mark as "unchecked" so user knows it needs attention
-                    console.warn(`[Status Check] No data found for ${officerName} in ${weekName}`);
+                    weekLogger.warn(`No data found for ${officerName} in ${weekName}`);
                     this.updateButtonStyle(weekName, false, 0);
                 }
             } catch (error) {
-                console.error(`[Status Check] Error for ${weekName}:`, error);
+                weekLogger.error(`Status check error for ${weekName}: ${error.message}`);
                 // On fetch failure, mark as unpaid with unknown amount so the
                 // button doesn't stay in default "already paid" state
                 this.updateButtonStyle(weekName, false, 0, true);
@@ -169,9 +176,9 @@ class WeekSelector {
                 checkbox.type = 'checkbox';
                 checkbox.className = 'week-checkbox';
                 checkbox.style = 'margin-left: 10px; cursor: pointer; transform: scale(1.2);';
-                // change event fires AFTER checkbox state updates
+// change event fires AFTER checkbox state updates
                 checkbox.addEventListener('change', () => {
-                    console.log('✅ Checkbox changed, checked:', checkbox.checked);
+                    weekLogger.debug(`Checkbox changed: ${checkbox.checked}`);
                     if (this.paymentManager) this.paymentManager.updateSummary();
                 });
                 // click event to stop propagation to parent button

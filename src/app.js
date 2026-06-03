@@ -5,6 +5,13 @@
    - Optimized data loading
    ======================================== */
 
+const logger = window.Logger ? window.Logger.createLogger('App') : {
+    error: (...args) => console.error(...args),
+    warn: (...args) => console.warn(...args),
+    info: (...args) => console.log(...args),
+    debug: () => {}
+};
+
 const App = {
     officers: [],
     navigation: null,
@@ -26,7 +33,7 @@ const App = {
      * Initialize Application
      */
     async init() {
-        console.log('MHNK Police Department v2.0 - Initializing...');
+        logger.info('MHNK Police Department v2.0 - Initializing...');
 
         // Initialize components
         this.navigation = new NavigationComponent();
@@ -58,7 +65,7 @@ const App = {
         // Start auto-refresh polling
         this.startAutoRefresh();
 
-        console.log('Application initialized successfully');
+        logger.info('Application initialized successfully');
     },
 
     /**
@@ -71,7 +78,7 @@ const App = {
 
             // Load officers (critical - needed for roster + sidebar)
             const officerResult = await ApiService.getOfficers().catch(err => {
-                console.error('Failed to load officers:', err);
+                logger.error(`Failed to load officers: ${err.message}`);
                 this.showToast('ไม่สามารถโหลดข้อมูลเจ้าหน้าที่ได้', 'error');
                 return [];
             });
@@ -79,9 +86,9 @@ const App = {
             this.officers = officerResult;
 
             if (this.officers.length > 0) {
-                console.log('Loaded', this.officers.length, 'officers');
+                logger.info(`Loaded ${this.officers.length} officers`);
             } else {
-                console.warn('No officers loaded');
+                logger.warn('No officers loaded');
             }
 
             // Load schedule config in parallel (needed for schedule page)
@@ -90,7 +97,7 @@ const App = {
             }).catch(() => {});
 
         } catch (error) {
-            console.error('Fatal error loading data:', error);
+            logger.error(`Fatal error loading data: ${error.message}`);
             this.showToast('เกิดข้อผิดพลาดในการโหลดข้อมูล', 'error');
             this.officers = [];
         }
@@ -111,7 +118,7 @@ const App = {
         ];
 
         await Promise.allSettled(pageLoads);
-        console.log('📦 Pre-loaded all static page data');
+        logger.info('Pre-loaded all static page data');
     },
 
     /**
@@ -122,7 +129,7 @@ const App = {
             await loadFn();
             this._loadedPages[pageName] = true;
         } catch (err) {
-            console.warn(`⚠️ Failed to pre-load ${pageName} data:`, err.message);
+            logger.warn(`Failed to pre-load ${pageName} data: ${err.message}`);
         }
     },
 
@@ -151,7 +158,7 @@ const App = {
             this._loadedPages[pageName] = true;
             return true;
         } catch (err) {
-            console.error(`Failed to load ${pageName} data:`, err);
+            logger.error(`Failed to load ${pageName} data: ${err.message}`);
             return false;
         }
     },
@@ -243,7 +250,7 @@ const App = {
     startAutoRefresh() {
         if (this._refreshInterval) clearInterval(this._refreshInterval);
         this._refreshInterval = setInterval(() => this.refreshData(), this._refreshIntervalMs);
-        console.log(`🔄 Auto-refresh started (${this._refreshIntervalMs / 1000}s interval)`);
+        logger.info(`Auto-refresh started (${this._refreshIntervalMs / 1000}s interval)`);
     },
 
     /**
@@ -269,10 +276,10 @@ const App = {
             if (freshOfficers && freshOfficers.length > 0) {
                 this.officers = freshOfficers;
                 this.renderAll();
-                console.log(`🔄 Auto-refreshed: ${freshOfficers.length} officers`);
+                logger.info(`Auto-refreshed: ${freshOfficers.length} officers`);
             }
         } catch (err) {
-            console.warn('⚠️ Auto-refresh failed:', err.message);
+            logger.warn(`Auto-refresh failed: ${err.message}`);
         }
     },
 

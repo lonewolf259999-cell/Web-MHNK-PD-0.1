@@ -4,6 +4,14 @@
     - Same structure as RulesPage (Category + Text, no hardcoded header)
     - Users can create categories freely
     ======================================== */
+
+const conductLogger = window.Logger ? window.Logger.createLogger('ConductPage') : {
+    error: (...args) => console.error(...args),
+    warn: (...args) => console.warn(...args),
+    info: (...args) => console.log(...args),
+    debug: () => {}
+};
+
 class ConductPage {
     constructor() {
         this.container = document.getElementById('conductContainer');
@@ -15,7 +23,7 @@ class ConductPage {
         try {
             this.data = await ApiService.getConduct();
         } catch (e) {
-            console.error('Failed to load conduct:', e);
+            conductLogger.error(`Failed to load conduct: ${e.message}`);
             this.data = null;
         }
     }

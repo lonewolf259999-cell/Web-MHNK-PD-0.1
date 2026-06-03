@@ -10,6 +10,9 @@ const config = require('../config');
 const cacheService = require('./cacheService');
 const csvParser = require('./csvParser');
 const { getSheets } = require('../config/googleAuth');
+const { createLogger } = require('../utils/logger');
+
+const logger = createLogger('Sheets');
 
 /**
  * Fetch CSV data from Google Sheets via GViz API
@@ -19,10 +22,9 @@ function fetchGvizCSV(sheetId, sheetName) {
         const encodedName = encodeURIComponent(sheetName);
         const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&tq&sheet=${encodedName}&_t=${Date.now()}`;
 
-        console.log(`[GViz] Fetching: ${sheetName} from ${sheetId}`);
+        logger.debug(`Fetching: ${sheetName}`);
 
         const request = https.get(url, (res) => {
-            console.log(`[GViz] Response: ${res.statusCode} for ${sheetName}`);
             if (res.statusCode !== 200) {
                 res.resume();
                 reject(new Error(`HTTP ${res.statusCode} for sheet ${sheetName}`));
@@ -31,11 +33,11 @@ function fetchGvizCSV(sheetId, sheetName) {
             let data = '';
             res.on('data', chunk => data += chunk);
             res.on('end', () => {
-                console.log(`[GViz] Received ${data.length} bytes for ${sheetName}`);
+                logger.debug(`Received ${data.length} bytes for ${sheetName}`);
                 resolve(data);
             });
         }).on('error', (err) => {
-            console.error(`[GViz] Error fetching ${sheetName}:`, err.message);
+            logger.error(`Error fetching ${sheetName}: ${err.message}`);
             reject(err);
         });
 
@@ -119,7 +121,7 @@ async function fetchRulesData(type) {
                       type === 'rules' ? config.RULES_SHEET_NAME :
                       config.FINES_SHEET_NAME;
 
-    console.log(`[Rules] Fetching ${type} from sheet: ${sheetName} (ID: ${config.RULES_SHEET_ID})`);
+    logger.debug(`Fetching ${type} from sheet: ${sheetName}`);
 
     try {
         // Use Google Sheets API directly (more reliable than GViz)
@@ -130,7 +132,6 @@ async function fetchRulesData(type) {
         });
 
         const rows = response.data.values || [];
-        console.log(`[Rules] Received ${rows.length} rows for ${type} from API`);
 
         // Skip first 2 rows (row 1-2 are empty), data starts at row 3 (index 2)
         const dataRows = rows.slice(2);
@@ -159,12 +160,12 @@ async function fetchRulesData(type) {
             items.push(item);
         }
 
-        console.log(`[Rules] Loaded ${items.length} ${type} items`);
+        logger.info(`Loaded ${items.length} ${type} items`);
 
         cacheService.set(cacheKey, items);
         return items;
     } catch (err) {
-        console.error(`[Rules] Error fetching ${type}:`, err.message);
+        logger.error(`Error fetching ${type}: ${err.message}`);
         throw err;
     }
 }
@@ -190,7 +191,7 @@ async function addRule(type, data) {
                       type === 'rules' ? config.RULES_SHEET_NAME :
                       config.FINES_SHEET_NAME;
 
-    console.log(`[Rules] Adding ${type} to sheet: ${sheetName}`);
+    logger.info(`Adding ${type} to sheet: ${sheetName}`);
 
     // Get all data to find the next empty row
     const response = await sheets.spreadsheets.values.get({
@@ -210,7 +211,7 @@ async function addRule(type, data) {
     }
 
     const rowData = buildRowData(type, data);
-    console.log(`[Rules] Writing to row ${nextRow}:`, rowData);
+    logger.debug(`Writing to row ${nextRow}`);
 
     await sheets.spreadsheets.values.update({
         spreadsheetId: config.RULES_SHEET_ID,
@@ -232,7 +233,7 @@ async function updateRule(type, id, data) {
                       type === 'rules' ? config.RULES_SHEET_NAME :
                       config.FINES_SHEET_NAME;
 
-    console.log(`[Rules] Updating ${type} id=${id} in sheet: ${sheetName}`);
+    logger.info(`Updating ${type} id=${id}`);
 
     const response = await sheets.spreadsheets.values.get({
         spreadsheetId: config.RULES_SHEET_ID,
@@ -256,7 +257,6 @@ async function updateRule(type, id, data) {
     }
 
     const rowData = buildRowData(type, data);
-    console.log(`[Rules] Writing to row ${rowIndex}:`, rowData);
 
     await sheets.spreadsheets.values.update({
         spreadsheetId: config.RULES_SHEET_ID,
@@ -278,7 +278,7 @@ async function deleteRule(type, id) {
                       type === 'rules' ? config.RULES_SHEET_NAME :
                       config.FINES_SHEET_NAME;
 
-    console.log(`[Rules] Deleting ${type} id=${id} from sheet: ${sheetName}`);
+    logger.info(`Deleting ${type} id=${id}`);
 
     const response = await sheets.spreadsheets.values.get({
         spreadsheetId: config.RULES_SHEET_ID,
@@ -382,7 +382,7 @@ async function refreshAll() {
 }
 
 async function preWarmCache() {
-    console.log('[Cache] Pre-warming cache...');
+    logger.info('Pre-warming cache...');
 
     const hasFileCache = cacheService.loadFileCache();
 
@@ -394,13 +394,13 @@ async function preWarmCache() {
         if (freshOfficers.length > 0) {
             cacheService.set('officers', freshOfficers);
             cacheService.saveFileCache(freshOfficers);
-            console.log(`[Cache] Pre-warm complete: ${freshOfficers.length} officers loaded`);
+            logger.info(`Pre-warm complete: ${freshOfficers.length} officers loaded`);
         }
     } catch (err) {
         if (hasFileCache) {
-            console.log('[Cache] Google Sheets fetch failed, using file cache');
+            logger.info('Google Sheets fetch failed, using file cache');
         } else {
-            console.warn('[Cache] Pre-warm failed:', err.message);
+            logger.warn(`Pre-warm failed: ${err.message}`);
         }
     }
 }
