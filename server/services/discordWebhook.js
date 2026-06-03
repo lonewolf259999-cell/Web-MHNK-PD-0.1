@@ -26,12 +26,12 @@ async function sendRegistration(registrationData) {
         color: 0x1DC9B7, // Teal color ตรงกับ theme
         fields: [
             {
-                name: '👤 ชื่อ OC',
+                name: '👤 ชื่อ เล่น IC',
                 value: ocName || 'ไม่ระบุ',
                 inline: true
             },
             {
-                name: '📝 ชื่อ IC',
+                name: '📝 ชื่อ IC / ชื่อตามบัตรประชาชน',
                 value: icName || 'ไม่ระบุ',
                 inline: true
             },
@@ -52,7 +52,7 @@ async function sendRegistration(registrationData) {
             },
             {
                 name: '🎮 Steam',
-                value: steamUrl ? `[คลิกดูโปรไฟล์](${steamUrl})` : 'ไม่ระบุ',
+                value: steamUrl ? `${steamUrl}` : 'ไม่ระบุ',
                 inline: true
             }
         ],
