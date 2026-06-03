@@ -47,4 +47,8 @@ router.post('/api/register', asyncHandler(registerController.register));
 router.get('/auth/discord', authController.discordLogin);
 router.get('/auth/discord/callback', asyncHandler(authController.discordCallback));
 
+// ==================== Proctor API ====================
+router.get('/api/proctor/config', asyncHandler(require('../controllers/proctorController').getConfig));
+router.post('/api/proctor/submit', asyncHandler(require('../controllers/proctorController').submitProctor));
+
 module.exports = router;
