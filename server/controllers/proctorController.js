@@ -86,12 +86,17 @@ async function submitProctor(req, res) {
         }
 
         // ส่งข้อมูลไป Webhook
+        const payload = {
+            content: `<@${discordId}>`,
+            embeds: [embed]
+        };
+
         if (image) {
             // มีรูปภาพ - ส่งเป็น multipart
-            await sendWebhookWithImage(webhookUrl, embed, image);
+            await sendWebhookWithImage(webhookUrl, embed, image, discordId);
         } else {
             // ไม่มีรูปภาพ - ส่ง JSON ปกติ
-            await sendWebhook(webhookUrl, { embeds: [embed] });
+            await sendWebhook(webhookUrl, payload);
         }
 
         logger.info(`Proctor record submitted: ${examineeName} by ${proctorName}`);
@@ -144,7 +149,7 @@ function sendWebhook(url, payload) {
 /**
  * ส่ง Webhook พร้อมรูปภาพ
  */
-function sendWebhookWithImage(url, embed, base64Image) {
+function sendWebhookWithImage(url, embed, base64Image, discordId) {
     return new Promise((resolve, reject) => {
         const urlObj = new URL(url);
         
@@ -157,7 +162,10 @@ function sendWebhookWithImage(url, embed, base64Image) {
         const boundary = '----WebKitFormBoundary' + Math.random().toString(36).substring(2);
         
         // สร้าง payload
-        const jsonPart = JSON.stringify({ embeds: [embed] });
+        const jsonPart = JSON.stringify({
+            content: `<@${discordId}>`,
+            embeds: [embed]
+        });
         
         // สร้าง multipart body
         const parts = [
