@@ -11,7 +11,8 @@ const logger = createLogger('AuthController');
  * Redirect ไป Discord OAuth2 Login
  */
 function discordLogin(req, res) {
-    const authUrl = discordAuth.getAuthUrl();
+    const state = req.query.state || '';
+    const authUrl = discordAuth.getAuthUrl(state);
     res.redirect(authUrl);
 }
 

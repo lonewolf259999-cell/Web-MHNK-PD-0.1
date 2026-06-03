@@ -14,8 +14,9 @@ logger.info(`Config loaded - APP_URL: ${config.APP_URL}, REDIRECT_URI: ${REDIREC
 
 /**
  * สร้าง URL สำหรับ Discord OAuth2 Login
+ * @param {string} state - ระบุหน้าที่เรียก (เช่น 'proctor' หรือ 'register')
  */
-function getAuthUrl() {
+function getAuthUrl(state = '') {
     const params = new URLSearchParams({
         client_id: config.DISCORD_CLIENT_ID,
         redirect_uri: REDIRECT_URI,
@@ -23,9 +24,13 @@ function getAuthUrl() {
         scope: 'identify',
         prompt: 'consent'
     });
+
+    if (state) {
+        params.set('state', state);
+    }
     
     const authUrl = `https://discord.com/api/oauth2/authorize?${params.toString()}`;
-    logger.debug('Auth URL generated');
+    logger.debug(`Auth URL generated (state: ${state || 'none'})`);
     
     return authUrl;
 }
