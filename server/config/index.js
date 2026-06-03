@@ -30,7 +30,7 @@ module.exports = {
     CONDUCT_SHEET_NAME: 'conduct',
     RULES_SHEET_NAME: 'rules',
     FINES_SHEET_NAME: 'fines',
-    ADMIN_PIN: process.env.ADMIN_PIN || '1234',
+    ADMIN_PIN: process.env.ADMIN_PIN,
     DISCORD_WEBHOOK_URL: process.env.DISCORD_WEBHOOK_URL || '',
     DISCORD_CLIENT_ID: process.env.DISCORD_CLIENT_ID || '',
     DISCORD_CLIENT_SECRET: process.env.DISCORD_CLIENT_SECRET || '',
