@@ -178,7 +178,7 @@ async function sendProctor(proctorData) {
     const { proctorName, discordId, examineeName, examDate, notes, image } = proctorData;
 
     const embed = {
-        title: '📋 บันทึกการคุมสอบ',
+        title: '📋 บันทึกการคุมสอบ Proctor',
         color: 0x1dc9b7,
         fields: [
             { name: '👮 ผู้คุมสอบ', value: proctorName || 'ไม่ระบุ', inline: true },
