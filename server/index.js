@@ -64,6 +64,10 @@ app.get('/register', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'public', 'register.html'));
 });
 
+app.get('/proctor', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'public', 'proctor.html'));
+});
+
 // ==================== ERROR HANDLER (must be last) ====================
 app.use(errorHandler);
 
