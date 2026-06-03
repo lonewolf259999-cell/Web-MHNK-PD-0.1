@@ -28,6 +28,9 @@ module.exports = {
     RULES_SHEET_NAME: 'rules',
     FINES_SHEET_NAME: 'fines',
     ADMIN_PIN: process.env.ADMIN_PIN || '1234',
+    DISCORD_WEBHOOK_URL: process.env.DISCORD_WEBHOOK_URL || '',
+    DISCORD_CLIENT_ID: process.env.DISCORD_CLIENT_ID || '',
+    DISCORD_CLIENT_SECRET: process.env.DISCORD_CLIENT_SECRET || '',
     CREDENTIALS_PATH,
     CACHE_TTL: 15000,          // 15 seconds memory cache
     FILE_CACHE_TTL: 600000,    // 10 minutes file cache

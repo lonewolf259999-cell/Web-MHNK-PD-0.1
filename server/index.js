@@ -58,6 +58,10 @@ app.get('/profile', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'public', 'profile.html'));
 });
 
+app.get('/register', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'public', 'register.html'));
+});
+
 // ==================== ERROR HANDLER (must be last) ====================
 app.use(errorHandler);
 
@@ -75,6 +79,9 @@ app.listen(config.PORT, () => {
     console.log(`    GET /api/conduct      - Conduct rules`);
     console.log(`    GET /api/fines        - Fine rates`);
     console.log(`    GET /api/schedule-config - Schedule config`);
+    console.log(`    POST /api/register    - Registration`);
+    console.log('  Pages:');
+    console.log(`    GET /register         - Registration page`);
     console.log('  Performance:');
     console.log('    ✅ Gzip/Brotli compression enabled');
     console.log('    ✅ Browser cache with ETag enabled');

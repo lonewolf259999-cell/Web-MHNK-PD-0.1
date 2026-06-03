@@ -15,6 +15,8 @@ const weeksController = require('../controllers/weeksController');
 const adminController = require('../controllers/adminController');
 const staticController = require('../controllers/staticController');
 const rulesController = require('../controllers/rulesController');
+const registerController = require('../controllers/registerController');
+const authController = require('../controllers/authController');
 
 const router = Router();
 
@@ -37,5 +39,12 @@ router.get('/api/rules-data/:type(conduct|rules|fines)', setNoCache, asyncHandle
 router.post('/api/rules-data/:type(conduct|rules|fines)', verifyPin, asyncHandler(rulesController.addRule));
 router.put('/api/rules-data/:type(conduct|rules|fines)/:id', verifyPin, asyncHandler(rulesController.updateRule));
 router.delete('/api/rules-data/:type(conduct|rules|fines)/:id', verifyPin, asyncHandler(rulesController.deleteRule));
+
+// ==================== Registration ====================
+router.post('/api/register', asyncHandler(registerController.register));
+
+// ==================== Discord Auth ====================
+router.get('/auth/discord', authController.discordLogin);
+router.get('/auth/discord/callback', asyncHandler(authController.discordCallback));
 
 module.exports = router;
