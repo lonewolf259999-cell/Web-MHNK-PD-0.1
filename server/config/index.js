@@ -31,6 +31,7 @@ module.exports = {
     DISCORD_WEBHOOK_URL: process.env.DISCORD_WEBHOOK_URL || '',
     DISCORD_CLIENT_ID: process.env.DISCORD_CLIENT_ID || '',
     DISCORD_CLIENT_SECRET: process.env.DISCORD_CLIENT_SECRET || '',
+    APP_URL: process.env.APP_URL || `http://localhost:${process.env.PORT || 3001}`,
     CREDENTIALS_PATH,
     CACHE_TTL: 15000,          // 15 seconds memory cache
     FILE_CACHE_TTL: 600000,    // 10 minutes file cache

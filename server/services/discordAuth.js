@@ -6,13 +6,15 @@
 const https = require('https');
 const config = require('../config');
 
+const REDIRECT_URI = `${config.APP_URL}/auth/discord/callback`;
+
 /**
  * สร้าง URL สำหรับ Discord OAuth2 Login
  */
 function getAuthUrl() {
     const params = new URLSearchParams({
         client_id: config.DISCORD_CLIENT_ID,
-        redirect_uri: `http://localhost:${config.PORT}/auth/discord/callback`,
+        redirect_uri: REDIRECT_URI,
         response_type: 'code',
         scope: 'identify',
         prompt: 'consent'
@@ -31,7 +33,7 @@ function exchangeCode(code) {
             client_secret: config.DISCORD_CLIENT_SECRET,
             grant_type: 'authorization_code',
             code: code,
-            redirect_uri: `http://localhost:${config.PORT}/auth/discord/callback`
+            redirect_uri: REDIRECT_URI
         }).toString();
 
         const options = {
