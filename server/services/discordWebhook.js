@@ -12,13 +12,12 @@ const config = require('../config');
  * @returns {Promise<Object>} - ผลลัพธ์การส่ง
  */
 async function sendRegistration(registrationData) {
-    const { ocName, icName, ocAge, icPhone, discordId, discordUserId, steamUrl } = registrationData;
+    const { ocName, icName, ocAge, icPhone, discordId, steamUrl } = registrationData;
 
-    // สร้าง Discord mention tag ถ้ามี User ID
-    const discordMention = discordUserId ? `<@${discordUserId}>` : discordId || 'ไม่ระบุ';
-    const discordDisplay = discordUserId 
-        ? `${discordMention} (${discordId})` 
-        : discordId || 'ไม่ระบุ';
+    // ตรวจสอบว่า discordId เป็นตัวเลข (User ID) หรือไม่
+    const isNumericId = /^\d+$/.test(discordId);
+    const discordMention = isNumericId ? `<@${discordId}>` : discordId || 'ไม่ระบุ';
+    const discordDisplay = isNumericId ? discordMention : discordId || 'ไม่ระบุ';
 
     // สร้าง Embed Message
     const embed = {
