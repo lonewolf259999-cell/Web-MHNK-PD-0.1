@@ -5,8 +5,7 @@
 const sheetsService = require('../services/sheetsService');
 
 function getStaticData(req, res) {
-    const type = req.params.type === 'schedule-config' ? 'schedule' : req.params.type;
-    const data = sheetsService.getStaticJSON(type);
+    const data = sheetsService.getStaticJSON('schedule');
     
     if (data) {
         res.json(data);

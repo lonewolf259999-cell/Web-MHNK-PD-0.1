@@ -31,8 +31,8 @@ router.get('/api/week-data', setNoCache, asyncHandler(weeksController.getWeekDat
 // ==================== Admin ====================
 router.post('/api/mark-paid', verifyPin, asyncHandler(adminController.markPaid));
 
-// ==================== Static Data ====================
-router.get('/api/:type(rules|conduct|fines|schedule-config)', asyncHandler(staticController.getStaticData));
+// ==================== Static Data (schedule-config only - rules/conduct/fines ใช้ /api/rules-data แทน) ====================
+router.get('/api/schedule-config', asyncHandler(staticController.getStaticData));
 
 // ==================== Rules/Conduct/Fines CRUD (Google Sheets) ====================
 router.get('/api/rules-data/:type(conduct|rules|fines)', setNoCache, asyncHandler(rulesController.getRulesData));

@@ -2,7 +2,7 @@
    Controller - Registration endpoints
    ======================================== */
 
-const discordWebhook = require('../services/discordWebhook');
+const { sendRegistration } = require('../services/discordWebhook');
 const { createLogger } = require('../utils/logger');
 
 const logger = createLogger('RegisterController');
@@ -66,8 +66,8 @@ async function register(req, res) {
             });
         }
 
-// Send to Discord Webhook
-        await discordWebhook.sendRegistration({
+        // Send to Discord Webhook
+        await sendRegistration({
             ocName: ocName.trim(),
             icName: icName.trim(),
             ocAge: parseInt(ocAge),

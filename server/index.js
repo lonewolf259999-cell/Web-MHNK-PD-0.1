@@ -7,7 +7,9 @@
 const config = require('./config');
 const express = require('express');
 const compression = require('compression');
+const helmet = require('helmet');
 const cors = require('cors');
+const rateLimit = require('express-rate-limit');
 const path = require('path');
 const { createLogger } = require('./utils/logger');
 
@@ -17,6 +19,40 @@ const { preWarmCache } = require('./services/sheetsService');
 
 const logger = createLogger('Server');
 const app = express();
+
+// ==================== SECURITY MIDDLEWARE (Helmet) ====================
+app.use(helmet({
+    contentSecurityPolicy: false, // ปิดเพราะใช้ inline styles จาก CSS framework
+    crossOriginEmbedderPolicy: false // ปิดเพราะโหลด resource จาก CDN (fonts, Discord)
+}));
+
+// ==================== RATE LIMITING ====================
+// Global limiter (ทั่วไป)
+const globalLimiter = rateLimit({
+    windowMs: 60 * 1000, // 1 นาที
+    max: 100,            // สูงสุด 100 request/นาที
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'มีการใช้งานมากเกินไป กรุณาลองใหม่ใน 1 นาที' }
+});
+
+// Submit limiter (สำหรับฟอร์ม)
+const submitLimiter = rateLimit({
+    windowMs: 60 * 1000, // 1 นาที
+    max: 10,             // สูงสุด 10 ครั้ง/นาที
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { success: false, error: 'ส่งข้อมูลถี่เกินไป กรุณารอสักครู่' }
+});
+
+// Auth limiter (สำหรับ login)
+const authLimiter = rateLimit({
+    windowMs: 60 * 1000, // 1 นาที
+    max: 5,              // สูงสุด 5 ครั้ง/นาที
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { success: false, error: 'เชื่อมต่อ Discord ถี่เกินไป กรุณารอ 1 นาที' }
+});
 
 // ==================== MIDDLEWARE ====================
 app.use(compression({
@@ -28,7 +64,15 @@ app.use(compression({
     }
 }));
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '6mb' })); // จำกัดขนาด body (เผื่อรูป 5MB + JSON)
+
+// ใช้ global limiter กับทุก request
+app.use(globalLimiter);
+
+// ใช้ specific limiter กับบาง route
+app.use('/api/proctor/submit', submitLimiter);
+app.use('/api/register', submitLimiter);
+app.use('/auth/discord', authLimiter);
 
 // ==================== API ROUTES ====================
 app.use(routes);
@@ -75,6 +119,7 @@ app.use(errorHandler);
 app.listen(config.PORT, () => {
     logger.info(`Server running at http://localhost:${config.PORT}`);
     logger.info('API Endpoints: /api/officers, /api/weeks, /api/week-data, /api/rules, /api/conduct, /api/fines, /api/schedule-config, /api/register');
+    logger.info('Security: Helmet headers, Rate limiting, Body size limit');
     logger.info('Features: Gzip/Brotli compression, Browser cache with ETag, Centralized error handling');
 
     // Pre-warm cache on startup
