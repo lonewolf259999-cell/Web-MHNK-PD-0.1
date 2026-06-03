@@ -59,7 +59,7 @@ async function submitProctor(req, res) {
                 },
                 {
                     name: '🆔 Discord ID',
-                    value: discordId,
+                    value: `<@${discordId}>`,
                     inline: false
                 }
             ],

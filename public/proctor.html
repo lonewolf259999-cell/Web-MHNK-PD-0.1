@@ -267,7 +267,7 @@
         if (authStatus === 'success' && discordUserIdParam) {
             discordIdInput.value = discordUserIdParam;
             discordIdDisplay.value = discordUserIdParam;
-            proctorNameInput.value = `@${discordName || ''}`;
+            proctorNameInput.value = discordName || '';
             
             // อัปเดตสถานะ Discord ID
             discordIdStatus.classList.add('connected');
