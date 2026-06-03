@@ -2,6 +2,9 @@
    Middleware - Centralized Error Handler
    ======================================== */
 
+const { createLogger } = require('../utils/logger');
+const logger = createLogger('ErrorHandler');
+
 /**
  * Wraps async route handlers to catch errors automatically
  * Eliminates try/catch duplication in controllers
@@ -17,7 +20,7 @@ function asyncHandler(fn) {
  * Catches all errors thrown from controllers/services
  */
 function errorHandler(err, req, res, next) {
-    console.error(`[${req.method}] ${req.path}:`, err.message);
+    logger.error(`${req.method} ${req.path}: ${err.message}`);
 
     // Determine HTTP status code
     let status = 500;

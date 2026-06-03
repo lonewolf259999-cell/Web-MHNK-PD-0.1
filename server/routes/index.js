@@ -15,6 +15,8 @@ const weeksController = require('../controllers/weeksController');
 const adminController = require('../controllers/adminController');
 const staticController = require('../controllers/staticController');
 const rulesController = require('../controllers/rulesController');
+const registerController = require('../controllers/registerController');
+const authController = require('../controllers/authController');
 
 const router = Router();
 
@@ -29,13 +31,24 @@ router.get('/api/week-data', setNoCache, asyncHandler(weeksController.getWeekDat
 // ==================== Admin ====================
 router.post('/api/mark-paid', verifyPin, asyncHandler(adminController.markPaid));
 
-// ==================== Static Data ====================
-router.get('/api/:type(rules|conduct|fines|schedule-config)', asyncHandler(staticController.getStaticData));
+// ==================== Static Data (schedule-config only - rules/conduct/fines ใช้ /api/rules-data แทน) ====================
+router.get('/api/schedule-config', asyncHandler(staticController.getStaticData));
 
 // ==================== Rules/Conduct/Fines CRUD (Google Sheets) ====================
 router.get('/api/rules-data/:type(conduct|rules|fines)', setNoCache, asyncHandler(rulesController.getRulesData));
 router.post('/api/rules-data/:type(conduct|rules|fines)', verifyPin, asyncHandler(rulesController.addRule));
 router.put('/api/rules-data/:type(conduct|rules|fines)/:id', verifyPin, asyncHandler(rulesController.updateRule));
 router.delete('/api/rules-data/:type(conduct|rules|fines)/:id', verifyPin, asyncHandler(rulesController.deleteRule));
+
+// ==================== Registration ====================
+router.post('/api/register', asyncHandler(registerController.register));
+
+// ==================== Discord Auth ====================
+router.get('/auth/discord', authController.discordLogin);
+router.get('/auth/discord/callback', asyncHandler(authController.discordCallback));
+
+// ==================== Proctor API ====================
+router.get('/api/proctor/config', asyncHandler(require('../controllers/proctorController').getConfig));
+router.post('/api/proctor/submit', asyncHandler(require('../controllers/proctorController').submitProctor));
 
 module.exports = router;

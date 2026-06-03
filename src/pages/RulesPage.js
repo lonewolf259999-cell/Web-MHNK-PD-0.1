@@ -3,6 +3,14 @@
     - Display rules from Google Sheets
     - Admin CRUD operations (Add/Edit/Delete)
     ======================================== */
+
+const rulesLogger = window.Logger ? window.Logger.createLogger('RulesPage') : {
+    error: (...args) => console.error(...args),
+    warn: (...args) => console.warn(...args),
+    info: (...args) => console.log(...args),
+    debug: () => {}
+};
+
 class RulesPage {
     constructor() {
         this.container = document.getElementById('rulesContainer');
@@ -14,7 +22,7 @@ class RulesPage {
         try {
             this.rulesData = await ApiService.getRules();
         } catch (e) {
-            console.error('Failed to load rules:', e);
+            rulesLogger.error(`Failed to load rules: ${e.message}`);
             this.rulesData = null;
         }
     }
