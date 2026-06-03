@@ -8,6 +8,14 @@ const config = require('../config');
 
 const REDIRECT_URI = `${config.APP_URL}/auth/discord/callback`;
 
+// Debug log
+console.log('========================================');
+console.log('[Discord Auth] Config loaded:');
+console.log('  APP_URL:', config.APP_URL);
+console.log('  REDIRECT_URI:', REDIRECT_URI);
+console.log('  CLIENT_ID:', config.DISCORD_CLIENT_ID ? '***' + config.DISCORD_CLIENT_ID.slice(-4) : 'NOT SET');
+console.log('========================================');
+
 /**
  * สร้าง URL สำหรับ Discord OAuth2 Login
  */
@@ -20,13 +28,18 @@ function getAuthUrl() {
         prompt: 'consent'
     });
     
-    return `https://discord.com/api/oauth2/authorize?${params.toString()}`;
+    const authUrl = `https://discord.com/api/oauth2/authorize?${params.toString()}`;
+    console.log('[Discord Auth] Auth URL:', authUrl);
+    
+    return authUrl;
 }
 
 /**
  * แลก Authorization Code เป็น Access Token
  */
 function exchangeCode(code) {
+    console.log('[Discord Auth] Exchanging code with redirect_uri:', REDIRECT_URI);
+    
     return new Promise((resolve, reject) => {
         const data = new URLSearchParams({
             client_id: config.DISCORD_CLIENT_ID,
@@ -50,6 +63,8 @@ function exchangeCode(code) {
             let body = '';
             res.on('data', chunk => body += chunk);
             res.on('end', () => {
+                console.log('[Discord Auth] Token response status:', res.statusCode);
+                console.log('[Discord Auth] Token response body:', body);
                 try {
                     const json = JSON.parse(body);
                     if (json.access_token) {
