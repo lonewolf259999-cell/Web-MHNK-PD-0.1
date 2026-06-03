@@ -10,7 +10,7 @@ services:
     region: singapore
     branch: main
     buildCommand: npm install && npm run build
-    startCommand: node server/index.js
+    startCommand: node server.js
     healthCheckPath: /
     envVars:
       - key: NODE_VERSION
