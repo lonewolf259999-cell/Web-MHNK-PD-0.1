@@ -51,7 +51,7 @@ function isValidUrl(string) {
  */
 async function register(req, res) {
     try {
-        const { ocName, icName, ocAge, icPhone, discordId, steamUrl } = req.body;
+        const { ocName, icName, ocAge, icPhone, discordId, discordUserId, steamUrl } = req.body;
 
         // Validate input
         const errors = validateRegistration({ ocName, icName, ocAge, icPhone, discordId, steamUrl });
@@ -70,6 +70,7 @@ async function register(req, res) {
             ocAge: parseInt(ocAge),
             icPhone: icPhone.trim(),
             discordId: discordId.trim(),
+            discordUserId: discordUserId || null,
             steamUrl: steamUrl.trim()
         });
 

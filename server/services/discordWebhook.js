@@ -12,7 +12,13 @@ const config = require('../config');
  * @returns {Promise<Object>} - ผลลัพธ์การส่ง
  */
 async function sendRegistration(registrationData) {
-    const { ocName, icName, ocAge, icPhone, discordId, steamUrl } = registrationData;
+    const { ocName, icName, ocAge, icPhone, discordId, discordUserId, steamUrl } = registrationData;
+
+    // สร้าง Discord mention tag ถ้ามี User ID
+    const discordMention = discordUserId ? `<@${discordUserId}>` : discordId || 'ไม่ระบุ';
+    const discordDisplay = discordUserId 
+        ? `${discordMention} (${discordId})` 
+        : discordId || 'ไม่ระบุ';
 
     // สร้าง Embed Message
     const embed = {
@@ -42,7 +48,7 @@ async function sendRegistration(registrationData) {
             },
             {
                 name: '💬 Discord',
-                value: discordId || 'ไม่ระบุ',
+                value: discordDisplay,
                 inline: true
             },
             {
@@ -57,7 +63,10 @@ async function sendRegistration(registrationData) {
         timestamp: new Date().toISOString()
     };
 
-    const payload = JSON.stringify({ embeds: [embed] });
+    const payload = JSON.stringify({ 
+        content: discordMention !== 'ไม่ระบุ' ? discordMention : undefined,
+        embeds: [embed] 
+    });
 
     return new Promise((resolve, reject) => {
         const url = new URL(config.DISCORD_WEBHOOK_URL);
