@@ -20,10 +20,11 @@ function discordLogin(req, res) {
  */
 async function discordCallback(req, res) {
     try {
-        const { code, error } = req.query;
+        const { code, error, state } = req.query;
 
         if (error || !code) {
-            return res.redirect('/register?auth=failed');
+            const redirectTo = state === 'proctor' ? '/proctor' : '/register';
+            return res.redirect(`${redirectTo}?auth=failed`);
         }
 
         // แลก code เป็น access token
@@ -37,7 +38,7 @@ async function discordCallback(req, res) {
             ? `${userInfo.username}#${userInfo.discriminator}`
             : userInfo.username;
 
-        // Redirect กลับไปหน้า register พร้อมข้อมูล
+        // สร้าง URL parameters
         const params = new URLSearchParams({
             discord_id: discordId,
             discord_userId: userInfo.id,
@@ -46,11 +47,14 @@ async function discordCallback(req, res) {
             auth: 'success'
         });
 
-        res.redirect(`/register?${params.toString()}`);
+        // ตรวจสอบ state เพื่อ redirect กลับไปหน้าที่ถูกต้อง
+        const redirectTo = state === 'proctor' ? '/proctor' : '/register';
+        res.redirect(`${redirectTo}?${params.toString()}`);
 
-} catch (err) {
+    } catch (err) {
         logger.error(`Discord auth error: ${err.message}`);
-        res.redirect('/register?auth=failed');
+        const redirectTo = req.query.state === 'proctor' ? '/proctor' : '/register';
+        res.redirect(`${redirectTo}?auth=failed`);
     }
 }
 
