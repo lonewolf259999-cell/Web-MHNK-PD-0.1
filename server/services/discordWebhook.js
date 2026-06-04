@@ -216,6 +216,123 @@ async function sendProctor(proctorData) {
 }
 
 /**
+ * ส่ง Webhook พร้อมหลายรูปและหลาย embeds (multipart/form-data)
+ * สำหรับ Council โดยเฉพาะ ส่ง embed หลัก + รูป embed(s)
+ */
+function sendCouncilMultipart(url, mainEmbed, imageEmbeds, base64Image1, base64Image2, discordId) {
+    return new Promise((resolve, reject) => {
+        const urlObj = new URL(url);
+
+        // รวม embeds ทั้งหมด
+        const allEmbeds = [mainEmbed, ...imageEmbeds];
+
+        // เตรียมข้อมูล multipart
+        const boundary = '----WebKitFormBoundary' + Math.random().toString(36).substring(2);
+        const payloadJson = JSON.stringify({
+            content: discordId ? `<@${discordId}>` : undefined,
+            embeds: allEmbeds
+        });
+
+        const parts = [];
+        
+        // ส่วน payload_json
+        parts.push(`--${boundary}`);
+        parts.push('Content-Disposition: form-data; name="payload_json"');
+        parts.push('Content-Type: application/json');
+        parts.push('');
+        parts.push(payloadJson);
+
+        // ส่วนไฟล์รูปที่ 1
+        if (base64Image1) {
+            const data1 = base64Image1.split(',')[1];
+            const contentType1 = base64Image1.split(';')[0].split(':')[1];
+            const buffer1 = Buffer.from(data1, 'base64');
+            parts.push(`--${boundary}`);
+            parts.push(`Content-Disposition: form-data; name="files[0]"; filename="image1.png"`);
+            parts.push(`Content-Type: ${contentType1}`);
+            parts.push('');
+            parts.push('__FILE1_BINARY__');
+        }
+
+        // ส่วนไฟล์รูปที่ 2
+        if (base64Image2) {
+            const data2 = base64Image2.split(',')[1];
+            const contentType2 = base64Image2.split(';')[0].split(':')[1];
+            const buffer2 = Buffer.from(data2, 'base64');
+            parts.push(`--${boundary}`);
+            parts.push(`Content-Disposition: form-data; name="files[1]"; filename="image2.png"`);
+            parts.push(`Content-Type: ${contentType2}`);
+            parts.push('');
+            parts.push('__FILE2_BINARY__');
+        }
+
+        parts.push(`--${boundary}--`);
+        
+        // แทนที่ placeholders ด้วย binary data จริง
+        const headerStr = parts.join('\r\n');
+        const headerStrBeforeFile1 = headerStr.substring(0, headerStr.indexOf('__FILE1_BINARY__'));
+        const afterFile1ToFile2 = headerStr.substring(
+            headerStr.indexOf('__FILE1_BINARY__') + '__FILE1_BINARY__'.length,
+            headerStr.indexOf('__FILE2_BINARY__')
+        );
+        const afterFile2Str = headerStr.substring(
+            headerStr.indexOf('__FILE2_BINARY__') + '__FILE2_BINARY__'.length
+        );
+
+        const chunks = [];
+        chunks.push(Buffer.from(headerStrBeforeFile1, 'utf-8'));
+        
+        if (base64Image1) {
+            const buffer1 = Buffer.from(base64Image1.split(',')[1], 'base64');
+            chunks.push(buffer1);
+        }
+        
+        chunks.push(Buffer.from(afterFile1ToFile2, 'utf-8'));
+        
+        if (base64Image2) {
+            const buffer2 = Buffer.from(base64Image2.split(',')[1], 'base64');
+            chunks.push(buffer2);
+        }
+        
+        chunks.push(Buffer.from(afterFile2Str, 'utf-8'));
+
+        const body = Buffer.concat(chunks);
+
+        const options = {
+            hostname: urlObj.hostname,
+            path: urlObj.pathname,
+            method: 'POST',
+            headers: {
+                'Content-Type': `multipart/form-data; boundary=${boundary}`,
+                'Content-Length': body.length
+            },
+            timeout: config.REQUEST_TIMEOUT
+        };
+
+        const protocol = urlObj.protocol === 'https:' ? https : http;
+        const req = protocol.request(options, (res) => {
+            let responseBody = '';
+            res.on('data', chunk => responseBody += chunk);
+            res.on('end', () => {
+                if (res.statusCode >= 200 && res.statusCode < 300) {
+                    resolve(responseBody);
+                } else {
+                    reject(new Error(`Webhook failed with status ${res.statusCode}`));
+                }
+            });
+        });
+
+        req.on('error', reject);
+        req.on('timeout', () => {
+            req.destroy();
+            reject(new Error('Webhook request timeout'));
+        });
+        req.write(body);
+        req.end();
+    });
+}
+
+/**
  * ส่งข้อมูลสัญญาสตอรีไปยัง Discord Webhook (Council)
  * @param {Object} councilData - ข้อมูลสัญญาสตอรี
  * @returns {Promise<Object>} - ผลลัพธ์การส่ง
@@ -264,7 +381,7 @@ async function sendCouncil(councilData) {
     }
 
     const discordName = councilData.discordName || '';
-    const embed = {
+    const mainEmbed = {
         title: '📜 สัญญาสตอรี',
         description: discordName ? `👤 ผู้ดำเนินการ : **${discordName}**` : undefined,
         fields: fields,
@@ -279,34 +396,32 @@ async function sendCouncil(councilData) {
         throw new Error('ระบบยังไม่ได้ตั้งค่า Webhook สำหรับสัญญาสตอรี');
     }
 
-    // สร้างตัวเลือกสำหรับ embed รูปแยก (thumbnail แสดงเล็กกว่าภาพปกติ)
-    const imageEmbeds = [];
-    if (image1) {
-        imageEmbeds.push({
-            title: '\u200B', // empty title
-            color: 0x9b59b6,
-            image: { url: 'attachment://image1.png' },
-            footer: { text: 'รูปที่ 1' }
-        });
-    }
-    if (image2) {
-        imageEmbeds.push({
-            title: '\u200B',
-            color: 0x9b59b6,
-            image: { url: 'attachment://image2.png' },
-            footer: { text: 'รูปที่ 2' }
-        });
-    }
+    const hasImage1 = !!image1;
+    const hasImage2 = !!image2;
 
-    const hasImages = imageEmbeds.length > 0;
-
-    if (hasImages) {
-        // ส่ง embed + รูปภาพทั้งหมดในครั้งเดียว (ส่ง 2 รูปพร้อมกัน)
-        await sendCouncilMultipart(webhookUrl, embed, imageEmbeds, image1, image2, discordId);
+    if (hasImage1 || hasImage2) {
+        // สร้าง image embeds (ใช้ thumbnail เพื่อให้เล็กลง, แสดงซ้าย-ขวา)
+        const imageEmbeds = [];
+        if (hasImage1) {
+            imageEmbeds.push({
+                title: '\u200B',
+                color: 0x9b59b6,
+                image: { url: 'attachment://image1.png' },
+                footer: { text: '📷 รูปที่ 1' }
+            });
+        }
+        if (hasImage2) {
+            imageEmbeds.push({
+                title: '\u200B',
+                color: 0x9b59b6,
+                image: { url: 'attachment://image2.png' },
+                footer: { text: '📷 รูปที่ 2' }
+            });
+        }
+        // ส่ง message เดียว: @mention + main embed + image embed(s)
+        await sendCouncilMultipart(webhookUrl, mainEmbed, imageEmbeds, hasImage1 ? image1 : null, hasImage2 ? image2 : null, discordId);
     } else {
-        const content = discordId ? `<@${discordId}>` : undefined;
-        const payload = { content, embeds: [embed] };
-        if (!content) delete payload.content;
+        const payload = { content: `<@${discordId}>`, embeds: [mainEmbed] };
         await sendJson(webhookUrl, payload);
     }
 
