@@ -448,7 +448,7 @@
             }
 
             // ลบ URL parameters
-            window.history.replaceState({}, document.title, '/council');
+            window.history.replaceState({}, document.title, '/council.html');
         }
 
         // ถ้า login ล้มเหลว
@@ -457,7 +457,7 @@
             li.textContent = 'เชื่อมต่อ Discord ล้มเหลว กรุณาลองใหม่อีกครั้ง';
             errorList.appendChild(li);
             errorContainer.style.display = 'block';
-            window.history.replaceState({}, document.title, '/council');
+            window.history.replaceState({}, document.title, '/council.html');
         }
 
         // ปุ่มยกเลิกการเชื่อมต่อ Discord

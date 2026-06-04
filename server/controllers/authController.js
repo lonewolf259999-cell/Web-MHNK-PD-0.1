@@ -23,9 +23,10 @@ async function discordCallback(req, res) {
     try {
         const { code, error, state } = req.query;
 
+        const fallbackPage = state === 'proctor' ? '/proctor.html' : state === 'council' ? '/council.html' : '/register.html';
+        
         if (error || !code) {
-            const redirectTo = state === 'proctor' ? '/proctor' : '/register';
-            return res.redirect(`${redirectTo}?auth=failed`);
+            return res.redirect(`${fallbackPage}?auth=failed`);
         }
 
         // แลก code เป็น access token
@@ -49,12 +50,11 @@ async function discordCallback(req, res) {
         });
 
         // ตรวจสอบ state เพื่อ redirect กลับไปหน้าที่ถูกต้อง
-        const redirectTo = state === 'proctor' ? '/proctor' : '/register';
-        res.redirect(`${redirectTo}?${params.toString()}`);
+        res.redirect(`${fallbackPage}?${params.toString()}`);
 
     } catch (err) {
         logger.error(`Discord auth error: ${err.message}`);
-        const redirectTo = req.query.state === 'proctor' ? '/proctor' : '/register';
+        const redirectTo = req.query.state === 'proctor' ? '/proctor.html' : req.query.state === 'council' ? '/council.html' : '/register.html';
         res.redirect(`${redirectTo}?auth=failed`);
     }
 }
