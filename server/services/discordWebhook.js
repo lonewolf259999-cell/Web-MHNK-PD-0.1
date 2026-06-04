@@ -279,27 +279,30 @@ async function sendCouncil(councilData) {
         throw new Error('ระบบยังไม่ได้ตั้งค่า Webhook สำหรับสัญญาสตอรี');
     }
 
-    const hasImage1 = !!image1;
-    const hasImage2 = !!image2;
+    // สร้างตัวเลือกสำหรับ embed รูปแยก (thumbnail แสดงเล็กกว่าภาพปกติ)
+    const imageEmbeds = [];
+    if (image1) {
+        imageEmbeds.push({
+            title: '\u200B', // empty title
+            color: 0x9b59b6,
+            image: { url: 'attachment://image1.png' },
+            footer: { text: 'รูปที่ 1' }
+        });
+    }
+    if (image2) {
+        imageEmbeds.push({
+            title: '\u200B',
+            color: 0x9b59b6,
+            image: { url: 'attachment://image2.png' },
+            footer: { text: 'รูปที่ 2' }
+        });
+    }
 
-    if (hasImage1 || hasImage2) {
-        // ส่ง embed + รูปภาพทั้ง 2 รูปในครั้งเดียว (2 embeds แยกกัน)
-        if (hasImage1 && hasImage2) {
-            // ส่งรูปที่ 1 ก่อน
-            await sendMultipart(webhookUrl, embed, image1, discordId);
-            // ส่งรูปที่ 2 แยก (Discord embed รองรับแค่ 1 รูป)
-            const embed2 = {
-                title: '📜 สัญญาสตอรี (รูปที่ 2)',
-                color: 0x9b59b6,
-                footer: { text: 'MHNK Police Department • สัญญาสตอรี' },
-                timestamp: new Date().toISOString()
-            };
-            await sendMultipart(webhookUrl, embed2, image2, discordId);
-        } else if (hasImage1) {
-            await sendMultipart(webhookUrl, embed, image1, discordId);
-        } else {
-            await sendMultipart(webhookUrl, embed, image2, discordId);
-        }
+    const hasImages = imageEmbeds.length > 0;
+
+    if (hasImages) {
+        // ส่ง embed + รูปภาพทั้งหมดในครั้งเดียว (ส่ง 2 รูปพร้อมกัน)
+        await sendCouncilMultipart(webhookUrl, embed, imageEmbeds, image1, image2, discordId);
     } else {
         const content = discordId ? `<@${discordId}>` : undefined;
         const payload = { content, embeds: [embed] };
