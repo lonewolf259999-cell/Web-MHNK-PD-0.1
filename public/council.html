@@ -196,7 +196,7 @@
                                 <span class="form-icon">&#127918;</span>
                                 เล่นกิจกรรมก่อนเริ่ม
                             </label>
-                            <input type="text" id="preEventActivity" name="preEventActivity" placeholder="พิมพ์ข้อความ เช่น ไม่อนุญาต, อนุญาต, หรืออื่นๆ" maxlength="100" required />
+                            <input type="text" id="preEventActivity" name="preEventActivity" placeholder="รายละเอียด" maxlength="100" required />
                             <span class="form-hint">พิมพ์เงื่อนไขการเล่นกิจกรรมก่อนเริ่ม</span>
                         </div>
                     </div>
@@ -234,7 +234,7 @@
                             <span class="form-icon">&#128220;</span>
                             กติกาการบลัฟ
                         </label>
-                        <textarea id="bluffRules" name="bluffRules" placeholder="การบลัฟ • 100% (พิมเอง)" rows="3" maxlength="500"></textarea>
+                        <textarea id="bluffRules" name="bluffRules" placeholder="รายละเอียด" rows="3" maxlength="500"></textarea>
                         <span class="form-hint">กติกาการบลัฟ</span>
                     </div>
 
@@ -684,8 +684,11 @@
             const notes = document.getElementById('notes').value.trim();
             const preEventActivity = document.getElementById('preEventActivity').value;
 
+            const discordName = discordDisplayName ? discordDisplayName.textContent.replace(/^@/, '') : '';
+
             const formData = {
                 discordId: discordIdInput.value.trim(),
+                discordName: discordName,
                 gangA: gangA,
                 slotA: slotA,
                 gangB: gangB,

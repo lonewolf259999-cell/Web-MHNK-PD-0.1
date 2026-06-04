@@ -54,6 +54,7 @@ async function submitCouncil(req, res) {
         // ส่งข้อมูลโดยใช้ Discord Webhook Service
         await sendCouncil({
             discordId,
+            discordName: req.body.discordName || '',
             gangA, slotA,
             gangB, slotB,
             betAmount, fightCount, location,

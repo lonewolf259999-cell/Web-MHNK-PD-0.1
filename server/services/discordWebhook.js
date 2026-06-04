@@ -237,35 +237,37 @@ async function sendCouncil(councilData) {
         return Number(num).toLocaleString('en-US');
     };
 
-    const description = [
-        `⚔️ **สัญญาสตอรี ระหว่าง**`,
-        ``,
-        `GANG — ${gangA} 🟣 VS 🔴 FAMILY — ${gangB}`,
-        ``,
-        `**SLOT**`,
-        `🟣 ฝั่ง : ${gangA}  ${formatNumber(slotA)} SLOT`,
-        `🔴 ฝั่ง : ${gangB} :  ${formatNumber(slotB)} SLOT`,
-        ``,
-        `มูลค่าสินเดิมพันรวม       จำนวนไฟต์                สถานที่`,
-        `${formatNumber(betAmount)} IC                  ${fightCount} ไฟต์                     ${location}`,
-        ``,
-        `วันที่                                       เวลาเริ่มไฟต์แรก           เล่นกิจกรรมก่อนเริ่ม`,
-        `${dateStart} → ${dateEnd}             ${startTime} น.                   ${preEventActivity}`,
-        ``,
-        `ชุดที่ใส่`,
-        `🟣 ฝั่ง : ${gangA}      ${outfitA}`,
-        `🔴 ฝั่ง  : ${gangB}      ${outfitB}`,
-        ``,
-        `กติกาการบลัฟ`,
-        `${bluffRules || 'การบลัฟ • 100% (พิมเอง)'}`,
-        ``,
-        `หมายเหตุ :`,
-        `${notes || ''}`
-    ].join('\n');
+    // ใช้ Discord embed fields เพื่อจัดตารางให้สวยงาม
+    const fields = [
+        { name: '⚔️ สัญญาสตอรี ระหว่าง', value: `GANG — ${gangA} 🟣 VS 🔴 FAMILY — ${gangB}`, inline: false },
+        { name: '\u200B', value: '\u200B', inline: false }, // spacer
+        { name: '🟣 SLOT ฝั่ง A', value: `**${gangA}**\n\`${formatNumber(slotA)} SLOT\``, inline: true },
+        { name: '🔴 SLOT ฝั่ง B', value: `**${gangB}**\n\`${formatNumber(slotB)} SLOT\``, inline: true },
+        { name: '\u200B', value: '\u200B', inline: true }, // spacer
+        { name: '\u200B', value: '\u200B', inline: false }, // spacer
+        { name: '💰 มูลค่าสินเดิมพันรวม', value: `\`${formatNumber(betAmount)} IC\``, inline: true },
+        { name: '⚡ จำนวนไฟต์', value: `\`${fightCount} ไฟต์\``, inline: true },
+        { name: '📍 สถานที่', value: `\`${location}\``, inline: true },
+        { name: '\u200B', value: '\u200B', inline: false }, // spacer
+        { name: '📅 วันที่', value: `\`${dateStart} → ${dateEnd}\``, inline: true },
+        { name: '🕐 เวลาเริ่มไฟต์แรก', value: `\`${startTime} น.\``, inline: true },
+        { name: '🎮 เล่นกิจกรรมก่อนเริ่ม', value: `\`${preEventActivity}\``, inline: true },
+        { name: '\u200B', value: '\u200B', inline: false }, // spacer
+        { name: '👕 ชุดที่ใส่', value: `🟣 **${gangA}** : \`${outfitA}\`\n🔴 **${gangB}** : \`${outfitB}\``, inline: false },
+        { name: '\u200B', value: '\u200B', inline: false }, // spacer
+        { name: '📋 กติกาการบลัฟ', value: bluffRules || 'การบลัฟ • 100% (พิมเอง)', inline: false },
+    ];
 
+    // เพิ่มหมายเหตุถ้ามี
+    if (notes && notes.trim()) {
+        fields.push({ name: '📝 หมายเหตุ', value: notes.trim(), inline: false });
+    }
+
+    const discordName = councilData.discordName || '';
     const embed = {
         title: '📜 สัญญาสตอรี',
-        description: description,
+        description: discordName ? `👤 ผู้ดำเนินการ : **${discordName}**` : undefined,
+        fields: fields,
         color: 0x9b59b6, // สีม่วง
         footer: { text: 'MHNK Police Department • สัญญาสตอรี' },
         timestamp: new Date().toISOString()
@@ -277,29 +279,32 @@ async function sendCouncil(councilData) {
         throw new Error('ระบบยังไม่ได้ตั้งค่า Webhook สำหรับสัญญาสตอรี');
     }
 
-    // ส่งรูปภาพถ้ามี (ต้องส่ง embed + รูป)
     const hasImage1 = !!image1;
     const hasImage2 = !!image2;
 
     if (hasImage1 || hasImage2) {
-        // ถ้ามี 2 รูป ต้องส่ง 2 ครั้ง (Discord embed รองรับแค่ 1 รูปต่อการส่งแบบ multipart)
-        if (hasImage1) {
+        // ส่ง embed + รูปภาพทั้ง 2 รูปในครั้งเดียว (2 embeds แยกกัน)
+        if (hasImage1 && hasImage2) {
+            // ส่งรูปที่ 1 ก่อน
             await sendMultipart(webhookUrl, embed, image1, discordId);
-        } else {
-            await sendJson(webhookUrl, { content: `<@${discordId}>`, embeds: [embed] });
-        }
-
-        if (hasImage2) {
+            // ส่งรูปที่ 2 แยก (Discord embed รองรับแค่ 1 รูป)
             const embed2 = {
-                title: '📜 สัญญาสตอรี - รูปที่ 2',
+                title: '📜 สัญญาสตอรี (รูปที่ 2)',
                 color: 0x9b59b6,
                 footer: { text: 'MHNK Police Department • สัญญาสตอรี' },
                 timestamp: new Date().toISOString()
             };
             await sendMultipart(webhookUrl, embed2, image2, discordId);
+        } else if (hasImage1) {
+            await sendMultipart(webhookUrl, embed, image1, discordId);
+        } else {
+            await sendMultipart(webhookUrl, embed, image2, discordId);
         }
     } else {
-        await sendJson(webhookUrl, { content: `<@${discordId}>`, embeds: [embed] });
+        const content = discordId ? `<@${discordId}>` : undefined;
+        const payload = { content, embeds: [embed] };
+        if (!content) delete payload.content;
+        await sendJson(webhookUrl, payload);
     }
 
     logger.info(`Council record submitted: ${gangA} vs ${gangB}`);
