@@ -215,4 +215,95 @@ async function sendProctor(proctorData) {
     return { success: true, message: 'บันทึกสำเร็จ' };
 }
 
-module.exports = { sendRegistration, sendProctor };
+/**
+ * ส่งข้อมูลสัญญาสตอรีไปยัง Discord Webhook (Council)
+ * @param {Object} councilData - ข้อมูลสัญญาสตอรี
+ * @returns {Promise<Object>} - ผลลัพธ์การส่ง
+ */
+async function sendCouncil(councilData) {
+    const {
+        discordId,
+        gangA, slotA,
+        gangB, slotB,
+        betAmount, fightCount, location,
+        dateStart, dateEnd, startTime,
+        preEventActivity,
+        outfitA, outfitB,
+        bluffRules, notes,
+        image1, image2
+    } = councilData;
+
+    const formatNumber = (num) => {
+        return Number(num).toLocaleString('en-US');
+    };
+
+    const description = [
+        `⚔️ **สัญญาสตอรี ระหว่าง**`,
+        ``,
+        `GANG — ${gangA} 🟣 VS 🔴 FAMILY — ${gangB}`,
+        ``,
+        `**SLOT**`,
+        `🟣 ฝั่ง : ${gangA}  ${formatNumber(slotA)} SLOT`,
+        `🔴 ฝั่ง : ${gangB} :  ${formatNumber(slotB)} SLOT`,
+        ``,
+        `มูลค่าสินเดิมพันรวม       จำนวนไฟต์                สถานที่`,
+        `${formatNumber(betAmount)} IC                  ${fightCount} ไฟต์                     ${location}`,
+        ``,
+        `วันที่                                       เวลาเริ่มไฟต์แรก           เล่นกิจกรรมก่อนเริ่ม`,
+        `${dateStart} → ${dateEnd}             ${startTime} น.                   ${preEventActivity}`,
+        ``,
+        `ชุดที่ใส่`,
+        `🟣 ฝั่ง : ${gangA}      ${outfitA}`,
+        `🔴 ฝั่ง  : ${gangB}      ${outfitB}`,
+        ``,
+        `กติกาการบลัฟ`,
+        `${bluffRules || 'การบลัฟ • 100% (พิมเอง)'}`,
+        ``,
+        `หมายเหตุ :`,
+        `${notes || ''}`
+    ].join('\n');
+
+    const embed = {
+        title: '📜 สัญญาสตอรี',
+        description: description,
+        color: 0x9b59b6, // สีม่วง
+        footer: { text: 'MHNK Police Department • สัญญาสตอรี' },
+        timestamp: new Date().toISOString()
+    };
+
+    const webhookUrl = config.DISCORD_COUNCIL_WEBHOOK_URL;
+    if (!webhookUrl) {
+        logger.error('Discord Council Webhook URL is not configured');
+        throw new Error('ระบบยังไม่ได้ตั้งค่า Webhook สำหรับสัญญาสตอรี');
+    }
+
+    // ส่งรูปภาพถ้ามี (ต้องส่ง embed + รูป)
+    const hasImage1 = !!image1;
+    const hasImage2 = !!image2;
+
+    if (hasImage1 || hasImage2) {
+        // ถ้ามี 2 รูป ต้องส่ง 2 ครั้ง (Discord embed รองรับแค่ 1 รูปต่อการส่งแบบ multipart)
+        if (hasImage1) {
+            await sendMultipart(webhookUrl, embed, image1, discordId);
+        } else {
+            await sendJson(webhookUrl, { content: `<@${discordId}>`, embeds: [embed] });
+        }
+
+        if (hasImage2) {
+            const embed2 = {
+                title: '📜 สัญญาสตอรี - รูปที่ 2',
+                color: 0x9b59b6,
+                footer: { text: 'MHNK Police Department • สัญญาสตอรี' },
+                timestamp: new Date().toISOString()
+            };
+            await sendMultipart(webhookUrl, embed2, image2, discordId);
+        }
+    } else {
+        await sendJson(webhookUrl, { content: `<@${discordId}>`, embeds: [embed] });
+    }
+
+    logger.info(`Council record submitted: ${gangA} vs ${gangB}`);
+    return { success: true, message: 'บันทึกสำเร็จ' };
+}
+
+module.exports = { sendRegistration, sendProctor, sendCouncil };

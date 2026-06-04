@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>สัญญาสตอรี - MHNK Police Department</title>
+    
+    <!-- Preconnect to fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    
+    <!-- Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" />
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="src/styles/main.css" />
+    <link rel="stylesheet" href="src/styles/pages/council.css" />
+</head>
+<body class="council-page">
+    <!-- Background Effects -->
+    <div class="scanner-line"></div>
+    <div class="bg-glow"></div>
+    <div class="bg-dots"></div>
+
+    <!-- Header -->
+    <header class="site-header">
+        <div class="header-top">
+            <img src="logo.gif" alt="MHNK PD Logo" class="header-logo" onerror="this.src='logo.png'" width="64" height="64" />
+            <div class="header-title">
+                <h1>Mahahorn Diwa Police Department</h1>
+                <div class="header-subtitle">กรมตำรวจ <span>MHNK</span> &mdash; Mahahorn Diwa</div>
+            </div>
+            <div class="header-badges">
+                <span class="header-badge">&#9670; FIVEM</span>
+                <span class="header-badge">&#9878; POLICE</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="council-main">
+        <div class="council-container">
+            <!-- Form Card -->
+            <div class="council-card">
+                <div class="council-header">
+                    <div class="council-header-icon">&#9878;&#65039;</div>
+                    <h2>&#9200; สัญญาสตอรี</h2>
+                    <p>กรอกข้อมูลด้านล่างเพื่อบันทึกสัญญาสตอรี</p>
+                </div>
+
+                <!-- Discord Login Section (Top) -->
+                <div class="discord-login-section" id="discordLoginSection">
+                    <div class="discord-login-header">
+                        <svg class="discord-icon-large" viewBox="0 0 24 24" width="28" height="28">
+                            <path fill="currentColor" d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+                        </svg>
+                        <span>เชื่อมต่อบัญชี Discord</span>
+                    </div>
+                    <p class="discord-login-desc">กรุณาเชื่อมต่อ Discord ก่อนกรอกข้อมูล</p>
+                    <a href="/auth/discord?state=council" id="discordLoginBtn" class="discord-login-btn-large">
+                        <svg class="discord-icon" viewBox="0 0 24 24" width="24" height="24">
+                            <path fill="currentColor" d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+                        </svg>
+                        เชื่อมต่อ Discord
+                    </a>
+                    
+                    <!-- Discord User Info (shown after login) -->
+                    <div id="discordUserInfo" class="discord-user-info-large" style="display: none;">
+                        <img id="discordAvatar" src="" alt="Avatar" class="discord-avatar-large" />
+                        <div class="discord-user-details">
+                            <span id="discordDisplayName" class="discord-name-large"></span>
+                            <span id="discordUserId" class="discord-id-large"></span>
+                        </div>
+                        <button type="button" id="discordDisconnect" class="discord-disconnect-large" title="ยกเลิกการเชื่อมต่อ">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 6L6 18M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <form id="councilForm" class="council-form">
+                    <!-- Discord ID Display -->
+                    <div class="form-group discord-id-group">
+                        <label for="discordIdDisplay">
+                            <span class="form-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+                                </svg>
+                            </span>
+                            ผู้ดำเนินการ
+                        </label>
+                        <div class="discord-id-wrapper">
+                            <input type="text" id="discordIdDisplay" class="discord-id-input" placeholder="กดปุ่มเชื่อมต่อ Discord เพื่อรับ ID" readonly />
+                            <input type="hidden" id="discordId" name="discordId" />
+                            <div id="discordIdStatus" class="discord-id-status">
+                                <span class="status-dot"></span>
+                                <span class="status-text">ยังไม่ได้เชื่อมต่อ</span>
+                            </div>
+                        </div>
+                        <span class="form-hint">ID จะถูกกรอกอัตโนมัติหลังจากเชื่อมต่อ Discord</span>
+                    </div>
+
+                    <!-- ⚔️ สัญญาสตอรี ระหว่าง -->
+                    <div class="council-vs-divider">
+                        <span class="council-vs-text">&#9878;&#65039; ระหว่าง</span>
+                    </div>
+
+                    <!-- Gang Row: Two columns -->
+                    <div class="council-gang-row">
+                        <!-- 🟣 ฝั่ง A -->
+                        <div class="council-gang-col gang-purple">
+                            <label for="gangA">
+                                <span class="gang-tag">&#128995;</span>
+                                ฝั่ง A
+                            </label>
+                            <input type="text" id="gangA" name="gangA" placeholder="ชื่อแก๊ง / กลุ่ม" maxlength="100" required />
+                            <div class="council-slot-row">
+                                <input type="number" id="slotA" name="slotA" placeholder="จำนวน SLOT" min="0" required />
+                                <span class="council-slot-label">SLOT</span>
+                            </div>
+                        </div>
+
+                        <!-- 🔴 ฝั่ง B -->
+                        <div class="council-gang-col gang-red">
+                            <label for="gangB">
+                                <span class="gang-tag">&#128308;</span>
+                                ฝั่ง B
+                            </label>
+                            <input type="text" id="gangB" name="gangB" placeholder="ชื่อแก๊ง / กลุ่ม" maxlength="100" required />
+                            <div class="council-slot-row">
+                                <input type="number" id="slotB" name="slotB" placeholder="จำนวน SLOT" min="0" required />
+                                <span class="council-slot-label">SLOT</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section: รายละเอียด -->
+                    <div class="council-section-divider">
+                        <span>รายละเอียด</span>
+                    </div>
+
+                    <!-- Info Grid -->
+                    <div class="council-info-grid">
+                        <div class="form-group">
+                            <label for="betAmount">
+                                <span class="form-icon">&#128176;</span>
+                                มูลค่าสินเดิมพันรวม
+                            </label>
+                            <input type="number" id="betAmount" name="betAmount" placeholder="0" min="0" required />
+                            <span class="form-hint">หน่วย: IC</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="fightCount">
+                                <span class="form-icon">&#128200;</span>
+                                จำนวนไฟต์
+                            </label>
+                            <input type="number" id="fightCount" name="fightCount" placeholder="0" min="1" required />
+                            <span class="form-hint">จำนวนไฟต์</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="location">
+                                <span class="form-icon">&#128205;</span>
+                                สถานที่
+                            </label>
+                            <input type="text" id="location" name="location" placeholder="สถานที่จัด" maxlength="100" required />
+                            <span class="form-hint">สถานที่</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="startTime">
+                                <span class="form-icon">&#128339;</span>
+                                เวลาเริ่มไฟต์แรก
+                            </label>
+                            <input type="time" id="startTime" name="startTime" required />
+                            <span class="form-hint">เวลาเริ่ม</span>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="dateStart">
+                                <span class="form-icon">&#128197;</span>
+                                วันที่
+                            </label>
+                            <div class="council-date-range">
+                                <input type="date" id="dateStart" name="dateStart" required />
+                                <span class="date-arrow">&#8594;</span>
+                                <input type="date" id="dateEnd" name="dateEnd" required />
+                            </div>
+                            <span class="form-hint">วันที่เริ่ม → วันที่สิ้นสุด</span>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="preEventActivity">
+                                <span class="form-icon">&#127918;</span>
+                                เล่นกิจกรรมก่อนเริ่ม
+                            </label>
+                            <input type="text" id="preEventActivity" name="preEventActivity" placeholder="พิมพ์ข้อความ เช่น ไม่อนุญาต, อนุญาต, หรืออื่นๆ" maxlength="100" required />
+                            <span class="form-hint">พิมพ์เงื่อนไขการเล่นกิจกรรมก่อนเริ่ม</span>
+                        </div>
+                    </div>
+
+                    <!-- Section: ชุดและกติกา -->
+                    <div class="council-section-divider">
+                        <span>ชุดและกติกา</span>
+                    </div>
+
+                    <div class="council-gang-row">
+                        <!-- 🟣 ชุดฝั่ง A -->
+                        <div class="council-gang-col gang-purple">
+                            <label for="outfitA">
+                                <span class="gang-tag">&#128995;</span>
+                                ชุดฝั่ง A
+                            </label>
+                            <input type="text" id="outfitA" name="outfitA" placeholder="ประเภทชุด" maxlength="100" required />
+                            <span class="form-hint">ชุดที่ใส่</span>
+                        </div>
+
+                        <!-- 🔴 ชุดฝั่ง B -->
+                        <div class="council-gang-col gang-red">
+                            <label for="outfitB">
+                                <span class="gang-tag">&#128308;</span>
+                                ชุดฝั่ง B
+                            </label>
+                            <input type="text" id="outfitB" name="outfitB" placeholder="ประเภทชุด" maxlength="100" required />
+                            <span class="form-hint">ชุดที่ใส่</span>
+                        </div>
+                    </div>
+
+                    <!-- Bluff Rules (textarea) -->
+                    <div class="form-group">
+                        <label for="bluffRules">
+                            <span class="form-icon">&#128220;</span>
+                            กติกาการบลัฟ
+                        </label>
+                        <textarea id="bluffRules" name="bluffRules" placeholder="การบลัฟ • 100% (พิมเอง)" rows="3" maxlength="500"></textarea>
+                        <span class="form-hint">กติกาการบลัฟ</span>
+                    </div>
+
+                    <!-- Notes -->
+                    <div class="form-group">
+                        <label for="notes">
+                            <span class="form-icon">&#128221;</span>
+                            หมายเหตุ
+                            <span class="optional-tag">(ไม่บังคับ)</span>
+                        </label>
+                        <textarea id="notes" name="notes" placeholder="รายละเอียดเพิ่มเติม (ถ้ามี)" rows="3" maxlength="500"></textarea>
+                        <span class="form-hint">ข้อมูลเพิ่มเติม</span>
+                    </div>
+
+                    <!-- Section: รูปภาพ -->
+                    <div class="council-section-divider">
+                        <span>รูปภาพประกอบ</span>
+                    </div>
+
+                    <!-- Image Row: 2 columns -->
+                    <div class="council-image-row">
+                        <!-- รูปที่ 1 - SV -->
+                        <div class="council-image-col">
+                            <label>
+                                <span class="form-icon">&#128247;</span>
+                                รูปที่ 1 <span class="optional-tag">SV</span>
+                            </label>
+                            <div class="image-upload-zone" id="imageUploadZone1">
+                                <div class="upload-placeholder" id="uploadPlaceholder1">
+                                    <svg class="upload-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                        <polyline points="17 8 12 3 7 8"/>
+                                        <line x1="12" y1="3" x2="12" y2="15"/>
+                                    </svg>
+                                    <p class="upload-text">ลากรูปมาวาง หรือ <span class="upload-browse">เลือกไฟล์</span></p>
+                                    <p class="upload-hint">Ctrl+V เพื่อวางรูป</p>
+                                    <p class="upload-formats">สูงสุด 5MB</p>
+                                </div>
+                                <div class="image-preview-container" style="display: none;">
+                                    <img id="imagePreview1" src="" alt="Preview" class="image-preview" />
+                                    <button type="button" class="image-remove-btn" title="ลบรูป">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M18 6L6 18M6 6l12 12"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <input type="file" accept="image/*" style="display: none;" />
+                            </div>
+                        </div>
+
+                        <!-- รูปที่ 2 - บังคับปรับขนาด -->
+                        <div class="council-image-col">
+                            <label>
+                                <span class="form-icon">&#128247;</span>
+                                รูปที่ 2 <span class="optional-tag">ปรับขนาด</span>
+                            </label>
+                            <div class="image-upload-zone" id="imageUploadZone2">
+                                <div class="upload-placeholder" id="uploadPlaceholder2">
+                                    <svg class="upload-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                        <polyline points="17 8 12 3 7 8"/>
+                                        <line x1="12" y1="3" x2="12" y2="15"/>
+                                    </svg>
+                                    <p class="upload-text">ลากรูปมาวาง หรือ <span class="upload-browse">เลือกไฟล์</span></p>
+                                    <p class="upload-hint">ปรับขนาดอัตโนมัติ</p>
+                                    <p class="upload-formats">สูงสุด 5MB</p>
+                                </div>
+                                <div class="image-preview-container" style="display: none;">
+                                    <img id="imagePreview2" src="" alt="Preview" class="image-preview" />
+                                    <button type="button" class="image-remove-btn" title="ลบรูป">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M18 6L6 18M6 6l12 12"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <input type="file" accept="image/*" style="display: none;" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Error Message -->
+                    <div id="errorContainer" class="error-container" style="display: none;">
+                        <div class="error-message">
+                            <span class="error-icon">&#9888;</span>
+                            <ul id="errorList"></ul>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" id="submitBtn" class="submit-btn" disabled>
+                        <span class="btn-icon">&#10003;</span>
+                        <span class="btn-text">ส่งข้อมูลสัญญาสตอรี</span>
+                    </button>
+                    
+                    <!-- Discord Required Message -->
+                    <div id="discordRequiredMsg" class="discord-required-msg">
+                        <span class="info-icon">&#128161;</span>
+                        กรุณาเชื่อมต่อ Discord ก่อนส่งข้อมูล
+                    </div>
+                </form>
+            </div>
+
+            <!-- Success Card (Hidden by default) -->
+            <div id="successCard" class="success-card" style="display: none;">
+                <div class="success-icon">&#10004;</div>
+                <h2>บันทึกสำเร็จ!</h2>
+                <p>ข้อมูลสัญญาสตอรีถูกส่งไปยัง Discord เรียบร้อยแล้ว</p>
+                <p class="success-note">ขอบคุณสำหรับการบันทึกข้อมูล</p>
+                <button onclick="resetForm()" class="reset-btn">
+                    <span class="btn-icon">&#128260;</span>
+                    บันทึกใหม่
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <p>&copy; 2026 <span>MHNK POLICE DEPARTMENT</span> &mdash; FiveM Server</p>
+    </footer>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="loading-spinner"></div>
+        <p>กำลังส่งข้อมูล...</p>
+    </div>
+
+    <script>
+        const form = document.getElementById('councilForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const errorContainer = document.getElementById('errorContainer');
+        const errorList = document.getElementById('errorList');
+        const successCard = document.getElementById('successCard');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const discordIdInput = document.getElementById('discordId');
+        const discordUserInfo = document.getElementById('discordUserInfo');
+        const discordAvatar = document.getElementById('discordAvatar');
+        const discordDisplayName = document.getElementById('discordDisplayName');
+        const discordUserIdDisplay = document.getElementById('discordUserId');
+        const discordDisconnect = document.getElementById('discordDisconnect');
+        const discordLoginBtn = document.getElementById('discordLoginBtn');
+        const discordLoginSection = document.getElementById('discordLoginSection');
+        const discordRequiredMsg = document.getElementById('discordRequiredMsg');
+        const discordIdDisplay = document.getElementById('discordIdDisplay');
+        const discordIdStatus = document.getElementById('discordIdStatus');
+
+        // Image Upload Elements - Image 1
+        const uploadZone1 = document.getElementById('imageUploadZone1');
+        const imageInput1 = uploadZone1.querySelector('input[type="file"]');
+        const placeholder1 = document.getElementById('uploadPlaceholder1');
+        const previewContainer1 = uploadZone1.querySelector('.image-preview-container');
+        const imagePreview1 = document.getElementById('imagePreview1');
+        const removeBtn1 = uploadZone1.querySelector('.image-remove-btn');
+
+        // Image Upload Elements - Image 2
+        const uploadZone2 = document.getElementById('imageUploadZone2');
+        const imageInput2 = uploadZone2.querySelector('input[type="file"]');
+        const placeholder2 = document.getElementById('uploadPlaceholder2');
+        const previewContainer2 = uploadZone2.querySelector('.image-preview-container');
+        const imagePreview2 = document.getElementById('imagePreview2');
+        const removeBtn2 = uploadZone2.querySelector('.image-remove-btn');
+
+        let uploadedImage1 = null;
+        let uploadedImage2 = null;
+
+        // กำหนดวันที่เริ่มต้นเป็นวันนี้
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        const todayStr = `${year}-${month}-${day}`;
+        document.getElementById('dateStart').value = todayStr;
+        document.getElementById('dateEnd').value = todayStr;
+
+        // ตรวจสอบ URL parameters สำหรับ Discord callback
+        const urlParams = new URLSearchParams(window.location.search);
+        const authStatus = urlParams.get('auth');
+        const discordName = urlParams.get('discord_name');
+        const discordAvatarHash = urlParams.get('discord_avatar');
+        const discordUserIdParam = urlParams.get('discord_userId');
+
+        // ถ้า login Discord สำเร็จ
+        if (authStatus === 'success' && discordUserIdParam) {
+            discordIdInput.value = discordUserIdParam;
+            discordIdDisplay.value = discordUserIdParam;
+
+            // อัปเดตสถานะ Discord ID
+            discordIdStatus.classList.add('connected');
+            discordIdStatus.querySelector('.status-text').textContent = 'เชื่อมต่อแล้ว';
+
+            // แสดงข้อมูล Discord User
+            if (discordName) {
+                discordDisplayName.textContent = `@${discordName}`;
+                discordUserIdDisplay.textContent = discordUserIdParam;
+
+                // สร้าง Avatar URL
+                if (discordAvatarHash) {
+                    const avatarUrl = `https://cdn.discordapp.com/avatars/${discordUserIdParam}/${discordAvatarHash}.png?size=64`;
+                    discordAvatar.src = avatarUrl;
+                } else {
+                    discordAvatar.src = 'https://cdn.discordapp.com/embed/avatars/0.png';
+                }
+
+                discordUserInfo.style.display = 'flex';
+                discordLoginBtn.style.display = 'none';
+                discordLoginSection.classList.add('connected');
+
+                // เปิดปุ่มส่ง
+                submitBtn.disabled = false;
+                discordRequiredMsg.style.display = 'none';
+            }
+
+            // ลบ URL parameters
+            window.history.replaceState({}, document.title, '/council');
+        }
+
+        // ถ้า login ล้มเหลว
+        if (authStatus === 'failed') {
+            const li = document.createElement('li');
+            li.textContent = 'เชื่อมต่อ Discord ล้มเหลว กรุณาลองใหม่อีกครั้ง';
+            errorList.appendChild(li);
+            errorContainer.style.display = 'block';
+            window.history.replaceState({}, document.title, '/council');
+        }
+
+        // ปุ่มยกเลิกการเชื่อมต่อ Discord
+        discordDisconnect.addEventListener('click', () => {
+            discordIdInput.value = '';
+            discordIdDisplay.value = '';
+            discordIdStatus.classList.remove('connected');
+            discordIdStatus.querySelector('.status-text').textContent = 'ยังไม่ได้เชื่อมต่อ';
+            discordUserInfo.style.display = 'none';
+            discordLoginBtn.style.display = 'flex';
+            discordLoginSection.classList.remove('connected');
+
+            // ปิดปุ่มส่ง
+            submitBtn.disabled = true;
+            discordRequiredMsg.style.display = 'block';
+        });
+
+        // ====== Image Upload Functions ======
+
+        function handleImageFile(file, target) {
+            if (!file) return;
+
+            // ตรวจสอบประเภทไฟล์
+            if (!file.type.startsWith('image/')) {
+                showError(['กรุณาเลือกไฟล์รูปภาพเท่านั้น']);
+                return;
+            }
+
+            // ตรวจสอบขนาดไฟล์ (5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                showError(['ขนาดไฟล์ต้องไม่เกิน 5MB']);
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const base64Data = e.target.result;
+
+                if (target === 1) {
+                    uploadedImage1 = base64Data;
+                    imagePreview1.src = uploadedImage1;
+                    placeholder1.style.display = 'none';
+                    previewContainer1.style.display = 'flex';
+                } else {
+                    // Image 2: Resize to max 800px width
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        const MAX_WIDTH = 800;
+                        const scale = MAX_WIDTH / img.width;
+                        canvas.width = MAX_WIDTH;
+                        canvas.height = img.height * scale;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        const resizedData = canvas.toDataURL(file.type || 'image/jpeg', 0.85);
+
+                        uploadedImage2 = resizedData;
+                        imagePreview2.src = uploadedImage2;
+                        placeholder2.style.display = 'none';
+                        previewContainer2.style.display = 'flex';
+                    };
+                    img.src = base64Data;
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removeImage(target) {
+            if (target === 1) {
+                uploadedImage1 = null;
+                imageInput1.value = '';
+                imagePreview1.src = '';
+                placeholder1.style.display = 'flex';
+                previewContainer1.style.display = 'none';
+            } else {
+                uploadedImage2 = null;
+                imageInput2.value = '';
+                imagePreview2.src = '';
+                placeholder2.style.display = 'flex';
+                previewContainer2.style.display = 'none';
+            }
+        }
+
+        // --- Image 1 Events ---
+        uploadZone1.addEventListener('click', (e) => {
+            if (e.target !== removeBtn1 && !removeBtn1.contains(e.target)) {
+                imageInput1.click();
+            }
+        });
+
+        imageInput1.addEventListener('change', (e) => {
+            handleImageFile(e.target.files[0], 1);
+        });
+
+        uploadZone1.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone1.classList.add('drag-over');
+        });
+
+        uploadZone1.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            uploadZone1.classList.remove('drag-over');
+        });
+
+        uploadZone1.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone1.classList.remove('drag-over');
+            const file = e.dataTransfer.files[0];
+            handleImageFile(file, 1);
+        });
+
+        removeBtn1.addEventListener('click', (e) => {
+            e.stopPropagation();
+            removeImage(1);
+        });
+
+        // --- Image 2 Events ---
+        uploadZone2.addEventListener('click', (e) => {
+            if (e.target !== removeBtn2 && !removeBtn2.contains(e.target)) {
+                imageInput2.click();
+            }
+        });
+
+        imageInput2.addEventListener('change', (e) => {
+            handleImageFile(e.target.files[0], 2);
+        });
+
+        uploadZone2.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone2.classList.add('drag-over');
+        });
+
+        uploadZone2.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            uploadZone2.classList.remove('drag-over');
+        });
+
+        uploadZone2.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone2.classList.remove('drag-over');
+            const file = e.dataTransfer.files[0];
+            handleImageFile(file, 2);
+        });
+
+        removeBtn2.addEventListener('click', (e) => {
+            e.stopPropagation();
+            removeImage(2);
+        });
+
+        // --- Global paste (for both upload zones) ---
+        document.addEventListener('paste', (e) => {
+            const items = e.clipboardData.items;
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type.startsWith('image/')) {
+                    e.preventDefault();
+                    const file = items[i].getAsFile();
+                    // Paste goes to the last focused zone, default to image 1
+                    handleImageFile(file, 1);
+                    break;
+                }
+            }
+        });
+
+        // ====== Form Logic ======
+
+        function showError(errors) {
+            errorList.innerHTML = '';
+            errors.forEach(err => {
+                const li = document.createElement('li');
+                li.textContent = err;
+                errorList.appendChild(li);
+            });
+            errorContainer.style.display = 'block';
+        }
+
+        // Form submit
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // ตรวจสอบว่าเชื่อมต่อ Discord แล้ว
+            if (!discordIdInput.value) {
+                showError(['กรุณาเชื่อมต่อ Discord ก่อนส่งข้อมูล']);
+                return;
+            }
+
+            // ตรวจสอบข้อมูลที่จำเป็น
+            const gangA = document.getElementById('gangA').value.trim();
+            const gangB = document.getElementById('gangB').value.trim();
+            const slotA = document.getElementById('slotA').value;
+            const slotB = document.getElementById('slotB').value;
+            const betAmount = document.getElementById('betAmount').value;
+            const fightCount = document.getElementById('fightCount').value;
+            const location = document.getElementById('location').value.trim();
+            const dateStart = document.getElementById('dateStart').value;
+            const dateEnd = document.getElementById('dateEnd').value;
+            const startTime = document.getElementById('startTime').value;
+            const outfitA = document.getElementById('outfitA').value.trim();
+            const outfitB = document.getElementById('outfitB').value.trim();
+
+            const errors = [];
+            if (!gangA) errors.push('กรุณากรอกชื่อฝั่ง A');
+            if (!gangB) errors.push('กรุณากรอกชื่อฝั่ง B');
+            if (!slotA && slotA !== '0') errors.push('กรุณากรอกจำนวน SLOT ฝั่ง A');
+            if (!slotB && slotB !== '0') errors.push('กรุณากรอกจำนวน SLOT ฝั่ง B');
+            if (!betAmount && betAmount !== '0') errors.push('กรุณากรอกมูลค่าสินเดิมพันรวม');
+            if (!fightCount) errors.push('กรุณากรอกจำนวนไฟต์');
+            if (!location) errors.push('กรุณากรอกสถานที่');
+            if (!dateStart) errors.push('กรุณาเลือกวันที่เริ่ม');
+            if (!dateEnd) errors.push('กรุณาเลือกวันที่สิ้นสุด');
+            if (!startTime) errors.push('กรุณากรอกเวลาเริ่มไฟต์แรก');
+            if (!outfitA) errors.push('กรุณากรอกชุดฝั่ง A');
+            if (!outfitB) errors.push('กรุณากรอกชุดฝั่ง B');
+
+            if (errors.length > 0) {
+                showError(errors);
+                return;
+            }
+
+            // Hide previous errors
+            errorContainer.style.display = 'none';
+
+            // Get form data
+            const bluffRules = document.getElementById('bluffRules').value.trim();
+            const notes = document.getElementById('notes').value.trim();
+            const preEventActivity = document.getElementById('preEventActivity').value;
+
+            const formData = {
+                discordId: discordIdInput.value.trim(),
+                gangA: gangA,
+                slotA: slotA,
+                gangB: gangB,
+                slotB: slotB,
+                betAmount: betAmount,
+                fightCount: fightCount,
+                location: location,
+                dateStart: dateStart,
+                dateEnd: dateEnd,
+                startTime: startTime,
+                preEventActivity: preEventActivity,
+                outfitA: outfitA,
+                outfitB: outfitB,
+                bluffRules: bluffRules,
+                notes: notes,
+                image1: uploadedImage1,
+                image2: uploadedImage2
+            };
+
+            // Show loading
+            loadingOverlay.style.display = 'flex';
+
+            try {
+                // ส่งข้อมูลไปยัง Server API
+                const response = await fetch('/api/council/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Show success
+                    form.parentElement.style.display = 'none';
+                    successCard.style.display = 'block';
+                } else {
+                    showError([result.error || 'ไม่สามารถส่งข้อมูลได้']);
+                }
+            } catch (err) {
+                console.error(err);
+                showError(['ไม่สามารถส่งข้อมูลได้ กรุณาลองใหม่อีกครั้ง']);
+            } finally {
+                loadingOverlay.style.display = 'none';
+            }
+        });
+
+        function resetForm() {
+            form.reset();
+            discordIdInput.value = '';
+            discordIdDisplay.value = '';
+            discordIdStatus.classList.remove('connected');
+            discordIdStatus.querySelector('.status-text').textContent = 'ยังไม่ได้เชื่อมต่อ';
+            discordUserInfo.style.display = 'none';
+            discordLoginBtn.style.display = 'flex';
+            discordLoginSection.classList.remove('connected');
+            submitBtn.disabled = true;
+            discordRequiredMsg.style.display = 'block';
+            errorContainer.style.display = 'none';
+            successCard.style.display = 'none';
+            form.parentElement.style.display = 'block';
+
+            // Reset images
+            removeImage(1);
+            removeImage(2);
+
+            // รีเซ็ตวันที่
+            document.getElementById('dateStart').value = todayStr;
+            document.getElementById('dateEnd').value = todayStr;
+        }
+    </script>
+</body>
+</html>

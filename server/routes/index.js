@@ -50,4 +50,7 @@ router.get('/auth/discord/callback', asyncHandler(authController.discordCallback
 // ==================== Proctor API ====================
 router.post('/api/proctor/submit', asyncHandler(require('../controllers/proctorController').submitProctor));
 
+// ==================== Council API ====================
+router.post('/api/council/submit', asyncHandler(require('../controllers/councilController').submitCouncil));
+
 module.exports = router;
