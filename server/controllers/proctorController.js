@@ -2,21 +2,10 @@
     Controller - Proctor endpoints
     ======================================== */
 
-const config = require('../config');
 const { sendProctor } = require('../services/discordWebhook');
 const { createLogger } = require('../utils/logger');
 
 const logger = createLogger('ProctorController');
-
-/**
- * ส่งค่า config ที่จำเป็นให้ frontend
- */
-function getConfig(req, res) {
-    res.json({
-        webhookUrl: config.DISCORD_PROCTOR_WEBHOOK_URL,
-        success: true
-    });
-}
 
 /**
  * รับข้อมูลคุมสอบและส่งไปยัง Discord Webhook
@@ -56,6 +45,5 @@ async function submitProctor(req, res) {
 }
 
 module.exports = {
-    getConfig,
     submitProctor
 };

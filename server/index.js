@@ -30,7 +30,7 @@ app.use(helmet({
 // Global limiter (ทั่วไป)
 const globalLimiter = rateLimit({
     windowMs: 60 * 1000, // 1 นาที
-    max: 100,            // สูงสุด 100 request/นาที
+    max: 300,            // สูงสุด 300 request/นาที
     standardHeaders: true,
     legacyHeaders: false,
     message: { error: 'มีการใช้งานมากเกินไป กรุณาลองใหม่ใน 1 นาที' }
@@ -97,7 +97,6 @@ const staticOptions = {
 
 app.use(express.static(path.join(__dirname, '..', 'public'), staticOptions));
 app.use('/src', express.static(path.join(__dirname, '..', 'src'), staticOptions));
-app.use('/data', express.static(path.join(__dirname, '..', 'data'), staticOptions));
 
 // Fallback for SPA routing
 app.get('/profile', (req, res) => {

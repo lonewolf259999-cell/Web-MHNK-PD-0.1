@@ -22,7 +22,7 @@ const router = Router();
 
 // ==================== Officers ====================
 router.get('/api/officers', setNoCache, asyncHandler(officersController.getOfficers));
-router.post('/api/refresh', asyncHandler(officersController.refreshData));
+router.post('/api/refresh', verifyPin, asyncHandler(officersController.refreshData));
 
 // ==================== Weeks ====================
 router.get('/api/weeks', setNoCache, asyncHandler(weeksController.getWeeks));
@@ -48,7 +48,6 @@ router.get('/auth/discord', authController.discordLogin);
 router.get('/auth/discord/callback', asyncHandler(authController.discordCallback));
 
 // ==================== Proctor API ====================
-router.get('/api/proctor/config', asyncHandler(require('../controllers/proctorController').getConfig));
 router.post('/api/proctor/submit', asyncHandler(require('../controllers/proctorController').submitProctor));
 
 module.exports = router;

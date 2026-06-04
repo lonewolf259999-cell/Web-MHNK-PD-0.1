@@ -11,3 +11,6 @@ node_modules/
 
 # Cache files
 data/.officers-cache.json
+
+# Old build artifacts (unused - no build step needed)
+dist/

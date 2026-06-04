@@ -25,9 +25,9 @@ const App = {
     
     /** Track which pages have been loaded already */
     _loadedPages: {},
-    /** Auto-refresh interval (every 30 seconds) */
+    /** Auto-refresh interval (every 60 seconds) */
     _refreshInterval: null,
-    _refreshIntervalMs: 30000, // 30 seconds auto-refresh
+    _refreshIntervalMs: 60000, // 60 seconds auto-refresh
 
     /**
      * Initialize Application
@@ -79,7 +79,7 @@ const App = {
             // Load officers (critical - needed for roster + sidebar)
             const officerResult = await ApiService.getOfficers().catch(err => {
                 logger.error(`Failed to load officers: ${err.message}`);
-                this.showToast('ไม่สามารถโหลดข้อมูลเจ้าหน้าที่ได้', 'error');
+                window.Notification.show('ไม่สามารถโหลดข้อมูลเจ้าหน้าที่ได้', 'error');
                 return [];
             });
 
@@ -98,7 +98,7 @@ const App = {
 
         } catch (error) {
             logger.error(`Fatal error loading data: ${error.message}`);
-            this.showToast('เกิดข้อผิดพลาดในการโหลดข้อมูล', 'error');
+            window.Notification.show('เกิดข้อผิดพลาดในการโหลดข้อมูล', 'error');
             this.officers = [];
         }
     },
@@ -245,7 +245,7 @@ const App = {
     },
 
     /**
-     * Start auto-refresh polling (every 30 seconds)
+     * Start auto-refresh polling (every 60 seconds)
      */
     startAutoRefresh() {
         if (this._refreshInterval) clearInterval(this._refreshInterval);
@@ -264,74 +264,23 @@ const App = {
     },
 
     /**
-     * Refresh data from server (clear cache + fetch fresh)
+     * Refresh data from server (fetch only officers, no cache clear)
      */
     async refreshData() {
         try {
-            // Clear client-side cache
-            ApiService.clearCache();
-            
-            // Fetch fresh officers data
+            // Fetch fresh officers data without clearing client cache
             const freshOfficers = await ApiService.getOfficers();
             if (freshOfficers && freshOfficers.length > 0) {
                 this.officers = freshOfficers;
-                this.renderAll();
+                // Only re-render roster + sidebar (data that changes frequently)
+                this.rosterPage.render(this.officers);
+                this.sidebar.render(this.officers, 10);
+                this.updateCounts();
                 logger.info(`Auto-refreshed: ${freshOfficers.length} officers`);
             }
         } catch (err) {
             logger.warn(`Auto-refresh failed: ${err.message}`);
         }
-    },
-
-    /**
-     * Render all pages (called after refresh)
-     */
-    renderAll() {
-        const page = this.navigation.getCurrentPage();
-        switch (page) {
-            case 'roster':
-                this.rosterPage.render(this.officers);
-                break;
-            case 'conduct':
-                this.conductPage.render();
-                break;
-            case 'rules':
-                this.rulesPage.render();
-                break;
-            case 'fines':
-                this.finesPage.render();
-                break;
-            case 'schedule':
-                this.schedulePage.render(this.officers);
-                break;
-        }
-        this.sidebar.render(this.officers, 10);
-        this.updateCounts();
-    },
-
-    /**
-     * Show toast notification
-     */
-    showToast(message, type = 'error') {
-        // Remove existing toast
-        const existing = document.querySelector('.toast');
-        if (existing) existing.remove();
-
-        const toast = document.createElement('div');
-        toast.className = `toast toast-${type}`;
-        toast.textContent = message;
-        document.body.appendChild(toast);
-
-        // Trigger animation
-        requestAnimationFrame(() => {
-            toast.classList.add('visible');
-        });
-
-        // Auto remove after 4 seconds
-        setTimeout(() => {
-            toast.classList.remove('visible');
-            setTimeout(() => toast.remove(), 300);
-        }, 4000);
     }
 };
 
