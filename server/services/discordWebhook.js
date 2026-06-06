@@ -307,18 +307,20 @@ async function sendCouncil(councilData) {
     };
 
     // จัดรูปแบบ Embed ให้สวยงาม เป็นระเบียบ
-    const gangLine = `🟣 **${gangA}** \`${formatNumber(slotA)} SLOT\`　VS　🔴 **${gangB}** \`${formatNumber(slotB)} SLOT\``;
+    const separator = '━━━━━━━━━━━━━━━━━━━━';
 
     const fields = [
-        { name: '━━━━━━━━━━━━━━━━━━━━', value: gangLine, inline: false },
+        { name: separator, value: `🟣 **${gangA}** \`${formatNumber(slotA)} SLOT\``, inline: false },
+        { name: '　　　　　　VS', value: `🔴 **${gangB}** \`${formatNumber(slotB)} SLOT\``, inline: false },
+        { name: separator, value: '\u200B', inline: false },
         { name: '💰 มูลค่าเดิมพัน', value: `\`${formatNumber(betAmount)} IC\``, inline: true },
         { name: '⚔️ จำนวนไฟต์', value: `\`${fightCount} ไฟต์\``, inline: true },
         { name: '📍 สถานที่', value: `\`${location}\``, inline: true },
-        { name: '📅 วันที่', value: `\`${dateStart} → ${dateEnd}\``, inline: true },
-        { name: '🕐 เวลาเริ่ม', value: `\`${startTime} น.\``, inline: true },
-        { name: '🎮 กิจกรรมก่อนเริ่ม', value: `\`${preEventActivity}\``, inline: true },
-        { name: '━━━━━━━━━━━━━━━━━━━━', value: '\u200B', inline: false },
-        { name: '👕 ชุดที่ใส่', value: `🟣 **${gangA}** : \`${outfitA}\`　🔴 **${gangB}** : \`${outfitB}\``, inline: false },
+        { name: '🎮 กิจกรรมก่อนเริ่ม', value: `\`${preEventActivity}\``, inline: false },
+        { name: '📅 วันที่', value: `\`${dateStart} → ${dateEnd}\``, inline: false },
+        { name: '🕐 เวลาเริ่ม', value: `\`${startTime}\``, inline: false },
+        { name: separator, value: '\u200B', inline: false },
+        { name: '👕 ชุดที่ใส่', value: `🟣 **${gangA}** : \`${outfitA}\`\n🔴 **${gangB}** : \`${outfitB}\``, inline: false },
         { name: '📋 กติกาการบลัฟ', value: bluffRules || 'การบลัฟ • 100% (พิมเอง)', inline: false },
     ];
 
