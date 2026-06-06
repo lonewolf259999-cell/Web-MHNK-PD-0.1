@@ -434,8 +434,8 @@
                         const finalW1 = Math.round(w1 * (finalHeight / h1));
                         const finalW2 = Math.round(w2 * (finalHeight / h2));
 
-                        // ปรับขนาดรูป SV ให้สูงเท่ากับ 80% ของ finalHeight (คงสัดส่วน)
-                        const svScale = (finalHeight * 0.8) / svImg.height;
+                        // ปรับขนาดรูป SV ให้สูงเท่ากับ 30% ของ finalHeight (เล็กๆ ตรงกลาง)
+                        const svScale = (finalHeight * 0.30) / svImg.height;
                         const svW = Math.round(svImg.width * svScale);
                         const svH = Math.round(svImg.height * svScale);
                         const gap = 6; // ช่องว่างระหว่างรูป
@@ -468,13 +468,13 @@
                 img1.onerror = () => resolve(img1Src);
                 img2.onerror = () => resolve(img2Src);
                 svImg.onerror = () => {
-                    // ถ้าโหลด sv.png ไม่ได้ ก็รวมแบบไม่มี SV
+                    // ถ้าโหลด vs.png ไม่ได้ ก็รวมแบบไม่มี VS
                     loaded++;
                     if (loaded === totalImages) onLoad();
                 };
                 img1.src = img1Src;
                 img2.src = img2Src;
-                svImg.src = '/sv.png';
+                svImg.src = '/vs.png';
             });
         }
 

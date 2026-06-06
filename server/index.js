@@ -20,6 +20,9 @@ const { preWarmCache } = require('./services/sheetsService');
 const logger = createLogger('Server');
 const app = express();
 
+// trust proxy - รองรับ X-Forwarded-For เมื่อรันหลัง Reverse Proxy (Render)
+app.set('trust proxy', 1);
+
 // ==================== SECURITY MIDDLEWARE (Helmet) ====================
 app.use(helmet({
     contentSecurityPolicy: false, // ปิดเพราะใช้ inline styles จาก CSS framework
