@@ -78,7 +78,7 @@ const ApiService = {
      * Get week data for a specific week
      */
     async getWeekData(weekName) {
-        return this.fetch(`/api/week-data?name=${encodeURIComponent(weekName)}`, `week:${weekName}`);
+        return this.fetch(`/api/week-data?name=${encodeURIComponent(weekName)}`, `week_${weekName}`);
     },
 
     /**
@@ -177,7 +177,7 @@ const ApiService = {
      * when Google Sheets propagation hasn't completed yet.
      */
     patchCacheWeek(weekName, officerName, paidStatus = 'จ่ายแล้ว') {
-        const cacheKey = 'week:' + weekName;
+        const cacheKey = 'week_' + weekName;
         const entry = this._cache[cacheKey];
         if (entry && entry.data) {
             const search = (officerName || '').trim().toLowerCase();

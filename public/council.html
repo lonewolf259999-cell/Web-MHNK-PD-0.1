@@ -362,24 +362,30 @@
         <p>กำลังส่งข้อมูล...</p>
     </div>
 
+    <!-- Discord Auth module + Production flag -->
+    <script src="src/utils/discordAuth.js?v=4.0"></script>
     <script>
+        window.__PRODUCTION__ = !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1');
+    </script>
+    <script>
+        // Initialize shared Discord Auth
+        DiscordAuth.init({
+            loginUrl: '/auth/discord?state=council'
+        });
+
         const form = document.getElementById('councilForm');
         const submitBtn = document.getElementById('submitBtn');
         const errorContainer = document.getElementById('errorContainer');
         const errorList = document.getElementById('errorList');
         const successCard = document.getElementById('successCard');
         const loadingOverlay = document.getElementById('loadingOverlay');
-        const discordIdInput = document.getElementById('discordId');
-        const discordUserInfo = document.getElementById('discordUserInfo');
-        const discordAvatar = document.getElementById('discordAvatar');
         const discordDisplayName = document.getElementById('discordDisplayName');
-        const discordUserIdDisplay = document.getElementById('discordUserId');
-        const discordDisconnect = document.getElementById('discordDisconnect');
-        const discordLoginBtn = document.getElementById('discordLoginBtn');
-        const discordLoginSection = document.getElementById('discordLoginSection');
-        const discordRequiredMsg = document.getElementById('discordRequiredMsg');
-        const discordIdDisplay = document.getElementById('discordIdDisplay');
-        const discordIdStatus = document.getElementById('discordIdStatus');
+
+        // Helper to get Discord ID value
+        function getDiscordId() {
+            const el = document.getElementById('discordId');
+            return el ? el.value : '';
+        }
 
         // Image Upload Elements - Image 1
         const uploadZone1 = document.getElementById('imageUploadZone1');
@@ -416,48 +422,31 @@
                 function onLoad() {
                     loaded++;
                     if (loaded === totalImages) {
-                        // ปรับขนาดทั้งสองรูปให้สูงเท่ากัน
                         const targetHeight = Math.min(img1.height, img2.height);
-
-                        // scale รูปที่ 1
                         const scale1 = targetHeight / img1.height;
                         const w1 = Math.min(Math.round(img1.width * scale1), sideMaxWidth);
                         const h1 = Math.round(w1 * (targetHeight / (img1.width * scale1)));
-
-                        // scale รูปที่ 2
                         const scale2 = targetHeight / img2.height;
                         const w2 = Math.min(Math.round(img2.width * scale2), sideMaxWidth);
                         const h2 = Math.round(w2 * (targetHeight / (img2.width * scale2)));
-
-                        // ใช้ความสูงเท่ากัน
                         const finalHeight = Math.min(h1, h2);
                         const finalW1 = Math.round(w1 * (finalHeight / h1));
                         const finalW2 = Math.round(w2 * (finalHeight / h2));
-
-                        // ปรับขนาดรูป SV ให้สูงเท่ากับ 30% ของ finalHeight (เล็กๆ ตรงกลาง)
                         const svScale = (finalHeight * 0.30) / svImg.height;
                         const svW = Math.round(svImg.width * svScale);
                         const svH = Math.round(svImg.height * svScale);
-                        const gap = 6; // ช่องว่างระหว่างรูป
-
+                        const gap = 6;
                         const canvas = document.createElement('canvas');
                         canvas.width = finalW1 + gap + svW + gap + finalW2;
                         canvas.height = finalHeight;
                         const ctx = canvas.getContext('2d');
-
-                        // วาดพื้นหลังดำ
                         ctx.fillStyle = '#000000';
                         ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                        // วาดรูปที่ 1 (ซ้าย)
                         ctx.drawImage(img1, 0, 0, finalW1, finalHeight);
-                        // วาดรูป SV ตรงกลาง
                         const svX = finalW1 + gap;
-                        const svY = (finalHeight - svH) / 2; // จัดกลางแนวตั้ง
+                        const svY = (finalHeight - svH) / 2;
                         ctx.drawImage(svImg, svX, svY, svW, svH);
-                        // วาดรูปที่ 2 (ขวา)
                         ctx.drawImage(img2, svX + svW + gap, 0, finalW2, finalHeight);
-
                         resolve(canvas.toDataURL('image/jpeg', 0.85));
                     }
                 }
@@ -468,7 +457,6 @@
                 img1.onerror = () => resolve(img1Src);
                 img2.onerror = () => resolve(img2Src);
                 svImg.onerror = () => {
-                    // ถ้าโหลด vs.png ไม่ได้ ก็รวมแบบไม่มี VS
                     loaded++;
                     if (loaded === totalImages) onLoad();
                 };
@@ -478,109 +466,34 @@
             });
         }
 
-        // กำหนดวันที่เริ่มต้นเป็นวันนี้
         const today = new Date();
         const year = today.getFullYear();
         const month = String(today.getMonth() + 1).padStart(2, '0');
         const day = String(today.getDate()).padStart(2, '0');
-        const todayStr = `${year}-${month}-${day}`;
+        const todayStr = year + '-' + month + '-' + day;
         document.getElementById('dateStart').value = todayStr;
         document.getElementById('dateEnd').value = todayStr;
 
-        // ตรวจสอบ URL parameters สำหรับ Discord callback
-        const urlParams = new URLSearchParams(window.location.search);
-        const authStatus = urlParams.get('auth');
-        const discordName = urlParams.get('discord_name');
-        const discordAvatarHash = urlParams.get('discord_avatar');
-        const discordUserIdParam = urlParams.get('discord_userId');
-
-        // ถ้า login Discord สำเร็จ
-        if (authStatus === 'success' && discordUserIdParam) {
-            discordIdInput.value = discordUserIdParam;
-            discordIdDisplay.value = discordUserIdParam;
-
-            // อัปเดตสถานะ Discord ID
-            discordIdStatus.classList.add('connected');
-            discordIdStatus.querySelector('.status-text').textContent = 'เชื่อมต่อแล้ว';
-
-            // แสดงข้อมูล Discord User
-            if (discordName) {
-                discordDisplayName.textContent = `@${discordName}`;
-                discordUserIdDisplay.textContent = discordUserIdParam;
-
-                // สร้าง Avatar URL
-                if (discordAvatarHash) {
-                    const avatarUrl = `https://cdn.discordapp.com/avatars/${discordUserIdParam}/${discordAvatarHash}.png?size=64`;
-                    discordAvatar.src = avatarUrl;
-                } else {
-                    discordAvatar.src = 'https://cdn.discordapp.com/embed/avatars/0.png';
-                }
-
-                discordUserInfo.style.display = 'flex';
-                discordLoginBtn.style.display = 'none';
-                discordLoginSection.classList.add('connected');
-
-                // เปิดปุ่มส่ง
-                submitBtn.disabled = false;
-                discordRequiredMsg.style.display = 'none';
-            }
-
-            // ลบ URL parameters
-            window.history.replaceState({}, document.title, '/council.html');
-        }
-
-        // ถ้า login ล้มเหลว
-        if (authStatus === 'failed') {
-            const li = document.createElement('li');
-            li.textContent = 'เชื่อมต่อ Discord ล้มเหลว กรุณาลองใหม่อีกครั้ง';
-            errorList.appendChild(li);
-            errorContainer.style.display = 'block';
-            window.history.replaceState({}, document.title, '/council.html');
-        }
-
-        // ปุ่มยกเลิกการเชื่อมต่อ Discord
-        discordDisconnect.addEventListener('click', () => {
-            discordIdInput.value = '';
-            discordIdDisplay.value = '';
-            discordIdStatus.classList.remove('connected');
-            discordIdStatus.querySelector('.status-text').textContent = 'ยังไม่ได้เชื่อมต่อ';
-            discordUserInfo.style.display = 'none';
-            discordLoginBtn.style.display = 'flex';
-            discordLoginSection.classList.remove('connected');
-
-            // ปิดปุ่มส่ง
-            submitBtn.disabled = true;
-            discordRequiredMsg.style.display = 'block';
-        });
-
-        // ====== Image Upload Functions ======
-
+        // Image Upload Functions
         function handleImageFile(file, target) {
             if (!file) return;
-
-            // ตรวจสอบประเภทไฟล์
             if (!file.type.startsWith('image/')) {
                 showError(['กรุณาเลือกไฟล์รูปภาพเท่านั้น']);
                 return;
             }
-
-            // ตรวจสอบขนาดไฟล์ (5MB)
             if (file.size > 5 * 1024 * 1024) {
                 showError(['ขนาดไฟล์ต้องไม่เกิน 5MB']);
                 return;
             }
-
             const reader = new FileReader();
             reader.onload = (e) => {
                 const base64Data = e.target.result;
-
                 if (target === 1) {
                     uploadedImage1 = base64Data;
                     imagePreview1.src = uploadedImage1;
                     placeholder1.style.display = 'none';
                     previewContainer1.style.display = 'flex';
                 } else {
-                    // Image 2: Resize to max 800px width
                     const img = new Image();
                     img.onload = function() {
                         const canvas = document.createElement('canvas');
@@ -591,7 +504,6 @@
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                         const resizedData = canvas.toDataURL(file.type || 'image/jpeg', 0.85);
-
                         uploadedImage2 = resizedData;
                         imagePreview2.src = uploadedImage2;
                         placeholder2.style.display = 'none';
@@ -619,109 +531,54 @@
             }
         }
 
-        // --- Image 1 Events ---
         uploadZone1.addEventListener('click', (e) => {
-            if (e.target !== removeBtn1 && !removeBtn1.contains(e.target)) {
-                imageInput1.click();
-            }
+            if (e.target !== removeBtn1 && !removeBtn1.contains(e.target)) imageInput1.click();
         });
-
-        imageInput1.addEventListener('change', (e) => {
-            handleImageFile(e.target.files[0], 1);
-        });
-
-        uploadZone1.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadZone1.classList.add('drag-over');
-        });
-
-        uploadZone1.addEventListener('dragleave', (e) => {
-            e.preventDefault();
-            uploadZone1.classList.remove('drag-over');
-        });
-
+        imageInput1.addEventListener('change', (e) => handleImageFile(e.target.files[0], 1));
+        uploadZone1.addEventListener('dragover', (e) => e.preventDefault());
+        uploadZone1.addEventListener('dragover', () => uploadZone1.classList.add('drag-over'));
+        uploadZone1.addEventListener('dragleave', (e) => e.preventDefault());
+        uploadZone1.addEventListener('dragleave', () => uploadZone1.classList.remove('drag-over'));
         uploadZone1.addEventListener('drop', (e) => {
             e.preventDefault();
             uploadZone1.classList.remove('drag-over');
-            const file = e.dataTransfer.files[0];
-            handleImageFile(file, 1);
+            handleImageFile(e.dataTransfer.files[0], 1);
         });
+        removeBtn1.addEventListener('click', (e) => { e.stopPropagation(); removeImage(1); });
 
-        removeBtn1.addEventListener('click', (e) => {
-            e.stopPropagation();
-            removeImage(1);
-        });
-
-        // --- Image 2 Events ---
         uploadZone2.addEventListener('click', (e) => {
-            if (e.target !== removeBtn2 && !removeBtn2.contains(e.target)) {
-                imageInput2.click();
-            }
+            if (e.target !== removeBtn2 && !removeBtn2.contains(e.target)) imageInput2.click();
         });
-
-        imageInput2.addEventListener('change', (e) => {
-            handleImageFile(e.target.files[0], 2);
-        });
-
-        uploadZone2.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadZone2.classList.add('drag-over');
-        });
-
-        uploadZone2.addEventListener('dragleave', (e) => {
-            e.preventDefault();
-            uploadZone2.classList.remove('drag-over');
-        });
-
+        imageInput2.addEventListener('change', (e) => handleImageFile(e.target.files[0], 2));
+        uploadZone2.addEventListener('dragover', () => uploadZone2.classList.add('drag-over'));
+        uploadZone2.addEventListener('dragleave', () => uploadZone2.classList.remove('drag-over'));
         uploadZone2.addEventListener('drop', (e) => {
             e.preventDefault();
             uploadZone2.classList.remove('drag-over');
-            const file = e.dataTransfer.files[0];
-            handleImageFile(file, 2);
+            handleImageFile(e.dataTransfer.files[0], 2);
         });
+        removeBtn2.addEventListener('click', (e) => { e.stopPropagation(); removeImage(2); });
 
-        removeBtn2.addEventListener('click', (e) => {
-            e.stopPropagation();
-            removeImage(2);
-        });
-
-        // --- Global paste (for both upload zones) ---
         document.addEventListener('paste', (e) => {
             const items = e.clipboardData.items;
             for (let i = 0; i < items.length; i++) {
                 if (items[i].type.startsWith('image/')) {
                     e.preventDefault();
-                    const file = items[i].getAsFile();
-                    // Paste goes to the last focused zone, default to image 1
-                    handleImageFile(file, 1);
+                    handleImageFile(items[i].getAsFile(), 1);
                     break;
                 }
             }
         });
 
-        // ====== Number Formatting ======
-
-        // ฟังก์ชันเพิ่ม , ให้ตัวเลขเวลาพิมพ์
         function formatNumberInput(input) {
             let val = input.value.replace(/[^0-9]/g, '');
-            if (val) {
-                val = Number(val).toLocaleString('en-US');
-                input.value = val;
-            }
+            if (val) input.value = Number(val).toLocaleString('en-US');
         }
 
-        // betAmount: ฟอร์แมต , อัตโนมัติขณะพิมพ์
         const betAmountInput = document.getElementById('betAmount');
-        betAmountInput.addEventListener('input', function() {
-            formatNumberInput(this);
-        });
+        betAmountInput.addEventListener('input', function() { formatNumberInput(this); });
 
-        // ตอน form submit ดึงค่า numbers ลบ , ออกก่อนส่ง
-        function getRawNumber(str) {
-            return str.replace(/,/g, '');
-        }
-
-        // ====== Form Logic ======
+        function getRawNumber(str) { return str.replace(/,/g, ''); }
 
         function showError(errors) {
             errorList.innerHTML = '';
@@ -733,17 +590,12 @@
             errorContainer.style.display = 'block';
         }
 
-        // Form submit
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-
-            // ตรวจสอบว่าเชื่อมต่อ Discord แล้ว
-            if (!discordIdInput.value) {
+            if (!getDiscordId()) {
                 showError(['กรุณาเชื่อมต่อ Discord ก่อนส่งข้อมูล']);
                 return;
             }
-
-            // ตรวจสอบข้อมูลที่จำเป็น
             const gangA = document.getElementById('gangA').value.trim();
             const gangB = document.getElementById('gangB').value.trim();
             const slotA = document.getElementById('slotA').value;
@@ -770,84 +622,51 @@
             if (!startTime) errors.push('กรุณากรอกเวลาเริ่มไฟต์แรก');
             if (!outfitA) errors.push('กรุณากรอกชุดฝั่ง A');
             if (!outfitB) errors.push('กรุณากรอกชุดฝั่ง B');
+            if (errors.length > 0) { showError(errors); return; }
 
-            if (errors.length > 0) {
-                showError(errors);
-                return;
-            }
-
-            // Hide previous errors
             errorContainer.style.display = 'none';
-
-            // Get form data
             const bluffRules = document.getElementById('bluffRules').value.trim();
             const notes = document.getElementById('notes').value.trim();
             const preEventActivity = document.getElementById('preEventActivity').value;
-
             const discordName = discordDisplayName ? discordDisplayName.textContent.replace(/^@/, '') : '';
-
-            // แสดง loading ก่อน
             loadingOverlay.style.display = 'flex';
 
-            // รวม 2 รูปเป็นรูปเดียวก่อนส่ง (ถ้ามีครบ 2 รูป)
             let mergedImage = null;
             if (uploadedImage1 && uploadedImage2) {
-                try {
-                    mergedImage = await mergeImagesSideBySide(uploadedImage1, uploadedImage2);
-                } catch (err) {
-                    console.error('Image merge failed, sending separately', err);
-                    mergedImage = null;
-                }
-            } else if (uploadedImage1) {
-                mergedImage = uploadedImage1;
-            } else if (uploadedImage2) {
-                mergedImage = uploadedImage2;
-            }
+                try { mergedImage = await mergeImagesSideBySide(uploadedImage1, uploadedImage2); }
+                catch (err) { mergedImage = null; }
+            } else if (uploadedImage1) mergedImage = uploadedImage1;
+            else if (uploadedImage2) mergedImage = uploadedImage2;
 
             const formData = {
-                discordId: discordIdInput.value.trim(),
+                discordId: getDiscordId(),
                 discordName: discordName,
-                gangA: gangA,
-                slotA: slotA,
-                gangB: gangB,
-                slotB: slotB,
-                betAmount: betAmount,
-                fightCount: fightCount,
+                gangA: gangA, slotA: slotA,
+                gangB: gangB, slotB: slotB,
+                betAmount: betAmount, fightCount: fightCount,
                 location: location,
-                dateStart: dateStart,
-                dateEnd: dateEnd,
-                startTime: startTime,
+                dateStart: dateStart, dateEnd: dateEnd, startTime: startTime,
                 preEventActivity: preEventActivity,
-                outfitA: outfitA,
-                outfitB: outfitB,
-                bluffRules: bluffRules,
-                notes: notes,
+                outfitA: outfitA, outfitB: outfitB,
+                bluffRules: bluffRules, notes: notes,
                 image: mergedImage,
-                hasImage1: !!uploadedImage1,
-                hasImage2: !!uploadedImage2
+                hasImage1: !!uploadedImage1, hasImage2: !!uploadedImage2
             };
 
             try {
-                // ส่งข้อมูลไปยัง Server API
                 const response = await fetch('/api/council/submit', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(formData)
                 });
-
                 const result = await response.json();
-
                 if (result.success) {
-                    // Show success
                     form.parentElement.style.display = 'none';
                     successCard.style.display = 'block';
                 } else {
                     showError([result.error || 'ไม่สามารถส่งข้อมูลได้']);
                 }
             } catch (err) {
-                console.error(err);
                 showError(['ไม่สามารถส่งข้อมูลได้ กรุณาลองใหม่อีกครั้ง']);
             } finally {
                 loadingOverlay.style.display = 'none';
@@ -856,24 +675,30 @@
 
         function resetForm() {
             form.reset();
-            discordIdInput.value = '';
-            discordIdDisplay.value = '';
-            discordIdStatus.classList.remove('connected');
-            discordIdStatus.querySelector('.status-text').textContent = 'ยังไม่ได้เชื่อมต่อ';
-            discordUserInfo.style.display = 'none';
-            discordLoginBtn.style.display = 'flex';
-            discordLoginSection.classList.remove('connected');
+            const discordIdInput = document.getElementById('discordId');
+            const discordIdDisplay = document.getElementById('discordIdDisplay');
+            const discordIdStatus = document.getElementById('discordIdStatus');
+            const discordUserInfo = document.getElementById('discordUserInfo');
+            const discordLoginBtn = document.getElementById('discordLoginBtn');
+            const discordLoginSection = document.getElementById('discordLoginSection');
+            const discordRequiredMsg = document.getElementById('discordRequiredMsg');
+            if (discordIdInput) discordIdInput.value = '';
+            if (discordIdDisplay) discordIdDisplay.value = '';
+            if (discordIdStatus) {
+                discordIdStatus.classList.remove('connected');
+                const st = discordIdStatus.querySelector('.status-text');
+                if (st) st.textContent = 'ยังไม่ได้เชื่อมต่อ';
+            }
+            if (discordUserInfo) discordUserInfo.style.display = 'none';
+            if (discordLoginBtn) discordLoginBtn.style.display = 'flex';
+            if (discordLoginSection) discordLoginSection.classList.remove('connected');
             submitBtn.disabled = true;
-            discordRequiredMsg.style.display = 'block';
+            if (discordRequiredMsg) discordRequiredMsg.style.display = 'block';
             errorContainer.style.display = 'none';
             successCard.style.display = 'none';
             form.parentElement.style.display = 'block';
-
-            // Reset images
             removeImage(1);
             removeImage(2);
-
-            // รีเซ็ตวันที่
             document.getElementById('dateStart').value = todayStr;
             document.getElementById('dateEnd').value = todayStr;
         }

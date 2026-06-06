@@ -4,7 +4,7 @@
     - Admin CRUD operations (Add/Edit/Delete)
     ======================================== */
 
-const rulesLogger = window.Logger ? window.Logger.createLogger('RulesPage') : {
+const rulesLogger = window.getLogger ? window.getLogger('RulesPage') : {
     error: (...args) => console.error(...args),
     warn: (...args) => console.warn(...args),
     info: (...args) => console.log(...args),

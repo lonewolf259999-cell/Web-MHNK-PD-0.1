@@ -68,6 +68,11 @@
         <p>&copy; 2026 <span>MHNK POLICE DEPARTMENT</span> &mdash; FiveM Server</p>
     </footer>
 
+    <!-- Production flag -->
+    <script>
+        window.__PRODUCTION__ = !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1');
+    </script>
+    
     <script src="src/utils/html.js?v=2.1.0"></script>
     <script src="src/utils/api.js?v=2.1.0"></script>
     <script src="src/utils/NotificationSystem.js?v=2.1.0"></script>

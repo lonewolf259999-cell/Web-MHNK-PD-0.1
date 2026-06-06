@@ -21,7 +21,7 @@
     
     <!-- Stylesheet -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" />
-    <link rel="stylesheet" href="src/styles/main.css" />
+    <link rel="stylesheet" href="src/styles/main.css?v=4.0" />
     <link rel="stylesheet" href="src/styles/admin.css?v=4.0" />
 </head>
 <body>
@@ -168,26 +168,32 @@
         <p>&copy; 2026 <span>MHNK POLICE DEPARTMENT</span> &mdash; FiveM Server</p>
     </footer>
 
+    <!-- Production flag (must be before logger.js which reads this at parse time) -->
+    <script>
+        window.__PRODUCTION__ = !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1');
+    </script>
+    
     <!-- Critical scripts (loaded first - needed for initial render) -->
-    <script defer src="src/utils/html.js"></script>
-    <script defer src="src/utils/api.js"></script>
-    <script defer src="src/utils/NotificationSystem.js"></script>
+    <script defer src="src/utils/logger.js?v=4.0"></script>
+    <script defer src="src/utils/html.js?v=4.0"></script>
+    <script defer src="src/utils/api.js?v=4.0"></script>
+    <script defer src="src/utils/NotificationSystem.js?v=4.0"></script>
     <script defer src="src/utils/adminActions.js?v=4.0"></script>
     
     <!-- Core components (loaded second) -->
-    <script defer src="src/components/Navigation.js"></script>
-    <script defer src="src/components/Search.js"></script>
-    <script defer src="src/components/Sidebar.js"></script>
-    <script defer src="src/components/AdminBar.js"></script>
-    <script defer src="src/components/shared/PinModal.js?v=3.1"></script>
+    <script defer src="src/components/Navigation.js?v=4.0"></script>
+    <script defer src="src/components/Search.js?v=4.0"></script>
+    <script defer src="src/components/Sidebar.js?v=4.0"></script>
+    <script defer src="src/components/AdminBar.js?v=4.0"></script>
+    <script defer src="src/components/shared/PinModal.js?v=4.0"></script>
     <script defer src="src/components/AdminPanel.js?v=4.0"></script>
     
     <!-- Page scripts (load in parallel, non-blocking) -->
-    <script defer src="src/pages/RosterPage.js"></script>
-    <script defer src="src/pages/RulesPage.js?v=3.1"></script>
-    <script defer src="src/pages/ConductPage.js?v=3.1"></script>
-    <script defer src="src/pages/FinesPage.js?v=3.1"></script>
-    <script defer src="src/pages/SchedulePage.js"></script>
+    <script defer src="src/pages/RosterPage.js?v=4.0"></script>
+    <script defer src="src/pages/RulesPage.js?v=4.0"></script>
+    <script defer src="src/pages/ConductPage.js?v=4.0"></script>
+    <script defer src="src/pages/FinesPage.js?v=4.0"></script>
+    <script defer src="src/pages/SchedulePage.js?v=4.0"></script>
     
     <!-- Application entry point -->
     <script defer src="src/app.js?v=4.0"></script>

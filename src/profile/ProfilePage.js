@@ -4,7 +4,7 @@
    - Data loading and lifecycle
    ======================================== */
 
-const profileLogger = window.Logger ? window.Logger.createLogger('ProfilePage') : {
+const profileLogger = window.getLogger ? window.getLogger('ProfilePage') : {
     error: (...args) => console.error(...args),
     warn: (...args) => console.warn(...args),
     info: (...args) => console.log(...args),
@@ -143,8 +143,7 @@ class ProfilePage {
             if (this.currentActiveWeek) {
                 // Clear cache for fresh data
                 ApiService.clearCache('officers');
-                ApiService.clearCache('week:');  // Fix: use colon to match actual cache key format 'week:WeekName'
-                ApiService.clearCache('week_');   // Keep for backward compatibility
+                ApiService.clearCache('week_');
                 await this.selectWeek(this.currentActiveWeek, true);
             }
         }, 60000);

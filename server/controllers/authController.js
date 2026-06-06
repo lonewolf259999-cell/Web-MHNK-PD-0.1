@@ -17,13 +17,20 @@ function discordLogin(req, res) {
 }
 
 /**
+ * Get fallback page URL based on state parameter
+ */
+function getFallbackPage(state) {
+    return state === 'proctor' ? '/proctor.html' : state === 'council' ? '/council.html' : '/register.html';
+}
+
+/**
  * จัดการ Callback จาก Discord
  */
 async function discordCallback(req, res) {
     try {
         const { code, error, state } = req.query;
 
-        const fallbackPage = state === 'proctor' ? '/proctor.html' : state === 'council' ? '/council.html' : '/register.html';
+        const fallbackPage = getFallbackPage(state);
         
         if (error || !code) {
             return res.redirect(`${fallbackPage}?auth=failed`);
@@ -54,7 +61,7 @@ async function discordCallback(req, res) {
 
     } catch (err) {
         logger.error(`Discord auth error: ${err.message}`);
-        const redirectTo = req.query.state === 'proctor' ? '/proctor.html' : req.query.state === 'council' ? '/council.html' : '/register.html';
+        const redirectTo = getFallbackPage(req.query.state);
         res.redirect(`${redirectTo}?auth=failed`);
     }
 }

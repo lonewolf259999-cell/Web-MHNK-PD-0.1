@@ -219,25 +219,39 @@
         <p>กำลังส่งข้อมูล...</p>
     </div>
 
+    <!-- Discord Auth module + Production flag -->
+    <script src="src/utils/discordAuth.js?v=4.0"></script>
     <script>
+        window.__PRODUCTION__ = !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1');
+    </script>
+    <script>
+        // Initialize shared Discord Auth with proctor-specific callback
+        DiscordAuth.init({
+            loginUrl: '/auth/discord?state=proctor',
+            onAuthSuccess: function(userData) {
+                const proctorNameInput = document.getElementById('proctorName');
+                if (proctorNameInput) proctorNameInput.value = userData.discordName;
+            },
+            onDisconnect: function() {
+                const proctorNameInput = document.getElementById('proctorName');
+                if (proctorNameInput) proctorNameInput.value = '';
+            }
+        });
+
         const form = document.getElementById('proctorForm');
         const submitBtn = document.getElementById('submitBtn');
         const errorContainer = document.getElementById('errorContainer');
         const errorList = document.getElementById('errorList');
         const successCard = document.getElementById('successCard');
         const loadingOverlay = document.getElementById('loadingOverlay');
-        const discordIdInput = document.getElementById('discordId');
-        const discordUserInfo = document.getElementById('discordUserInfo');
-        const discordAvatar = document.getElementById('discordAvatar');
-        const discordDisplayName = document.getElementById('discordDisplayName');
-        const discordUserIdDisplay = document.getElementById('discordUserId');
-        const discordDisconnect = document.getElementById('discordDisconnect');
-        const discordLoginBtn = document.getElementById('discordLoginBtn');
-        const discordLoginSection = document.getElementById('discordLoginSection');
-        const discordRequiredMsg = document.getElementById('discordRequiredMsg');
-        const discordIdDisplay = document.getElementById('discordIdDisplay');
-        const discordIdStatus = document.getElementById('discordIdStatus');
         const proctorNameInput = document.getElementById('proctorName');
+        const discordIdInput = document.getElementById('discordId');
+
+        // Helper to get Discord ID value
+        function getDiscordId() {
+            const el = document.getElementById('discordId');
+            return el ? el.value : '';
+        }
 
         // Image Upload Elements
         const imageUploadZone = document.getElementById('imageUploadZone');
@@ -255,74 +269,6 @@
         const month = String(today.getMonth() + 1).padStart(2, '0');
         const day = String(today.getDate()).padStart(2, '0');
         document.getElementById('examDate').value = `${year}-${month}-${day}`;
-
-        // ตรวจสอบ URL parameters สำหรับ Discord callback
-        const urlParams = new URLSearchParams(window.location.search);
-        const authStatus = urlParams.get('auth');
-        const discordName = urlParams.get('discord_name');
-        const discordAvatarHash = urlParams.get('discord_avatar');
-        const discordUserIdParam = urlParams.get('discord_userId');
-
-        // ถ้า login Discord สำเร็จ
-        if (authStatus === 'success' && discordUserIdParam) {
-            discordIdInput.value = discordUserIdParam;
-            discordIdDisplay.value = discordUserIdParam;
-            proctorNameInput.value = discordName || '';
-            
-            // อัปเดตสถานะ Discord ID
-            discordIdStatus.classList.add('connected');
-            discordIdStatus.querySelector('.status-text').textContent = 'เชื่อมต่อแล้ว';
-            
-            // แสดงข้อมูล Discord User
-            if (discordName) {
-                discordDisplayName.textContent = `@${discordName}`;
-                discordUserIdDisplay.textContent = discordUserIdParam;
-                
-                // สร้าง Avatar URL
-                if (discordAvatarHash) {
-                    const avatarUrl = `https://cdn.discordapp.com/avatars/${discordUserIdParam}/${discordAvatarHash}.png?size=64`;
-                    discordAvatar.src = avatarUrl;
-                } else {
-                    discordAvatar.src = 'https://cdn.discordapp.com/embed/avatars/0.png';
-                }
-                
-                discordUserInfo.style.display = 'flex';
-                discordLoginBtn.style.display = 'none';
-                discordLoginSection.classList.add('connected');
-                
-                // เปิดปุ่มสมัคร
-                submitBtn.disabled = false;
-                discordRequiredMsg.style.display = 'none';
-            }
-            
-            // ลบ URL parameters
-            window.history.replaceState({}, document.title, '/proctor');
-        }
-
-        // ถ้า login ล้มเหลว
-        if (authStatus === 'failed') {
-            const li = document.createElement('li');
-            li.textContent = 'เชื่อมต่อ Discord ล้มเหลว กรุณาลองใหม่อีกครั้ง';
-            errorList.appendChild(li);
-            errorContainer.style.display = 'block';
-            window.history.replaceState({}, document.title, '/proctor');
-        }
-
-        // ปุ่มยกเลิกการเชื่อมต่อ Discord
-        discordDisconnect.addEventListener('click', () => {
-            discordIdInput.value = '';
-            discordIdDisplay.value = '';
-            proctorNameInput.value = '';
-            discordIdStatus.classList.remove('connected');
-            discordIdStatus.querySelector('.status-text').textContent = 'ยังไม่ได้เชื่อมต่อ';
-            discordUserInfo.style.display = 'none';
-            discordLoginBtn.style.display = 'flex';
-            discordLoginSection.classList.remove('connected');
-            
-            // ปิดปุ่มสมัคร
-            submitBtn.disabled = true;
-            discordRequiredMsg.style.display = 'block';
-        });
 
         // Image Upload Functions
         function handleImageFile(file) {
@@ -423,7 +369,7 @@
             e.preventDefault();
             
             // ตรวจสอบว่าเชื่อมต่อ Discord แล้ว
-            if (!discordIdInput.value) {
+            if (!getDiscordId()) {
                 showError(['กรุณาเชื่อมต่อ Discord ก่อนส่งข้อมูล']);
                 return;
             }
@@ -449,7 +395,7 @@
             const notes = document.getElementById('notes').value.trim();
             const formData = {
                 proctorName: proctorNameInput.value.trim(),
-                discordId: discordIdInput.value.trim(),
+                discordId: getDiscordId(),
                 examineeName: examineeName,
                 examDate: examDate,
                 notes: notes,
@@ -488,16 +434,27 @@
 
         function resetForm() {
             form.reset();
-            discordIdInput.value = '';
-            discordIdDisplay.value = '';
-            proctorNameInput.value = '';
-            discordIdStatus.classList.remove('connected');
-            discordIdStatus.querySelector('.status-text').textContent = 'ยังไม่ได้เชื่อมต่อ';
-            discordUserInfo.style.display = 'none';
-            discordLoginBtn.style.display = 'flex';
-            discordLoginSection.classList.remove('connected');
+            // Clear Discord fields manually
+            const discordIdInput = document.getElementById('discordId');
+            const discordIdDisplay = document.getElementById('discordIdDisplay');
+            const discordIdStatus = document.getElementById('discordIdStatus');
+            const discordUserInfo = document.getElementById('discordUserInfo');
+            const discordLoginBtn = document.getElementById('discordLoginBtn');
+            const discordLoginSection = document.getElementById('discordLoginSection');
+            const discordRequiredMsg = document.getElementById('discordRequiredMsg');
+            if (discordIdInput) discordIdInput.value = '';
+            if (discordIdDisplay) discordIdDisplay.value = '';
+            if (proctorNameInput) proctorNameInput.value = '';
+            if (discordIdStatus) {
+                discordIdStatus.classList.remove('connected');
+                const st = discordIdStatus.querySelector('.status-text');
+                if (st) st.textContent = 'ยังไม่ได้เชื่อมต่อ';
+            }
+            if (discordUserInfo) discordUserInfo.style.display = 'none';
+            if (discordLoginBtn) discordLoginBtn.style.display = 'flex';
+            if (discordLoginSection) discordLoginSection.classList.remove('connected');
             submitBtn.disabled = true;
-            discordRequiredMsg.style.display = 'block';
+            if (discordRequiredMsg) discordRequiredMsg.style.display = 'block';
             errorContainer.style.display = 'none';
             successCard.style.display = 'none';
             form.parentElement.style.display = 'block';

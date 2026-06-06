@@ -4,7 +4,7 @@
    - Check all weeks' payment status in parallel
    ======================================== */
 
-const weekLogger = window.Logger ? window.Logger.createLogger('WeekSelector') : {
+const weekLogger = window.getLogger ? window.getLogger('WeekSelector') : {
     error: (...args) => console.error(...args),
     warn: (...args) => console.warn(...args),
     info: (...args) => console.log(...args),

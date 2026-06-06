@@ -36,7 +36,7 @@ const globalLimiter = rateLimit({
     max: 300,            // สูงสุด 300 request/นาที
     standardHeaders: true,
     legacyHeaders: false,
-    message: { error: 'มีการใช้งานมากเกินไป กรุณาลองใหม่ใน 1 นาที' }
+    message: { success: false, error: 'มีการใช้งานมากเกินไป กรุณาลองใหม่ใน 1 นาที' }
 });
 
 // Submit limiter (สำหรับฟอร์ม)

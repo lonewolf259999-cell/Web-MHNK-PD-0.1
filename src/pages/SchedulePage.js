@@ -2,7 +2,7 @@
    Schedule Page Controller
    ======================================== */
 
-const scheduleLogger = window.Logger ? window.Logger.createLogger('SchedulePage') : {
+const scheduleLogger = window.getLogger ? window.getLogger('SchedulePage') : {
     error: (...args) => console.error(...args),
     warn: (...args) => console.warn(...args),
     info: (...args) => console.log(...args),

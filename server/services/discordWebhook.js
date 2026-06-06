@@ -1,7 +1,7 @@
 /* ========================================
    Discord Webhook Service (Unified)
    - ส่งข้อมูลไปยัง Discord Webhook ทั้งแบบมีรูปและไม่มีรูป
-   - ใช้ร่วมกันทั้ง register และ proctor
+   - ใช้ร่วมกันทั้ง register, proctor และ council
    ======================================== */
 
 const https = require('https');
@@ -55,8 +55,14 @@ function sendJson(url, payload) {
 
 /**
  * ส่ง Webhook พร้อมรูปภาพ (multipart/form-data)
+ * ใช้ร่วมกันทั้ง proctor และ council
+ * @param {string} url - Webhook URL
+ * @param {Object} embed - Discord embed object
+ * @param {string} base64Image - รูปภาพแบบ base64
+ * @param {string} discordId - Discord user ID สำหรับ mention
+ * @param {string} filename - ชื่อไฟล์แนบ (default: 'evidence.png')
  */
-function sendMultipart(url, embed, base64Image, discordId) {
+function sendMultipart(url, embed, base64Image, discordId, filename = 'evidence.png') {
     return new Promise((resolve, reject) => {
         const urlObj = new URL(url);
 
@@ -69,7 +75,7 @@ function sendMultipart(url, embed, base64Image, discordId) {
         const boundary = '----WebKitFormBoundary' + Math.random().toString(36).substring(2);
 
         // สร้าง multipart body
-        const jsonPart = JSON.stringify({
+        const payloadJson = JSON.stringify({
             content: discordId ? `<@${discordId}>` : undefined,
             embeds: [embed]
         });
@@ -79,9 +85,9 @@ function sendMultipart(url, embed, base64Image, discordId) {
             'Content-Disposition: form-data; name="payload_json"',
             'Content-Type: application/json',
             '',
-            jsonPart,
+            payloadJson,
             `--${boundary}`,
-            `Content-Disposition: form-data; name="files[0]"; filename="evidence.png"`,
+            `Content-Disposition: form-data; name="files[0]"; filename="${filename}"`,
             `Content-Type: ${contentType}`,
             '',
         ];
@@ -206,82 +212,13 @@ async function sendProctor(proctorData) {
     }
 
     if (image) {
-        await sendMultipart(webhookUrl, embed, image, discordId);
+        await sendMultipart(webhookUrl, embed, image, discordId, 'evidence.png');
     } else {
         await sendJson(webhookUrl, { content: `<@${discordId}>`, embeds: [embed] });
     }
 
     logger.info(`Proctor record submitted: ${examineeName} by ${proctorName}`);
     return { success: true, message: 'บันทึกสำเร็จ' };
-}
-
-/**
- * ส่ง Webhook พร้อมรูปเดียว (multipart/form-data)
- * สำหรับ Council โดยเฉพาะ
- */
-function sendCouncilMultipart(url, embed, base64Image, discordId) {
-    return new Promise((resolve, reject) => {
-        const urlObj = new URL(url);
-
-        const boundary = '----WebKitFormBoundary' + Math.random().toString(36).substring(2);
-        const payloadJson = JSON.stringify({
-            content: discordId ? `<@${discordId}>` : undefined,
-            embeds: [embed]
-        });
-
-        // แยก base64 data
-        const base64Data = base64Image.split(',')[1];
-        const contentType = base64Image.split(';')[0].split(':')[1];
-        const imageBuffer = Buffer.from(base64Data, 'base64');
-
-        const parts = [
-            `--${boundary}`,
-            'Content-Disposition: form-data; name="payload_json"',
-            'Content-Type: application/json',
-            '',
-            payloadJson,
-            `--${boundary}`,
-            'Content-Disposition: form-data; name="files[0]"; filename="council.png"',
-            `Content-Type: ${contentType}`,
-            '',
-        ];
-
-        const header = Buffer.from(parts.join('\r\n') + '\r\n');
-        const footer = Buffer.from(`\r\n--${boundary}--\r\n`);
-        const body = Buffer.concat([header, imageBuffer, footer]);
-
-        const options = {
-            hostname: urlObj.hostname,
-            path: urlObj.pathname,
-            method: 'POST',
-            headers: {
-                'Content-Type': `multipart/form-data; boundary=${boundary}`,
-                'Content-Length': body.length
-            },
-            timeout: config.REQUEST_TIMEOUT
-        };
-
-        const protocol = urlObj.protocol === 'https:' ? https : http;
-        const req = protocol.request(options, (res) => {
-            let responseBody = '';
-            res.on('data', chunk => responseBody += chunk);
-            res.on('end', () => {
-                if (res.statusCode >= 200 && res.statusCode < 300) {
-                    resolve(responseBody);
-                } else {
-                    reject(new Error(`Webhook failed with status ${res.statusCode}`));
-                }
-            });
-        });
-
-        req.on('error', reject);
-        req.on('timeout', () => {
-            req.destroy();
-            reject(new Error('Webhook request timeout'));
-        });
-        req.write(body);
-        req.end();
-    });
 }
 
 /**
@@ -346,7 +283,7 @@ async function sendCouncil(councilData) {
     }
 
     if (image) {
-        await sendCouncilMultipart(webhookUrl, embed, image, discordId);
+        await sendMultipart(webhookUrl, embed, image, discordId, 'council.png');
     } else {
         const payload = { content: `<@${discordId}>`, embeds: [embed] };
         await sendJson(webhookUrl, payload);

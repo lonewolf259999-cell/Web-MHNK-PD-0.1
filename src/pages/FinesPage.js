@@ -5,7 +5,7 @@
     - Uses AdminActions.renderButtons with inline onclick
     ======================================== */
 
-const finesLogger = window.Logger ? window.Logger.createLogger('FinesPage') : {
+const finesLogger = window.getLogger ? window.getLogger('FinesPage') : {
     error: (...args) => console.error(...args),
     warn: (...args) => console.warn(...args),
     info: (...args) => console.log(...args),

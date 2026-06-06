@@ -13,7 +13,8 @@ const LOG_LEVELS = {
 };
 
 // Determine current level based on environment
-const isProduction = typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'production';
+// Use global __PRODUCTION__ flag set in HTML (more reliable than process.env in browser)
+const isProduction = typeof window.__PRODUCTION__ !== 'undefined' ? window.__PRODUCTION__ : false;
 const CURRENT_LEVEL = isProduction ? LOG_LEVELS.WARN : LOG_LEVELS.DEBUG;
 
 /**
@@ -59,12 +60,26 @@ function createLogger(moduleName) {
     };
 }
 
+/**
+ * Get logger instance with safe fallback (no need to check window.Logger in each file)
+ */
+function getLogger(moduleName) {
+    if (window.Logger) return window.Logger.createLogger(moduleName);
+    return {
+        error: (...args) => console.error(`[${moduleName}]`, ...args),
+        warn: (...args) => console.warn(`[${moduleName}]`, ...args),
+        info: (...args) => console.log(`[${moduleName}]`, ...args),
+        debug: () => {}
+    };
+}
+
 // Export for use in modules
 if (typeof window !== 'undefined') {
     window.Logger = { createLogger, LOG_LEVELS };
+    window.getLogger = getLogger;
 }
 
 // Export for ES modules
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { createLogger, LOG_LEVELS };
+    module.exports = { createLogger, LOG_LEVELS, getLogger };
 }

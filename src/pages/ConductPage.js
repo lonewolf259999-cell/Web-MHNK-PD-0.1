@@ -5,7 +5,7 @@
     - Users can create categories freely
     ======================================== */
 
-const conductLogger = window.Logger ? window.Logger.createLogger('ConductPage') : {
+const conductLogger = window.getLogger ? window.getLogger('ConductPage') : {
     error: (...args) => console.error(...args),
     warn: (...args) => console.warn(...args),
     info: (...args) => console.log(...args),

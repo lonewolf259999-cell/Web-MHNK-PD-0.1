@@ -19,6 +19,7 @@
 | `DISCORD_CLIENT_SECRET` | Client Secret จาก Discord Developer Portal | ✅ |
 | `DISCORD_REGISTER_WEBHOOK_URL` | Webhook URL สำหรับรับข้อมูลสมัครตำรวจ | ✅ |
 | `DISCORD_PROCTOR_WEBHOOK_URL` | Webhook URL สำหรับรับข้อมูลคุมสอบ | ✅ |
+| `DISCORD_COUNCIL_WEBHOOK_URL` | Webhook URL สำหรับรับข้อมูลสัญญาสตอรี | ✅ |
 | `APP_URL` | URL ของเว็บ (เช่น `https://mhnk-pd.onrender.com`) | ✅ |
 | `GOOGLE_JSON_KEY` | (Optional) ใส่ Google Service Account JSON key โดยตรง ถ้าไม่มีให้ใช้ไฟล์ `credentials.json` | 🔶 |
 

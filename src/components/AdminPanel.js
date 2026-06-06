@@ -5,7 +5,7 @@
     - CSS moved to src/styles/admin.css
     ======================================== */
 
-const adminPanelLogger = window.Logger ? window.Logger.createLogger('AdminPanel') : {
+const adminPanelLogger = window.getLogger ? window.getLogger('AdminPanel') : {
     error: (...args) => console.error(...args),
     warn: (...args) => console.warn(...args),
     info: (...args) => console.log(...args),

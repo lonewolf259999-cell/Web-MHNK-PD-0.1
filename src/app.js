@@ -91,11 +91,6 @@ const App = {
                 logger.warn('No officers loaded');
             }
 
-            // Load schedule config in parallel (needed for schedule page)
-            ApiService.getScheduleConfig().then(config => {
-                if (this.schedulePage) this.schedulePage.config = config;
-            }).catch(() => {});
-
         } catch (error) {
             logger.error(`Fatal error loading data: ${error.message}`);
             window.Notification.show('เกิดข้อผิดพลาดในการโหลดข้อมูล', 'error');
@@ -151,8 +146,7 @@ const App = {
                     await this.finesPage.load();
                     break;
                 case 'schedule':
-                    // Schedule data is already partially loaded (config) 
-                    // It needs officers which we already have
+                    await this.schedulePage.load();
                     break;
             }
             this._loadedPages[pageName] = true;

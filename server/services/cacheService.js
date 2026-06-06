@@ -87,7 +87,9 @@ loadFileCache() {
                     return true;
                 } else {
                     logger.info('File cache expired, will fetch fresh data');
-                    fs.unlink(config.CACHE_FILE, () => {});
+                    fs.unlink(config.CACHE_FILE, (err) => {
+                        if (err) logger.warn(`Failed to delete expired cache file: ${err.message}`);
+                    });
                 }
             }
         } catch (e) {

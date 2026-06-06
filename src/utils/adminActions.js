@@ -5,7 +5,7 @@
     - No event listeners needed in page controllers
     ======================================== */
 
-const adminLogger = window.Logger ? window.Logger.createLogger('AdminActions') : {
+const adminLogger = window.getLogger ? window.getLogger('AdminActions') : {
     error: (...args) => console.error(...args),
     warn: (...args) => console.warn(...args),
     info: (...args) => console.log(...args),

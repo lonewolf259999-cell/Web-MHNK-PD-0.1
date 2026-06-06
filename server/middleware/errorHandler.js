@@ -19,7 +19,7 @@ function asyncHandler(fn) {
  * Centralized error handler middleware
  * Catches all errors thrown from controllers/services
  */
-function errorHandler(err, req, res, next) {
+function errorHandler(err, req, res, _next) {
     logger.error(`${req.method} ${req.path}: ${err.message}`);
 
     // Determine HTTP status code

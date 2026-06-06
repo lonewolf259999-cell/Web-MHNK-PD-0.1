@@ -35,5 +35,7 @@ services:
         sync: false
       - key: DISCORD_PROCTOR_WEBHOOK_URL
         sync: false
+      - key: DISCORD_COUNCIL_WEBHOOK_URL
+        sync: false
       - key: APP_URL
         sync: false
