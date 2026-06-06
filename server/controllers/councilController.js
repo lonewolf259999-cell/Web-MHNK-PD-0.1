@@ -21,7 +21,8 @@ async function submitCouncil(req, res) {
             preEventActivity,
             outfitA, outfitB,
             bluffRules, notes,
-            image1, image2
+            image,
+            hasImage1, hasImage2
         } = req.body;
 
         // Validation
@@ -62,7 +63,7 @@ async function submitCouncil(req, res) {
             preEventActivity: preEventActivity || 'ไม่อนุญาต',
             outfitA, outfitB,
             bluffRules, notes,
-            image1, image2
+            image
         });
 
         logger.info(`Council record submitted: ${gangA} vs ${gangB}`);

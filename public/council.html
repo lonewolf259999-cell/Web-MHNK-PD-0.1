@@ -400,6 +400,66 @@
         let uploadedImage1 = null;
         let uploadedImage2 = null;
 
+        /**
+         * รวม 2 รูปเป็นรูปเดียว (ซ้าย-ขวา) ด้วย Canvas
+         * ปรับขนาดรูปให้กว้างไม่เกิน sideMaxWidth ต่อรูป
+         * และความสูงเท่ากัน
+         */
+        function mergeImagesSideBySide(img1Src, img2Src, sideMaxWidth = 400) {
+            return new Promise((resolve) => {
+                const img1 = new Image();
+                const img2 = new Image();
+                let loaded = 0;
+
+                function onLoad() {
+                    loaded++;
+                    if (loaded === 2) {
+                        // ปรับขนาดทั้งสองรูปให้สูงเท่ากัน
+                        const targetHeight = Math.min(img1.height, img2.height);
+                        
+                        // scale รูปที่ 1
+                        const scale1 = targetHeight / img1.height;
+                        const w1 = Math.min(Math.round(img1.width * scale1), sideMaxWidth);
+                        const h1 = Math.round(w1 * (targetHeight / (img1.width * scale1))); // keep aspect
+
+                        // scale รูปที่ 2
+                        const scale2 = targetHeight / img2.height;
+                        const w2 = Math.min(Math.round(img2.width * scale2), sideMaxWidth);
+                        const h2 = Math.round(w2 * (targetHeight / (img2.width * scale2)));
+
+                        // ใช้ความสูงเท่ากัน
+                        const finalHeight = Math.min(h1, h2);
+                        const finalW1 = Math.round(w1 * (finalHeight / h1));
+                        const finalW2 = Math.round(w2 * (finalHeight / h2));
+                        const gap = 4; // ช่องว่างระหว่างรูป
+
+                        const canvas = document.createElement('canvas');
+                        canvas.width = finalW1 + gap + finalW2;
+                        canvas.height = finalHeight;
+                        const ctx = canvas.getContext('2d');
+
+                        // วาดพื้นหลังดำ
+                        ctx.fillStyle = '#000000';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                        // วาดรูปที่ 1 (ซ้าย)
+                        ctx.drawImage(img1, 0, 0, finalW1, finalHeight);
+                        // วาดรูปที่ 2 (ขวา)
+                        ctx.drawImage(img2, finalW1 + gap, 0, finalW2, finalHeight);
+
+                        resolve(canvas.toDataURL('image/jpeg', 0.85));
+                    }
+                }
+
+                img1.onload = onLoad;
+                img2.onload = onLoad;
+                img1.onerror = () => resolve(img1Src);
+                img2.onerror = () => resolve(img2Src);
+                img1.src = img1Src;
+                img2.src = img2Src;
+            });
+        }
+
         // กำหนดวันที่เริ่มต้นเป็นวันนี้
         const today = new Date();
         const year = today.getFullYear();
@@ -686,6 +746,24 @@
 
             const discordName = discordDisplayName ? discordDisplayName.textContent.replace(/^@/, '') : '';
 
+            // แสดง loading ก่อน
+            loadingOverlay.style.display = 'flex';
+
+            // รวม 2 รูปเป็นรูปเดียวก่อนส่ง (ถ้ามีครบ 2 รูป)
+            let mergedImage = null;
+            if (uploadedImage1 && uploadedImage2) {
+                try {
+                    mergedImage = await mergeImagesSideBySide(uploadedImage1, uploadedImage2);
+                } catch (err) {
+                    console.error('Image merge failed, sending separately', err);
+                    mergedImage = null;
+                }
+            } else if (uploadedImage1) {
+                mergedImage = uploadedImage1;
+            } else if (uploadedImage2) {
+                mergedImage = uploadedImage2;
+            }
+
             const formData = {
                 discordId: discordIdInput.value.trim(),
                 discordName: discordName,
@@ -704,12 +782,10 @@
                 outfitB: outfitB,
                 bluffRules: bluffRules,
                 notes: notes,
-                image1: uploadedImage1,
-                image2: uploadedImage2
+                image: mergedImage,
+                hasImage1: !!uploadedImage1,
+                hasImage2: !!uploadedImage2
             };
-
-            // Show loading
-            loadingOverlay.style.display = 'flex';
 
             try {
                 // ส่งข้อมูลไปยัง Server API
