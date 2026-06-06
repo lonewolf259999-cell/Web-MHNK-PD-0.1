@@ -308,15 +308,13 @@ async function sendCouncil(councilData) {
 
     const fields = [
         { name: '\u200B', value: `🟣 **${gangA}** \`${formatNumber(slotA)} SLOT\``, inline: false },
-        { name: '　　　　　　VS', value: `🔴 **${gangB}** \`${formatNumber(slotB)} SLOT\``, inline: false },
-        { name: '\u200B', value: '\u200B', inline: false },
+        { name: '　　　　　　... VS ...', value: `🔴 **${gangB}** \`${formatNumber(slotB)} SLOT\``, inline: false },
         { name: '💰 มูลค่าเดิมพัน', value: `\`${formatNumber(betAmount)} IC\``, inline: true },
         { name: '⚔️ จำนวนไฟต์', value: `\`${fightCount} ไฟต์\``, inline: true },
         { name: '📍 สถานที่', value: `\`${location}\``, inline: true },
         { name: '🎮 กิจกรรมก่อนเริ่ม', value: `\`${preEventActivity}\``, inline: false },
         { name: '📅 วันที่', value: `\`${dateStart} → ${dateEnd}\``, inline: false },
         { name: '🕐 เวลาเริ่ม', value: `\`${startTime}\``, inline: false },
-        { name: '\u200B', value: '\u200B', inline: false },
         { name: '👕 ชุดที่ใส่', value: `🟣 **${gangA}** : \`${outfitA}\`\n🔴 **${gangB}** : \`${outfitB}\``, inline: false },
         { name: '📋 กติกาการบลัฟ', value: bluffRules || 'การบลัฟ • 100% (พิมเอง)', inline: false },
     ];

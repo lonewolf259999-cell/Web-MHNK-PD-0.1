@@ -147,7 +147,7 @@
                                 <span class="form-icon">&#128176;</span>
                                 มูลค่าสินเดิมพันรวม
                             </label>
-                            <input type="number" id="betAmount" name="betAmount" placeholder="0" min="0" required />
+                            <input type="text" id="betAmount" name="betAmount" placeholder="0" inputmode="numeric" required />
                             <span class="form-hint">หน่วย: IC</span>
                         </div>
 
@@ -699,6 +699,28 @@
             }
         });
 
+        // ====== Number Formatting ======
+
+        // ฟังก์ชันเพิ่ม , ให้ตัวเลขเวลาพิมพ์
+        function formatNumberInput(input) {
+            let val = input.value.replace(/[^0-9]/g, '');
+            if (val) {
+                val = Number(val).toLocaleString('en-US');
+                input.value = val;
+            }
+        }
+
+        // betAmount: ฟอร์แมต , อัตโนมัติขณะพิมพ์
+        const betAmountInput = document.getElementById('betAmount');
+        betAmountInput.addEventListener('input', function() {
+            formatNumberInput(this);
+        });
+
+        // ตอน form submit ดึงค่า numbers ลบ , ออกก่อนส่ง
+        function getRawNumber(str) {
+            return str.replace(/,/g, '');
+        }
+
         // ====== Form Logic ======
 
         function showError(errors) {
@@ -726,7 +748,7 @@
             const gangB = document.getElementById('gangB').value.trim();
             const slotA = document.getElementById('slotA').value;
             const slotB = document.getElementById('slotB').value;
-            const betAmount = document.getElementById('betAmount').value;
+            const betAmount = getRawNumber(document.getElementById('betAmount').value);
             const fightCount = document.getElementById('fightCount').value;
             const location = document.getElementById('location').value.trim();
             const dateStart = document.getElementById('dateStart').value;
