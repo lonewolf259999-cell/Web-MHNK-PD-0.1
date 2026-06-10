@@ -535,10 +535,13 @@
             if (e.target !== removeBtn1 && !removeBtn1.contains(e.target)) imageInput1.click();
         });
         imageInput1.addEventListener('change', (e) => handleImageFile(e.target.files[0], 1));
-        uploadZone1.addEventListener('dragover', (e) => e.preventDefault());
-        uploadZone1.addEventListener('dragover', () => uploadZone1.classList.add('drag-over'));
-        uploadZone1.addEventListener('dragleave', (e) => e.preventDefault());
-        uploadZone1.addEventListener('dragleave', () => uploadZone1.classList.remove('drag-over'));
+        uploadZone1.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone1.classList.add('drag-over');
+        });
+        uploadZone1.addEventListener('dragleave', () => {
+            uploadZone1.classList.remove('drag-over');
+        });
         uploadZone1.addEventListener('drop', (e) => {
             e.preventDefault();
             uploadZone1.classList.remove('drag-over');
@@ -550,8 +553,13 @@
             if (e.target !== removeBtn2 && !removeBtn2.contains(e.target)) imageInput2.click();
         });
         imageInput2.addEventListener('change', (e) => handleImageFile(e.target.files[0], 2));
-        uploadZone2.addEventListener('dragover', () => uploadZone2.classList.add('drag-over'));
-        uploadZone2.addEventListener('dragleave', () => uploadZone2.classList.remove('drag-over'));
+        uploadZone2.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone2.classList.add('drag-over');
+        });
+        uploadZone2.addEventListener('dragleave', () => {
+            uploadZone2.classList.remove('drag-over');
+        });
         uploadZone2.addEventListener('drop', (e) => {
             e.preventDefault();
             uploadZone2.classList.remove('drag-over');

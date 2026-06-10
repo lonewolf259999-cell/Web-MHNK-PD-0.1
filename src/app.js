@@ -65,6 +65,15 @@ const App = {
         // Start auto-refresh polling
         this.startAutoRefresh();
 
+        // Pause auto-refresh when page is hidden to save bandwidth
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                this.stopAutoRefresh();
+            } else {
+                this.startAutoRefresh();
+            }
+        });
+
         logger.info('Application initialized successfully');
     },
 
@@ -74,7 +83,6 @@ const App = {
     async loadCriticalData() {
         try {
             this.rosterPage.setLoading();
-            this.schedulePage.setLoading();
 
             // Load officers (critical - needed for roster + sidebar)
             const officerResult = await ApiService.getOfficers().catch(err => {
@@ -172,6 +180,9 @@ const App = {
     handleSearch(query) {
         const page = this.navigation.getCurrentPage();
 
+        // Always update admin bar for current page
+        this.updateAdminBar(page);
+
         switch (page) {
             case 'roster':
                 this.rosterPage.render(this.officers, query);
@@ -179,15 +190,12 @@ const App = {
                 break;
             case 'conduct':
                 this.conductPage.render(query);
-                this.updateAdminBar('conduct');
                 break;
             case 'rules':
                 this.rulesPage.render(query);
-                this.updateAdminBar('rules');
                 break;
             case 'fines':
                 this.finesPage.render(query);
-                this.updateAdminBar('fines');
                 break;
             case 'schedule':
                 this.schedulePage.render(this.officers, query);
@@ -258,11 +266,13 @@ const App = {
     },
 
     /**
-     * Refresh data from server (fetch only officers, no cache clear)
+     * Refresh data from server (fetch only officers, clear stale cache first)
      */
     async refreshData() {
         try {
-            // Fetch fresh officers data without clearing client cache
+            // Clear stale cache before fetching fresh data
+            ApiService.clearCache('officers');
+
             const freshOfficers = await ApiService.getOfficers();
             if (freshOfficers && freshOfficers.length > 0) {
                 this.officers = freshOfficers;

@@ -17,6 +17,8 @@ const staticController = require('../controllers/staticController');
 const rulesController = require('../controllers/rulesController');
 const registerController = require('../controllers/registerController');
 const authController = require('../controllers/authController');
+const proctorController = require('../controllers/proctorController');
+const councilController = require('../controllers/councilController');
 
 const router = Router();
 
@@ -48,9 +50,9 @@ router.get('/auth/discord', authController.discordLogin);
 router.get('/auth/discord/callback', asyncHandler(authController.discordCallback));
 
 // ==================== Proctor API ====================
-router.post('/api/proctor/submit', asyncHandler(require('../controllers/proctorController').submitProctor));
+router.post('/api/proctor/submit', asyncHandler(proctorController.submitProctor));
 
 // ==================== Council API ====================
-router.post('/api/council/submit', asyncHandler(require('../controllers/councilController').submitCouncil));
+router.post('/api/council/submit', asyncHandler(councilController.submitCouncil));
 
 module.exports = router;
