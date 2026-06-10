@@ -176,12 +176,6 @@
                             </label>
                             <div class="message-id-wrapper">
                                 <input type="text" id="editMessageId" class="message-id-input" placeholder="วาง Message ID ที่คัดลอกจาก Discord" />
-                                <button type="button" id="pasteMessageIdBtn" class="paste-id-btn" title="วาง">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <rect x="8" y="2" width="8" height="4" rx="1"/>
-                                        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
-                                    </svg>
-                                </button>
                                 <button type="button" id="fetchDataBtn" class="fetch-data-btn" title="ดึงข้อมูล">
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <path d="M21 12v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h3"/>
@@ -295,7 +289,6 @@
         const editMessageId = document.getElementById('editMessageId');
         const editCount = document.getElementById('editCount');
         const cancelEditBtn = document.getElementById('cancelEditBtn');
-        const pasteMessageIdBtn = document.getElementById('pasteMessageIdBtn');
         const editToggleBtn = document.getElementById('editToggleBtn');
         const editAfterSuccessBtn = document.getElementById('editAfterSuccessBtn');
         const savedMessageId = document.getElementById('savedMessageId');
@@ -598,16 +591,6 @@
                 loadingOverlay.style.display = 'none';
                 document.querySelector('#loadingOverlay p').textContent = 'กำลังส่งข้อมูล...';
                 errorContainer.className = 'error-container';
-            }
-        });
-
-        // Paste button
-        pasteMessageIdBtn.addEventListener('click', async () => {
-            try {
-                const text = await navigator.clipboard.readText();
-                editMessageId.value = text.trim();
-            } catch {
-                editMessageId.focus();
             }
         });
 
