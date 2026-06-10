@@ -180,6 +180,7 @@ async function editRegistration(req, res) {
 async function fetchRegistration(req, res) {
     try {
         const { messageId } = req.params;
+        const discordUserId = req.query.discordUserId || null;
 
         if (!messageId) {
             return res.status(400).json({
@@ -188,7 +189,7 @@ async function fetchRegistration(req, res) {
             });
         }
 
-        const result = await fetchRegistrationMessage(messageId);
+        const result = await fetchRegistrationMessage(messageId, discordUserId);
         logger.info(`Registration fetched: msgId=${messageId}`);
 
         res.json({

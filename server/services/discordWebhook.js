@@ -416,9 +416,10 @@ async function sendCouncil(councilData) {
 /**
  * ดึงข้อมูลจาก Discord embed (GET message) เพื่อโหลดข้อมูลเก่า
  * @param {string} messageId - Discord Message ID
+ * @param {string} [verifiedDiscordUserId] - Discord User ID สำหรับตรวจสอบความเป็นเจ้าของ
  * @returns {Promise<Object>} - { ocName, icName, ocAge, icPhone, discordId, steamUrl }
  */
-async function fetchRegistrationMessage(messageId) {
+async function fetchRegistrationMessage(messageId, verifiedDiscordUserId) {
     const webhookUrl = config.DISCORD_REGISTER_WEBHOOK_URL;
     if (!webhookUrl) {
         throw new Error('ระบบยังไม่ได้ตั้งค่า Webhook สำหรับการสมัคร');
@@ -436,6 +437,24 @@ async function fetchRegistrationMessage(messageId) {
 
     const embed = response.embeds[0];
     const fields = embed.fields || [];
+
+    // === ตรวจสอบความเป็นเจ้าของ (ถ้ามี verifiedDiscordUserId) ===
+    if (verifiedDiscordUserId) {
+        const mentionPattern = `<@${verifiedDiscordUserId}>`;
+        const contentMatch = response.content && response.content.includes(mentionPattern);
+
+        let fieldMatch = false;
+        for (const field of fields) {
+            if (field.value && field.value.includes(mentionPattern)) {
+                fieldMatch = true;
+                break;
+            }
+        }
+
+        if (!contentMatch && !fieldMatch) {
+            throw new Error('❌ ไม่ใช่ข้อมูลของคุณ — Message ID นี้เป็นของคนอื่น');
+        }
+    }
 
     // Map fields from embed to registration data
     const getFieldValue = (name) => {

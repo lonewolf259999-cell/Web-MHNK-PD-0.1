@@ -643,11 +643,10 @@
 
 /* Fetch Data Button */
 .fetch-data-btn {
-    width: 44px;
-    height: 44px;
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 10px 18px;
     background: rgba(59, 130, 246, 0.15);
     border: 1px solid rgba(59, 130, 246, 0.3);
     border-radius: var(--radius-md);
@@ -655,10 +654,19 @@
     cursor: pointer;
     transition: all var(--transition-fast);
     flex-shrink: 0;
+    white-space: nowrap;
 }
 
 .fetch-data-btn:hover {
     background: rgba(59, 130, 246, 0.25);
+}
+
+.fetch-btn-text {
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
 }
 
 .message-id-help {

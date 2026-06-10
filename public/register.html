@@ -176,13 +176,8 @@
                             </label>
                             <div class="message-id-wrapper">
                                 <input type="text" id="editMessageId" class="message-id-input" placeholder="วาง Message ID ที่คัดลอกจาก Discord" />
-                                <button type="button" id="fetchDataBtn" class="fetch-data-btn" title="ดึงข้อมูล">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M21 12v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h3"/>
-                                        <circle cx="12" cy="12" r="3"/>
-                                        <path d="M9 3l3 3-3 3"/>
-                                        <path d="M15 21l-3-3 3-3"/>
-                                    </svg>
+                                <button type="button" id="fetchDataBtn" class="fetch-data-btn" title="โหลดข้อมูลจาก Discord">
+                                    <span class="fetch-btn-text">&#128229; โหลดข้อมูล</span>
                                 </button>
                             </div>
                             <div class="message-id-help">
@@ -567,11 +562,18 @@
                 return;
             }
 
+            if (!getDiscordId()) {
+                showErrors(['กรุณาเชื่อมต่อ Discord หรือกรอก Discord ID ก่อน']);
+                return;
+            }
+
             loadingOverlay.style.display = 'flex';
-            document.querySelector('#loadingOverlay p').textContent = 'กำลังดึงข้อมูล...';
+            document.querySelector('#loadingOverlay p').textContent = 'กำลังโหลดข้อมูล...';
 
             try {
-                const response = await fetch(`/api/register/fetch/${messageId}`);
+                const discordUserId = getDiscordUserId();
+                const queryParam = discordUserId ? `?discordUserId=${discordUserId}` : '';
+                const response = await fetch(`/api/register/fetch/${messageId}${queryParam}`);
                 const result = await response.json();
 
                 if (result.success && result.data) {
