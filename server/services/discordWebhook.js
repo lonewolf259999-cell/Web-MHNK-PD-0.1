@@ -36,7 +36,7 @@ function sendJson(url, payload, method = 'POST') {
 
         const options = {
             hostname: urlObj.hostname,
-            path: urlObj.pathname,
+            path: urlObj.pathname + urlObj.search, // รวม query string เช่น ?wait=true
             method: method,
             headers: {
                 'Content-Type': 'application/json',
@@ -212,8 +212,12 @@ async function sendRegistration(registrationData) {
         embeds: [embed]
     };
 
+    // ต้องใช้ ?wait=true เพื่อให้ Discord คืน message object (มี id กลับมา)
+    // ถ้าไม่ใช้ ?wait=true Discord จะคืน 204 No Content (ไม่มี body)
+    const waitUrl = webhookUrl + (webhookUrl.includes('?') ? '&' : '?') + 'wait=true';
+
     // ส่ง Webhook และรับ messageId กลับมา
-    const response = await sendJson(webhookUrl, payload);
+    const response = await sendJson(waitUrl, payload);
     const messageId = response.id;
 
     if (!messageId) {
