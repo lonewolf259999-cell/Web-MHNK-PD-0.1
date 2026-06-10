@@ -48,6 +48,13 @@
                     <p>กรอกข้อมูลด้านล่างเพื่อสมัครเข้าร่วมกรมตำรวจ MHNK</p>
                 </div>
 
+                <!-- Persistent Edit Toggle Button (always visible) -->
+                <div class="edit-toggle-bar">
+                    <button type="button" id="editToggleBtn" class="edit-toggle-btn">
+                        &#9998; แก้ไขข้อมูล (กรณีพิมพ์ผิด)
+                    </button>
+                </div>
+
                 <!-- Discord Login Section (Top) -->
                 <div class="discord-login-section" id="discordLoginSection">
                     <div class="discord-login-header">
@@ -579,6 +586,30 @@
         cancelEditBtn.addEventListener('click', () => {
             exitEditMode();
             checkExistingRegistration();
+        });
+
+        // Persistent Edit Toggle button
+        const editToggleBtn = document.getElementById('editToggleBtn');
+        editToggleBtn.addEventListener('click', () => {
+            if (isEditMode) {
+                exitEditMode();
+                editToggleBtn.classList.remove('active');
+            } else {
+                // Close success card if open
+                successCard.style.display = 'none';
+                form.parentElement.style.display = 'block';
+                // Enter edit mode with empty form (user will paste messageId)
+                enterEditMode(null);
+                editToggleBtn.classList.add('active');
+                editToggleBtn.innerHTML = '&#10005; ยกเลิกแก้ไข';
+            }
+        });
+
+        // Cancel edit also resets toggle button
+        const originalCancelHandler = cancelEditBtn.click;
+        cancelEditBtn.addEventListener('click', () => {
+            editToggleBtn.classList.remove('active');
+            editToggleBtn.innerHTML = '&#9998; แก้ไขข้อมูล (กรณีพิมพ์ผิด)';
         });
 
         // Paste button

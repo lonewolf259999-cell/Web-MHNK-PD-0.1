@@ -557,6 +557,46 @@
    Edit Mode Styles
    ======================================== */
 
+/* Edit Toggle Bar (always visible) */
+.edit-toggle-bar {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.edit-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: rgba(251, 191, 36, 0.1);
+    border: 1px dashed rgba(251, 191, 36, 0.4);
+    border-radius: var(--radius-md);
+    color: var(--color-gold);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    width: 100%;
+    justify-content: center;
+}
+
+.edit-toggle-btn:hover {
+    background: rgba(251, 191, 36, 0.18);
+    border-style: solid;
+    border-color: var(--color-gold);
+}
+
+.edit-toggle-btn.active {
+    background: rgba(239, 68, 68, 0.12);
+    border-color: rgba(239, 68, 68, 0.4);
+    color: var(--color-danger);
+    border-style: solid;
+}
+
+.edit-toggle-btn.active:hover {
+    background: rgba(239, 68, 68, 0.2);
+}
+
 /* Edit Mode Banner */
 .edit-mode-banner {
     display: flex;
