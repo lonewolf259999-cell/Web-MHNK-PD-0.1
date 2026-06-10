@@ -94,14 +94,14 @@
                             Discord ID
                         </label>
                         <div class="discord-id-wrapper">
-                            <input type="text" id="discordIdDisplay" class="discord-id-input" placeholder="พิมพ์ Discord ID (เช่น 12345678901234567)" />
+                            <input type="text" id="discordIdDisplay" class="discord-id-input" placeholder="กดปุ่มเชื่อมต่อ Discord เพื่อรับ ID" readonly />
                             <input type="hidden" id="discordId" name="discordId" />
                             <div id="discordIdStatus" class="discord-id-status">
                                 <span class="status-dot"></span>
-                                <span class="status-text">พิมพ์ Discord ID</span>
+                                <span class="status-text">ยังไม่ได้เชื่อมต่อ</span>
                             </div>
                         </div>
-                        <span class="form-hint">พิมพ์ Discord ID ของคุณ (ตัวเลข 18 หลัก)</span>
+                        <span class="form-hint">ID จะถูกกรอกอัตโนมัติหลังจากเชื่อมต่อ Discord</span>
                     </div>
 
                     <!-- ชื่อ OC -->
@@ -210,7 +210,7 @@
                     <!-- Discord Required Message -->
                     <div id="discordRequiredMsg" class="discord-required-msg">
                         <span class="info-icon">&#128161;</span>
-                        กรุณากรอก Discord ID (ตัวเลข) ให้ถูกต้อง
+                        กรุณาเชื่อมต่อ Discord ก่อนสมัคร
                     </div>
                 </form>
             </div>
@@ -301,16 +301,6 @@
 
         function getDiscordUserId() {
             return currentDiscordUserId;
-        }
-
-        // Sync visible Discord ID input to hidden field
-        const discordIdDisplay = document.getElementById('discordIdDisplay');
-        if (discordIdDisplay) {
-            discordIdDisplay.addEventListener('input', function() {
-                discordIdInput.value = this.value;
-                // Enable/disable submit button
-                submitBtn.disabled = !this.value.trim();
-            });
         }
 
         function getStorageKey() {
@@ -426,7 +416,7 @@
             e.preventDefault();
             
             if (!getDiscordId()) {
-                showErrors(['กรุณากรอก Discord ID']);
+                showErrors(['กรุณาเชื่อมต่อ Discord ก่อนสมัคร']);
                 return;
             }
             

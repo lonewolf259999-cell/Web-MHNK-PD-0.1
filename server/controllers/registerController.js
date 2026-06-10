@@ -131,7 +131,7 @@ async function editRegistration(req, res) {
             });
         }
 
-        // Edit the Discord message (ownership check disabled temporarily)
+        // Edit the Discord message (with ownership verification)
         const result = await editRegistrationMessage({
             messageId,
             data: {
@@ -142,8 +142,8 @@ async function editRegistration(req, res) {
                 discordId: discordId.trim(),
                 steamUrl: steamUrl.trim()
             },
-            editCount: (parseInt(editCount) || 0) + 1
-            // verifiedDiscordUserId: discordUserId || null  // ← ปิดชั่วคราว
+            editCount: (parseInt(editCount) || 0) + 1,
+            verifiedDiscordUserId: discordUserId || null
         });
 
         logger.info(`Registration edited: ${ocName} (${discordId}) msgId=${messageId}`);
