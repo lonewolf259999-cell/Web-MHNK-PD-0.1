@@ -4,7 +4,7 @@
    - PATCH /api/register/edit → แก้ไขข้อมูลที่ส่งไปแล้ว
    ======================================== */
 
-const { sendRegistration, editRegistrationMessage } = require('../services/discordWebhook');
+const { sendRegistration, editRegistrationMessage, fetchRegistrationMessage } = require('../services/discordWebhook');
 const { createLogger } = require('../utils/logger');
 
 const logger = createLogger('RegisterController');
@@ -172,4 +172,46 @@ async function editRegistration(req, res) {
     }
 }
 
-module.exports = { register, editRegistration };
+/**
+ * GET /api/register/fetch/:messageId
+ * ดึงข้อมูลจาก Discord embed ผ่าน messageId
+ */
+async function fetchRegistration(req, res) {
+    try {
+        const { messageId } = req.params;
+
+        if (!messageId) {
+            return res.status(400).json({
+                success: false,
+                message: 'กรุณาระบุ Message ID'
+            });
+        }
+
+        const result = await fetchRegistrationMessage(messageId);
+        logger.info(`Registration fetched: msgId=${messageId}`);
+
+        res.json({
+            success: true,
+            data: result.data,
+            editCount: result.editCount,
+            messageId: result.messageId
+        });
+
+    } catch (err) {
+        logger.error(`Fetch registration error: ${err.message}`);
+
+        if (err.message.includes('404') || err.message.includes('ไม่พบ')) {
+            return res.status(404).json({
+                success: false,
+                message: err.message
+            });
+        }
+
+        res.status(500).json({
+            success: false,
+            message: err.message || 'เกิดข้อผิดพลาดในการดึงข้อมูล'
+        });
+    }
+}
+
+module.exports = { register, editRegistration, fetchRegistration };

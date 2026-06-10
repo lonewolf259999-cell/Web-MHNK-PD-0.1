@@ -31,19 +31,21 @@ function buildEditUrl(webhookUrl, messageId) {
  */
 function sendJson(url, payload, method = 'POST') {
     return new Promise((resolve, reject) => {
-        const data = JSON.stringify(payload);
+        const data = method !== 'GET' ? JSON.stringify(payload) : null;
         const urlObj = new URL(url);
 
         const options = {
             hostname: urlObj.hostname,
             path: urlObj.pathname + urlObj.search, // รวม query string เช่น ?wait=true
             method: method,
-            headers: {
-                'Content-Type': 'application/json',
-                'Content-Length': Buffer.byteLength(data)
-            },
+            headers: {},
             timeout: config.REQUEST_TIMEOUT
         };
+
+        if (method !== 'GET') {
+            options.headers['Content-Type'] = 'application/json';
+            options.headers['Content-Length'] = Buffer.byteLength(data);
+        }
 
         const protocol = urlObj.protocol === 'https:' ? https : http;
         const req = protocol.request(options, (res) => {
@@ -71,7 +73,9 @@ function sendJson(url, payload, method = 'POST') {
             req.destroy();
             reject(new Error('Discord API request timeout'));
         });
-        req.write(data);
+        if (data !== null) {
+            req.write(data);
+        }
         req.end();
     });
 }
@@ -382,4 +386,53 @@ async function sendCouncil(councilData) {
     return { success: true, message: 'บันทึกสำเร็จ' };
 }
 
-module.exports = { sendRegistration, sendProctor, sendCouncil, editRegistrationMessage };
+/**
+ * ดึงข้อมูลจาก Discord embed (GET message) เพื่อโหลดข้อมูลเก่า
+ * @param {string} messageId - Discord Message ID
+ * @returns {Promise<Object>} - { ocName, icName, ocAge, icPhone, discordId, steamUrl }
+ */
+async function fetchRegistrationMessage(messageId) {
+    const webhookUrl = config.DISCORD_REGISTER_WEBHOOK_URL;
+    if (!webhookUrl) {
+        throw new Error('ระบบยังไม่ได้ตั้งค่า Webhook สำหรับการสมัคร');
+    }
+    if (!messageId) {
+        throw new Error('กรุณาระบุ Message ID');
+    }
+
+    const fetchUrl = buildEditUrl(webhookUrl, messageId); // GET endpoint เหมือนกับ edit
+    const response = await sendJson(fetchUrl, {}, 'GET');
+
+    if (!response || !response.embeds || response.embeds.length === 0) {
+        throw new Error('ไม่พบ embed ในข้อความนี้ — Message ID อาจไม่ถูกต้อง');
+    }
+
+    const embed = response.embeds[0];
+    const fields = embed.fields || [];
+
+    // Map fields from embed to registration data
+    const getFieldValue = (name) => {
+        const field = fields.find(f => f.name.includes(name));
+        return field ? field.value.replace(/\*\*/g, '').trim() : '';
+    };
+
+    const data = {
+        ocName: getFieldValue('ชื่อ เล่น IC'),
+        icName: getFieldValue('ชื่อ IC'),
+        ocAge: parseInt(getFieldValue('อายุ OC')) || '',
+        icPhone: getFieldValue('เบอร์ IC'),
+        discordId: getFieldValue('Discord'),
+        steamUrl: getFieldValue('Steam'),
+    };
+
+    // Get editCount from footer if present
+    let editCount = 0;
+    if (embed.footer && embed.footer.text) {
+        const match = embed.footer.text.match(/แก้ไขแล้ว (\d+) ครั้ง/);
+        if (match) editCount = parseInt(match[1]);
+    }
+
+    return { data, editCount, messageId };
+}
+
+module.exports = { sendRegistration, sendProctor, sendCouncil, editRegistrationMessage, fetchRegistrationMessage };

@@ -681,6 +681,26 @@
     background: rgba(251, 191, 36, 0.25);
 }
 
+/* Fetch Data Button */
+.fetch-data-btn {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(59, 130, 246, 0.15);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: var(--radius-md);
+    color: #60A5FA;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    flex-shrink: 0;
+}
+
+.fetch-data-btn:hover {
+    background: rgba(59, 130, 246, 0.25);
+}
+
 .message-id-help {
     display: flex;
     align-items: flex-start;

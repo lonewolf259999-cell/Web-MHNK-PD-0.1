@@ -119,6 +119,14 @@
                                     <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
                                 </svg>
                             </button>
+                            <button type="button" id="fetchDataBtn" class="fetch-data-btn" title="ดึงข้อมูล">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 12v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h3"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                    <path d="M9 3l3 3-3 3"/>
+                                    <path d="M15 21l-3-3 3-3"/>
+                                </svg>
+                            </button>
                         </div>
                         <div class="message-id-help">
                             <span>&#128161;</span>
@@ -610,6 +618,48 @@
         cancelEditBtn.addEventListener('click', () => {
             editToggleBtn.classList.remove('active');
             editToggleBtn.innerHTML = '&#9998; แก้ไขข้อมูล (กรณีพิมพ์ผิด)';
+        });
+
+        // Fetch data button
+        const fetchDataBtn = document.getElementById('fetchDataBtn');
+        fetchDataBtn.addEventListener('click', async () => {
+            const messageId = editMessageId.value.trim();
+            if (!messageId) {
+                showErrors(['กรุณากรอก Message ID ก่อนกดดึงข้อมูล']);
+                return;
+            }
+            if (!/^\d+$/.test(messageId)) {
+                showErrors(['Message ID ไม่ถูกต้อง — ควรเป็นตัวเลขเท่านั้น']);
+                return;
+            }
+
+            // Show loading
+            loadingOverlay.style.display = 'flex';
+            document.querySelector('#loadingOverlay p').textContent = 'กำลังดึงข้อมูล...';
+
+            try {
+                const response = await fetch(`/api/register/fetch/${messageId}`);
+                const result = await response.json();
+
+                if (result.success && result.data) {
+                    // Fill form with fetched data
+                    setFormData(result.data);
+                    if (result.editCount) {
+                        editCount.value = result.editCount;
+                    }
+                    showErrors(['✅ ดึงข้อมูลสำเร็จ — แก้ไขแล้วกด "บันทึกการแก้ไข"']);
+                    errorContainer.className = 'error-container success-msg';
+                    errorContainer.style.display = 'block';
+                } else {
+                    showErrors([result.message || 'ไม่พบข้อมูล']);
+                }
+            } catch (err) {
+                showErrors(['ไม่สามารถดึงข้อมูลได้ — Message ID ไม่ถูกต้อง']);
+            } finally {
+                loadingOverlay.style.display = 'none';
+                document.querySelector('#loadingOverlay p').textContent = 'กำลังส่งข้อมูล...';
+                errorContainer.className = 'error-container';
+            }
         });
 
         // Paste button
