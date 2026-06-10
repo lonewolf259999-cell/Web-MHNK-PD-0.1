@@ -21,23 +21,6 @@
     margin-bottom: 20px;
 }
 
-.profile-avatar-placeholder {
-    width: 120px; height: 120px;
-    border-radius: 50%;
-    border: 4px solid var(--color-border);
-    box-shadow: 0 0 20px var(--color-accent-glow);
-    background: linear-gradient(135deg, var(--color-bg-card), var(--color-accent-soft));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 20px;
-}
-.profile-avatar-placeholder span {
-    font-size: 2.5rem;
-    font-weight: 800;
-    color: var(--color-accent);
-}
-
 .profile-name { color: var(--color-text-primary); font-size: 1.8rem; margin: 0 0 10px; }
 
 .profile-dept {
@@ -200,40 +183,6 @@
 .status-paid { border-color: #22c55e; background: rgba(34, 197, 94, 0.05); color: #4ade80; }
 .status-unpaid { border-color: #ef4444; background: rgba(239, 68, 68, 0.05); color: #f87171; }
 .status-value { font-weight: 800; font-size: 1.2rem; }
-
-.stat-box:hover { transform: scale(1.02); }
-.stat-box.highlight {
-    border-color: var(--color-accent);
-    background: var(--color-accent-soft);
-}
-.stat-number {
-    font-size: 1.8rem;
-    font-weight: 800;
-    color: var(--color-accent);
-    margin-bottom: 5px;
-}
-.stat-label { color: var(--color-text-secondary); font-size: 0.85rem; }
-
-.payment-status-bar {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    padding: 12px;
-    border-radius: 10px;
-    font-weight: 700;
-    font-size: 0.9rem;
-}
-.status-paid {
-    background: rgba(34, 197, 94, 0.15);
-    color: #4ade80;
-    border: 1px solid rgba(34, 197, 94, 0.3);
-}
-.status-unpaid {
-    background: rgba(234, 179, 8, 0.15);
-    color: #fbbf24;
-    border: 1px solid rgba(234, 179, 8, 0.3);
-}
 
 .no-data-alert {
     text-align: center;

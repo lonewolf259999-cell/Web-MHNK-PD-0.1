@@ -571,15 +571,6 @@
         font-size: 40px;
     }
 
-    .discord-input-wrapper {
-        flex-direction: column;
-    }
-
-    .discord-login-btn {
-        width: 100%;
-        justify-content: center;
-    }
-
     .form-group input {
         padding: 12px 14px;
         font-size: 14px;
