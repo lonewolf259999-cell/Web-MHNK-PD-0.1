@@ -213,7 +213,7 @@
             <!-- Success Card (Hidden by default) -->
             <div id="successCard" class="success-card" style="display: none;">
                 <div class="success-icon">&#10004;</div>
-                <h2>สมัครสำเร็จ!</h2>
+                <h2 id="successTitle">สมัครสำเร็จ!</h2>
                 <p>ข้อมูลการสมัครของคุณถูกส่งไปยังทีมงานเรียบร้อยแล้ว</p>
                 <p class="success-note">ทีมงานจะติดต่อกลับผ่าน Discord ของคุณ</p>
 
@@ -461,11 +461,10 @@
                         saved.editCount = (parseInt(editCount.value) || 0) + 1;
                         saveToStorage(saved);
 
-                        showErrors(['✅ ' + result.message]);
-                        errorContainer.className = 'error-container success-msg';
-                        errorContainer.style.display = 'block';
-                        
-                        exitEditMode();
+                        document.getElementById('successTitle').textContent = 'แก้ไขข้อมูลแล้ว!';
+                        savedMessageId.value = result.messageId || currentMessageId;
+                        form.parentElement.style.display = 'none';
+                        successCard.style.display = 'block';
                     } else {
                         showErrors(result.errors || [result.message]);
                     }
@@ -500,6 +499,7 @@
                         };
                         saveToStorage(storageData);
 
+                        document.getElementById('successTitle').textContent = 'สมัครสำเร็จ!';
                         savedMessageId.value = result.messageId;
                         form.parentElement.style.display = 'none';
                         successCard.style.display = 'block';
