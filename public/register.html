@@ -80,50 +80,7 @@
                             </button>
                         </div>
 
-                        <!-- Edit button (always visible in login view) -->
-                        <button type="button" id="editToggleBtn" class="discord-edit-btn">
-                            &#9998; แก้ไขข้อมูล
-                        </button>
                     </div>
-
-                    <!-- Edit mode view (toggled) -->
-                    <div id="discordEditView" style="display: none;">
-                        <div class="edit-mode-banner">
-                            <span class="edit-mode-icon">&#9998;</span>
-                            <span>กำลังแก้ไขข้อมูล</span>
-                            <button type="button" id="cancelEditBtn" class="cancel-edit-btn">ยกเลิก</button>
-                        </div>
-
-                        <div class="form-group" style="margin-top: 16px;">
-                            <label for="editMessageId">
-                                <span class="form-icon">&#128196;</span>
-                                Message ID
-                            </label>
-                            <div class="message-id-wrapper">
-                                <input type="text" id="editMessageId" class="message-id-input" placeholder="วาง Message ID ที่คัดลอกจาก Discord" />
-                                <button type="button" id="pasteMessageIdBtn" class="paste-id-btn" title="วาง">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <rect x="8" y="2" width="8" height="4" rx="1"/>
-                                        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
-                                    </svg>
-                                </button>
-                                <button type="button" id="fetchDataBtn" class="fetch-data-btn" title="ดึงข้อมูล">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M21 12v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h3"/>
-                                        <circle cx="12" cy="12" r="3"/>
-                                        <path d="M9 3l3 3-3 3"/>
-                                        <path d="M15 21l-3-3 3-3"/>
-                                    </svg>
-                                </button>
-                            </div>
-                            <div class="message-id-help">
-                                <span>&#128161;</span>
-                                <span>เปิด Discord → Settings → Advanced → เปิด Developer Mode → คลิกขวาที่ embed → Copy Message ID</span>
-                            </div>
-                            <input type="hidden" id="editCount" value="0" />
-                        </div>
-                    </div>
-                </div>
 
                 <form id="registerForm" class="register-form">
                     <!-- Discord ID Display -->
@@ -195,6 +152,51 @@
                         </label>
                         <input type="url" id="steamUrl" name="steamUrl" placeholder="https://steamcommunity.com/id/yourname" required />
                         <span class="form-hint">ลิงก์โปรไฟล์ Steam ของคุณ</span>
+                    </div>
+
+                    <!-- Edit Toggle Button -->
+                    <div class="form-edit-toggle">
+                        <button type="button" id="editToggleBtn" class="form-edit-btn">
+                            &#9998; แก้ไขข้อมูล
+                        </button>
+                    </div>
+
+                    <!-- Edit Mode View (inside form) -->
+                    <div id="discordEditView" class="form-edit-section" style="display: none;">
+                        <div class="edit-mode-banner">
+                            <span class="edit-mode-icon">&#9998;</span>
+                            <span>กำลังแก้ไขข้อมูล</span>
+                            <button type="button" id="cancelEditBtn" class="cancel-edit-btn">ยกเลิก</button>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editMessageId">
+                                <span class="form-icon">&#128196;</span>
+                                Message ID
+                            </label>
+                            <div class="message-id-wrapper">
+                                <input type="text" id="editMessageId" class="message-id-input" placeholder="วาง Message ID ที่คัดลอกจาก Discord" />
+                                <button type="button" id="pasteMessageIdBtn" class="paste-id-btn" title="วาง">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="8" y="2" width="8" height="4" rx="1"/>
+                                        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                                    </svg>
+                                </button>
+                                <button type="button" id="fetchDataBtn" class="fetch-data-btn" title="ดึงข้อมูล">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 12v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h3"/>
+                                        <circle cx="12" cy="12" r="3"/>
+                                        <path d="M9 3l3 3-3 3"/>
+                                        <path d="M15 21l-3-3 3-3"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="message-id-help">
+                                <span>&#128161;</span>
+                                <span>เปิด Discord → Settings → Advanced → เปิด Developer Mode → คลิกขวาที่ embed → Copy Message ID</span>
+                            </div>
+                            <input type="hidden" id="editCount" value="0" />
+                        </div>
                     </div>
 
                     <!-- Error Message -->
@@ -289,7 +291,6 @@
         const discordIdInput = document.getElementById('discordId');
 
         // View elements
-        const discordLoginView = document.getElementById('discordLoginView');
         const discordEditView = document.getElementById('discordEditView');
         const editMessageId = document.getElementById('editMessageId');
         const editCount = document.getElementById('editCount');
@@ -336,8 +337,8 @@
 
         // ==================== VIEW SWITCHING ====================
         function switchToEditView() {
-            discordLoginView.style.display = 'none';
             discordEditView.style.display = 'block';
+            document.querySelector('.form-edit-toggle').style.display = 'none';
             isEditMode = true;
             submitBtnText.textContent = 'บันทึกการแก้ไข';
             submitBtn.classList.add('edit-mode');
@@ -345,7 +346,7 @@
 
         function switchToLoginView() {
             discordEditView.style.display = 'none';
-            discordLoginView.style.display = 'block';
+            document.querySelector('.form-edit-toggle').style.display = 'block';
             isEditMode = false;
             submitBtnText.textContent = 'สมัครสมาชิก';
             submitBtn.classList.remove('edit-mode');

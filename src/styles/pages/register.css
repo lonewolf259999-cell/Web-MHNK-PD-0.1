@@ -676,8 +676,45 @@
     font-size: 13px;
 }
 
-/* Existing Registration Banner */
-/* Discord Edit Button (inside login section) */
+/* Form Edit Toggle */
+.form-edit-toggle {
+    margin: 4px 0 0;
+}
+
+.form-edit-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px 20px;
+    background: rgba(251, 191, 36, 0.1);
+    border: 1px dashed rgba(251, 191, 36, 0.4);
+    border-radius: var(--radius-md);
+    color: var(--color-gold);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.form-edit-btn:hover {
+    background: rgba(251, 191, 36, 0.18);
+    border-style: solid;
+    border-color: var(--color-gold);
+}
+
+/* Form Edit Section */
+.form-edit-section {
+    margin: 8px 0 0;
+    padding: 16px;
+    background: rgba(251, 191, 36, 0.05);
+    border: 1px solid rgba(251, 191, 36, 0.15);
+    border-radius: var(--radius-md);
+    animation: fadeIn 0.3s ease;
+}
+
+/* Discord Edit Button (inside login section) - no longer used, keep for back compat */
 .discord-edit-btn {
     display: flex;
     align-items: center;
