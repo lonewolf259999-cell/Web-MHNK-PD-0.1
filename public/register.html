@@ -77,9 +77,49 @@
                             </svg>
                         </button>
                     </div>
+
+                    <!-- Edit existing registration button (shown when user has local registration) -->
+                    <div id="existingRegistrationBanner" class="existing-registration-banner" style="display: none;">
+                        <div class="existing-reg-info">
+                            <span class="existing-reg-icon">&#128203;</span>
+                            <span>คุณมีข้อมูลที่สมัครไว้แล้ว</span>
+                        </div>
+                        <button type="button" id="editExistingBtn" class="edit-existing-btn">
+                            &#9998; แก้ไขข้อมูลที่สมัครไว้
+                        </button>
+                    </div>
                 </div>
 
                 <form id="registerForm" class="register-form">
+                    <!-- Edit Mode indicator + Message ID -->
+                    <div id="editModeBanner" class="edit-mode-banner" style="display: none;">
+                        <span class="edit-mode-icon">&#9998;</span>
+                        <span>กำลังแก้ไขข้อมูล</span>
+                        <button type="button" id="cancelEditBtn" class="cancel-edit-btn">ยกเลิก</button>
+                    </div>
+
+                    <!-- Message ID (only in edit mode) -->
+                    <div id="messageIdGroup" class="form-group" style="display: none;">
+                        <label for="editMessageId">
+                            <span class="form-icon">&#128196;</span>
+                            Message ID
+                        </label>
+                        <div class="message-id-wrapper">
+                            <input type="text" id="editMessageId" class="message-id-input" placeholder="วาง Message ID ที่คัดลอกจาก Discord" />
+                            <button type="button" id="pasteMessageIdBtn" class="paste-id-btn" title="วาง">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="8" y="2" width="8" height="4" rx="1"/>
+                                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="message-id-help">
+                            <span>&#128161;</span>
+                            <span>เปิด Discord → Settings → Advanced → เปิด Developer Mode → คลิกขวาที่ embed → Copy Message ID</span>
+                        </div>
+                        <input type="hidden" id="editCount" value="0" />
+                    </div>
+
                     <!-- Discord ID Display -->
                     <div class="form-group discord-id-group">
                         <label for="discordIdDisplay">
@@ -162,7 +202,7 @@
                     <!-- Submit Button -->
                     <button type="submit" id="submitBtn" class="submit-btn" disabled>
                         <span class="btn-icon">&#10003;</span>
-                        <span class="btn-text">สมัครสมาชิก</span>
+                        <span class="btn-text" id="submitBtnText">สมัครสมาชิก</span>
                     </button>
                     
                     <!-- Discord Required Message -->
@@ -179,10 +219,29 @@
                 <h2>สมัครสำเร็จ!</h2>
                 <p>ข้อมูลการสมัครของคุณถูกส่งไปยังทีมงานเรียบร้อยแล้ว</p>
                 <p class="success-note">ทีมงานจะติดต่อกลับผ่าน Discord ของคุณ</p>
-                <button onclick="resetForm()" class="reset-btn">
-                    <span class="btn-icon">&#128260;</span>
-                    สมัครใหม่
-                </button>
+
+                <!-- Message ID display for user to copy -->
+                <div class="message-id-copy-section">
+                    <label>Message ID (เก็บไว้สำหรับแก้ไขภายหลัง)</label>
+                    <div class="message-id-copy-wrapper">
+                        <input type="text" id="savedMessageId" class="message-id-copy-input" readonly />
+                        <button type="button" id="copyMessageIdBtn" class="copy-id-btn" onclick="copyMessageId()">
+                            &#128203; คัดลอก
+                        </button>
+                    </div>
+                    <p class="message-id-copy-hint">&#128161; คัดลอก ID นี้ไว้ก่อนปิดหน้าเว็บ ถ้าต้องการแก้ไขข้อมูลครั้งต่อไป</p>
+                </div>
+
+                <div class="success-actions">
+                    <button onclick="resetForm()" class="reset-btn">
+                        <span class="btn-icon">&#128260;</span>
+                        สมัครใหม่
+                    </button>
+                    <!-- Edit button in success card -->
+                    <button type="button" id="editAfterSuccessBtn" class="edit-after-success-btn">
+                        &#9998; แก้ไขข้อมูลนี้
+                    </button>
+                </div>
             </div>
         </div>
     </main>
@@ -209,38 +268,113 @@
             loginUrl: '/auth/discord'
         });
 
+        // ==================== STATE ====================
+        let isEditMode = false;
+        let currentDiscordUserId = '';
+        let currentMessageId = '';
+
         const form = document.getElementById('registerForm');
         const submitBtn = document.getElementById('submitBtn');
+        const submitBtnText = document.getElementById('submitBtnText');
         const errorContainer = document.getElementById('errorContainer');
         const errorList = document.getElementById('errorList');
         const successCard = document.getElementById('successCard');
         const loadingOverlay = document.getElementById('loadingOverlay');
-        const discordId = document.getElementById('discordId');
+        const discordIdInput = document.getElementById('discordId');
 
-        // Helper to get Discord ID value
+        // Edit mode elements
+        const editModeBanner = document.getElementById('editModeBanner');
+        const messageIdGroup = document.getElementById('messageIdGroup');
+        const editMessageId = document.getElementById('editMessageId');
+        const editCount = document.getElementById('editCount');
+        const cancelEditBtn = document.getElementById('cancelEditBtn');
+        const pasteMessageIdBtn = document.getElementById('pasteMessageIdBtn');
+        const existingRegistrationBanner = document.getElementById('existingRegistrationBanner');
+        const editExistingBtn = document.getElementById('editExistingBtn');
+        const editAfterSuccessBtn = document.getElementById('editAfterSuccessBtn');
+        const savedMessageId = document.getElementById('savedMessageId');
+
+        // ==================== HELPERS ====================
         function getDiscordId() {
-            const el = document.getElementById('discordId');
-            return el ? el.value : '';
+            return discordIdInput ? discordIdInput.value : '';
         }
 
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            // ตรวจสอบว่าเชื่อมต่อ Discord แล้ว
-            if (!getDiscordId()) {
-                const li = document.createElement('li');
-                li.textContent = 'กรุณาเชื่อมต่อ Discord ก่อนสมัคร';
-                errorList.appendChild(li);
-                errorContainer.style.display = 'block';
-                return;
-            }
-            
-            // Hide previous errors
-            errorContainer.style.display = 'none';
-            errorList.innerHTML = '';
+        function getDiscordUserId() {
+            // Try from hidden field or global state
+            return currentDiscordUserId;
+        }
 
-            // Get form data
-            const formData = {
+        function getStorageKey() {
+            const uid = getDiscordUserId();
+            return uid ? `registration_${uid}` : null;
+        }
+
+        function loadFromStorage() {
+            const key = getStorageKey();
+            if (!key) return null;
+            try {
+                const raw = localStorage.getItem(key);
+                return raw ? JSON.parse(raw) : null;
+            } catch { return null; }
+        }
+
+        function saveToStorage(data) {
+            const key = getStorageKey();
+            if (!key) return;
+            localStorage.setItem(key, JSON.stringify(data));
+        }
+
+        function removeFromStorage() {
+            const key = getStorageKey();
+            if (key) localStorage.removeItem(key);
+        }
+
+        // ==================== UI UPDATES ====================
+        function checkExistingRegistration() {
+            const saved = loadFromStorage();
+            const banner = existingRegistrationBanner;
+            if (saved && saved.messageId && saved.data) {
+                banner.style.display = 'block';
+                banner.querySelector('.existing-reg-info span:last-child').textContent =
+                    `คุณมีข้อมูลที่สมัครไว้ (${saved.data.ocName || ''})`;
+            } else {
+                banner.style.display = 'none';
+            }
+        }
+
+        function enterEditMode(savedData) {
+            isEditMode = true;
+            editModeBanner.style.display = 'flex';
+            messageIdGroup.style.display = 'block';
+            submitBtnText.textContent = 'บันทึกการแก้ไข';
+            submitBtn.classList.add('edit-mode');
+
+            // Fill form if we have saved data
+            if (savedData) {
+                setFormData(savedData.data);
+                if (savedData.messageId) {
+                    editMessageId.value = savedData.messageId;
+                    currentMessageId = savedData.messageId;
+                }
+                if (savedData.editCount) {
+                    editCount.value = savedData.editCount;
+                }
+            }
+        }
+
+        function exitEditMode() {
+            isEditMode = false;
+            editModeBanner.style.display = 'none';
+            messageIdGroup.style.display = 'none';
+            submitBtnText.textContent = 'สมัครสมาชิก';
+            submitBtn.classList.remove('edit-mode');
+            editMessageId.value = '';
+            editCount.value = '0';
+            currentMessageId = '';
+        }
+
+        function getFormData() {
+            return {
                 ocName: document.getElementById('ocName').value.trim(),
                 icName: document.getElementById('icName').value.trim(),
                 ocAge: document.getElementById('ocAge').value,
@@ -248,61 +382,255 @@
                 discordId: getDiscordId(),
                 steamUrl: document.getElementById('steamUrl').value.trim()
             };
+        }
 
-            // Show loading
-            loadingOverlay.style.display = 'flex';
+        function setFormData(data) {
+            if (data.ocName) document.getElementById('ocName').value = data.ocName;
+            if (data.icName) document.getElementById('icName').value = data.icName;
+            if (data.ocAge) document.getElementById('ocAge').value = data.ocAge;
+            if (data.icPhone) document.getElementById('icPhone').value = data.icPhone;
+            if (data.steamUrl) document.getElementById('steamUrl').value = data.steamUrl;
+        }
 
-            try {
-                const response = await fetch('/api/register', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    // Show success
-                    form.parentElement.style.display = 'none';
-                    successCard.style.display = 'block';
-                } else {
-                    // Show errors
-                    if (result.errors && result.errors.length > 0) {
-                        result.errors.forEach(err => {
-                            const li = document.createElement('li');
-                            li.textContent = err;
-                            errorList.appendChild(li);
-                        });
-                        errorContainer.style.display = 'block';
-                    } else {
-                        const li = document.createElement('li');
-                        li.textContent = result.message || 'เกิดข้อผิดพลาด';
-                        errorList.appendChild(li);
-                        errorContainer.style.display = 'block';
-                    }
-                }
-            } catch (err) {
+        function showErrors(messages) {
+            errorList.innerHTML = '';
+            (Array.isArray(messages) ? messages : [messages]).forEach(msg => {
                 const li = document.createElement('li');
-                li.textContent = 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้ กรุณาลองใหม่อีกครั้ง';
+                li.textContent = msg;
                 errorList.appendChild(li);
-                errorContainer.style.display = 'block';
-            } finally {
-                loadingOverlay.style.display = 'none';
+            });
+            errorContainer.style.display = 'block';
+        }
+
+        function copyMessageId() {
+            const input = document.getElementById('savedMessageId');
+            if (!input.value) return;
+            input.select();
+            input.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(input.value).then(() => {
+                const btn = document.getElementById('copyMessageIdBtn');
+                btn.textContent = '&#10003; คัดลอกแล้ว';
+                setTimeout(() => {
+                    btn.innerHTML = '&#128203; คัดลอก';
+                }, 2000);
+            }).catch(() => {
+                // Fallback
+                document.execCommand('copy');
+            });
+        }
+
+        // ==================== FORM SUBMIT ====================
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // ตรวจสอบว่าเชื่อมต่อ Discord แล้ว
+            if (!getDiscordId()) {
+                showErrors(['กรุณาเชื่อมต่อ Discord ก่อนสมัคร']);
+                return;
+            }
+            
+            // Hide previous errors
+            errorContainer.style.display = 'none';
+            errorList.innerHTML = '';
+
+            const formData = getFormData();
+
+            if (isEditMode) {
+                // === EDIT MODE ===
+                const messageId = editMessageId.value.trim();
+                if (!messageId) {
+                    showErrors(['กรุณากรอก Message ID ที่คัดลอกจาก Discord']);
+                    return;
+                }
+
+                // Check messageId is numeric
+                if (!/^\d+$/.test(messageId)) {
+                    showErrors(['Message ID ไม่ถูกต้อง — ควรเป็นตัวเลขเท่านั้น']);
+                    return;
+                }
+
+                // Show loading
+                loadingOverlay.style.display = 'flex';
+                // Change loading text
+                document.querySelector('#loadingOverlay p').textContent = 'กำลังแก้ไขข้อมูล...';
+
+                try {
+                    const response = await fetch('/api/register/edit', {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            messageId,
+                            discordId: formData.discordId,
+                            discordUserId: getDiscordUserId(),
+                            ocName: formData.ocName,
+                            icName: formData.icName,
+                            ocAge: formData.ocAge,
+                            icPhone: formData.icPhone,
+                            steamUrl: formData.steamUrl,
+                            editCount: parseInt(editCount.value) || 0
+                        })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        // Update localStorage
+                        const saved = loadFromStorage() || {};
+                        saved.data = formData;
+                        saved.editCount = (parseInt(editCount.value) || 0) + 1;
+                        saveToStorage(saved);
+
+                        // Show success message
+                        showErrors(['✅ ' + result.message]);
+                        errorContainer.className = 'error-container success-msg';
+                        errorContainer.style.display = 'block';
+                        
+                        // Exit edit mode
+                        exitEditMode();
+                        checkExistingRegistration();
+                    } else {
+                        showErrors(result.errors || [result.message]);
+                    }
+                } catch (err) {
+                    showErrors(['ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้ กรุณาลองใหม่อีกครั้ง']);
+                } finally {
+                    loadingOverlay.style.display = 'none';
+                    document.querySelector('#loadingOverlay p').textContent = 'กำลังส่งข้อมูล...';
+                    errorContainer.className = 'error-container';
+                }
+
+            } else {
+                // === NEW REGISTRATION ===
+                // Add discordUserId if not already in formData
+                formData.discordUserId = getDiscordUserId() || null;
+
+                // Show loading
+                loadingOverlay.style.display = 'flex';
+
+                try {
+                    const response = await fetch('/api/register', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(formData)
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        // Save to localStorage with messageId
+                        const storageData = {
+                            messageId: result.messageId,
+                            discordUserId: getDiscordUserId(),
+                            data: formData,
+                            editCount: 0
+                        };
+                        saveToStorage(storageData);
+
+                        // Show success with message ID
+                        savedMessageId.value = result.messageId;
+                        form.parentElement.style.display = 'none';
+                        successCard.style.display = 'block';
+                    } else {
+                        if (result.errors && result.errors.length > 0) {
+                            showErrors(result.errors);
+                        } else {
+                            showErrors([result.message || 'เกิดข้อผิดพลาด']);
+                        }
+                    }
+                } catch (err) {
+                    showErrors(['ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้ กรุณาลองใหม่อีกครั้ง']);
+                } finally {
+                    loadingOverlay.style.display = 'none';
+                }
             }
         });
 
+        // ==================== EVENT LISTENERS ====================
+
+        // Edit existing from banner
+        editExistingBtn.addEventListener('click', () => {
+            const saved = loadFromStorage();
+            if (saved && saved.data) {
+                // Hide banner
+                existingRegistrationBanner.style.display = 'none';
+                // Enter edit mode
+                enterEditMode(saved);
+            }
+        });
+
+        // Edit after success
+        editAfterSuccessBtn.addEventListener('click', () => {
+            // Hide success card
+            successCard.style.display = 'none';
+            form.parentElement.style.display = 'block';
+            
+            // Load from storage
+            const saved = loadFromStorage();
+            if (saved) {
+                enterEditMode(saved);
+                // Set savedMessageId field
+                if (saved.messageId) {
+                    editMessageId.value = saved.messageId;
+                }
+            }
+        });
+
+        // Cancel edit
+        cancelEditBtn.addEventListener('click', () => {
+            exitEditMode();
+            checkExistingRegistration();
+        });
+
+        // Paste button
+        pasteMessageIdBtn.addEventListener('click', async () => {
+            try {
+                const text = await navigator.clipboard.readText();
+                editMessageId.value = text.trim();
+            } catch {
+                editMessageId.focus();
+            }
+        });
+
+        // ==================== ON DISCORD AUTH CHANGE ====================
+        // Watch for Discord ID changes from DiscordAuth
+        const observer = new MutationObserver(() => {
+            const uid = document.getElementById('discordUserId');
+            if (uid && uid.textContent && uid.textContent !== currentDiscordUserId) {
+                const rawText = uid.textContent;
+                // Extract numeric ID if present
+                const match = rawText.match(/\d+/);
+                currentDiscordUserId = match ? match[0] : rawText;
+                checkExistingRegistration();
+            }
+        });
+        
+        // Start observing after DOM ready
+        const discordUserIdEl = document.getElementById('discordUserId');
+        if (discordUserIdEl) {
+            observer.observe(discordUserIdEl, { childList: true, characterData: true, subtree: true });
+        }
+
+        // Also check on page load after Discord auth processes
+        setTimeout(() => {
+            const uidEl = document.getElementById('discordUserId');
+            if (uidEl && uidEl.textContent) {
+                const match = uidEl.textContent.match(/\d+/);
+                currentDiscordUserId = match ? match[0] : uidEl.textContent;
+                checkExistingRegistration();
+            }
+        }, 500);
+
+        // ==================== RESET ====================
         function resetForm() {
             form.reset();
-            const discordIdInput = document.getElementById('discordId');
+            const discordIdInputEl = document.getElementById('discordId');
             const discordIdDisplay = document.getElementById('discordIdDisplay');
             const discordIdStatus = document.getElementById('discordIdStatus');
             const discordUserInfo = document.getElementById('discordUserInfo');
             const discordLoginBtn = document.getElementById('discordLoginBtn');
             const discordLoginSection = document.getElementById('discordLoginSection');
             const discordRequiredMsg = document.getElementById('discordRequiredMsg');
-            if (discordIdInput) discordIdInput.value = '';
+            if (discordIdInputEl) discordIdInputEl.value = '';
             if (discordIdDisplay) discordIdDisplay.value = '';
             if (discordIdStatus) {
                 discordIdStatus.classList.remove('connected');
@@ -315,9 +643,17 @@
             submitBtn.disabled = true;
             if (discordRequiredMsg) discordRequiredMsg.style.display = 'block';
             errorContainer.style.display = 'none';
+            errorContainer.className = 'error-container';
             successCard.style.display = 'none';
             form.parentElement.style.display = 'block';
+            
+            exitEditMode();
+            checkExistingRegistration();
         }
+
+        // Expose resetForm globally for onclick
+        window.resetForm = resetForm;
+        window.copyMessageId = copyMessageId;
     </script>
 </body>
 </html>

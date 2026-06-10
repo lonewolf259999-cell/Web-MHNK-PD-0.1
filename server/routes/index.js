@@ -44,6 +44,7 @@ router.delete('/api/rules-data/:type(conduct|rules|fines)/:id', verifyPin, async
 
 // ==================== Registration ====================
 router.post('/api/register', asyncHandler(registerController.register));
+router.patch('/api/register/edit', asyncHandler(registerController.editRegistration));
 
 // ==================== Discord Auth ====================
 router.get('/auth/discord', authController.discordLogin);
