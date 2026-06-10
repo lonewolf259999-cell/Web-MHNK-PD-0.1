@@ -239,9 +239,10 @@ async function sendRegistration(registrationData) {
  * @param {string} opts.messageId - Discord Message ID
  * @param {Object} opts.data - ข้อมูลใหม่ { ocName, icName, ocAge, icPhone, discordId, steamUrl }
  * @param {number} [opts.editCount] - จำนวนครั้งที่แก้ไขแล้ว
+ * @param {string} [opts.verifiedDiscordUserId] - Discord User ID สำหรับตรวจสอบความเป็นเจ้าของ
  * @returns {Promise<Object>}
  */
-async function editRegistrationMessage({ messageId, data, editCount = 1 }) {
+async function editRegistrationMessage({ messageId, data, editCount = 1, verifiedDiscordUserId }) {
     const { ocName, discordId } = data;
 
     const webhookUrl = config.DISCORD_REGISTER_WEBHOOK_URL;
@@ -252,6 +253,32 @@ async function editRegistrationMessage({ messageId, data, editCount = 1 }) {
 
     if (!messageId) {
         throw new Error('กรุณาระบุ Message ID');
+    }
+
+    // === ตรวจสอบความเป็นเจ้าของ (ถ้ามี verifiedDiscordUserId) ===
+    if (verifiedDiscordUserId) {
+        const fetchUrl = buildEditUrl(webhookUrl, messageId);
+        const existingMessage = await sendJson(fetchUrl, {}, 'GET');
+
+        // ตรวจสอบว่า content ของ message มี <@verifiedDiscordUserId> หรือไม่
+        const mentionPattern = `<@${verifiedDiscordUserId}>`;
+        const contentMatch = existingMessage.content && existingMessage.content.includes(mentionPattern);
+
+        // ตรวจสอบใน embed fields ด้วย
+        let fieldMatch = false;
+        if (existingMessage.embeds && existingMessage.embeds.length > 0) {
+            const fields = existingMessage.embeds[0].fields || [];
+            for (const field of fields) {
+                if (field.value && field.value.includes(mentionPattern)) {
+                    fieldMatch = true;
+                    break;
+                }
+            }
+        }
+
+        if (!contentMatch && !fieldMatch) {
+            throw new Error('❌ ไม่ใช่ข้อมูลของคุณ — Message ID นี้เป็นของคนอื่น');
+        }
     }
 
     const editUrl = buildEditUrl(webhookUrl, messageId);
