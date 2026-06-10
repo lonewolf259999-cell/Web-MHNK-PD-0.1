@@ -557,46 +557,6 @@
    Edit Mode Styles
    ======================================== */
 
-/* Edit Toggle Bar (always visible) */
-.edit-toggle-bar {
-    margin-bottom: 20px;
-    text-align: center;
-}
-
-.edit-toggle-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 20px;
-    background: rgba(251, 191, 36, 0.1);
-    border: 1px dashed rgba(251, 191, 36, 0.4);
-    border-radius: var(--radius-md);
-    color: var(--color-gold);
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all var(--transition-fast);
-    width: 100%;
-    justify-content: center;
-}
-
-.edit-toggle-btn:hover {
-    background: rgba(251, 191, 36, 0.18);
-    border-style: solid;
-    border-color: var(--color-gold);
-}
-
-.edit-toggle-btn.active {
-    background: rgba(239, 68, 68, 0.12);
-    border-color: rgba(239, 68, 68, 0.4);
-    color: var(--color-danger);
-    border-style: solid;
-}
-
-.edit-toggle-btn.active:hover {
-    background: rgba(239, 68, 68, 0.2);
-}
-
 /* Edit Mode Banner */
 .edit-mode-banner {
     display: flex;
@@ -717,61 +677,29 @@
 }
 
 /* Existing Registration Banner */
-.existing-registration-banner {
+/* Discord Edit Button (inside login section) */
+.discord-edit-btn {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 14px 18px;
-    margin-top: 16px;
-    background: rgba(59, 130, 246, 0.1);
-    border: 1px solid rgba(59, 130, 246, 0.25);
-    border-radius: var(--radius-md);
-    animation: fadeIn 0.3s ease;
-}
-
-.existing-reg-info {
-    display: flex;
-    align-items: center;
+    justify-content: center;
     gap: 8px;
-    flex: 1;
-    min-width: 0;
-    text-align: left;
-}
-
-.existing-reg-icon {
-    font-size: 20px;
-    flex-shrink: 0;
-}
-
-.existing-reg-info span:last-child {
-    font-size: 13px;
-    color: var(--color-text-secondary);
-    font-weight: 500;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.edit-existing-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 16px;
-    background: rgba(59, 130, 246, 0.2);
-    border: 1px solid rgba(59, 130, 246, 0.3);
-    border-radius: var(--radius-sm);
-    color: #60A5FA;
+    width: 100%;
+    margin-top: 16px;
+    padding: 10px 20px;
+    background: rgba(251, 191, 36, 0.1);
+    border: 1px dashed rgba(251, 191, 36, 0.4);
+    border-radius: var(--radius-md);
+    color: var(--color-gold);
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
     transition: all var(--transition-fast);
-    white-space: nowrap;
-    flex-shrink: 0;
 }
 
-.edit-existing-btn:hover {
-    background: rgba(59, 130, 246, 0.3);
-    transform: translateY(-1px);
+.discord-edit-btn:hover {
+    background: rgba(251, 191, 36, 0.18);
+    border-style: solid;
+    border-color: var(--color-gold);
 }
 
 /* Submit Button - Edit Mode */
