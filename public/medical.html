@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>สมัครแพทย์ - MHNK Medical Department</title>
+    
+    <!-- Preconnect to fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    
+    <!-- Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" />
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="src/styles/main.css" />
+    <link rel="stylesheet" href="src/styles/pages/medical.css" />
+</head>
+<body class="medical-page">
+    <!-- Background Effects -->
+    <div class="scanner-line"></div>
+    <div class="bg-glow"></div>
+    <div class="bg-dots"></div>
+
+    <!-- Header -->
+    <header class="site-header">
+        <div class="header-top">
+            <img src="logo.gif" alt="MHNK Logo" class="header-logo" onerror="this.src='logo.png'" width="64" height="64" />
+            <div class="header-title">
+                <h1>Mahahorn Diwa Medical Department</h1>
+                <div class="header-subtitle">หน่วยแพทย์ <span>MHNK</span> &mdash; Mahahorn Diwa</div>
+            </div>
+            <div class="header-badges">
+                <span class="header-badge">&#9670; FIVEM</span>
+                <span class="header-badge">&#128154; MEDICAL</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="medical-main">
+        <div class="medical-container">
+            <!-- Form Card -->
+            <div class="medical-card">
+                <div class="medical-header">
+                    <div class="medical-icon">&#128154;</div>
+                    <h2>สมัครเป็นแพทย์</h2>
+                    <p>กรอกข้อมูลด้านล่างเพื่อสมัครเข้าร่วมหน่วยแพทย์ MHNK</p>
+                </div>
+
+                <!-- Discord Login Section -->
+                <div class="discord-login-section" id="discordLoginSection">
+                    <div id="discordLoginView">
+                        <div class="discord-login-header">
+                            <svg class="discord-icon-large" viewBox="0 0 24 24" width="28" height="28">
+                                <path fill="currentColor" d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+                            </svg>
+                            <span>เชื่อมต่อบัญชี Discord</span>
+                        </div>
+                        <p class="discord-login-desc">กรุณาเชื่อมต่อ Discord ก่อนกรอกข้อมูล</p>
+                        <a href="/auth/discord" id="discordLoginBtn" class="discord-login-btn-large">
+                            <svg class="discord-icon" viewBox="0 0 24 24" width="24" height="24">
+                                <path fill="currentColor" d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+                            </svg>
+                            เชื่อมต่อ Discord
+                        </a>
+                        
+                        <!-- Discord User Info (shown after login) -->
+                        <div id="discordUserInfo" class="discord-user-info-large" style="display: none;">
+                            <img id="discordAvatar" src="" alt="Avatar" class="discord-avatar-large" />
+                            <div class="discord-user-details">
+                                <span id="discordDisplayName" class="discord-name-large"></span>
+                                <span id="discordUserId" class="discord-id-large"></span>
+                            </div>
+                            <button type="button" id="discordDisconnect" class="discord-disconnect-large" title="ยกเลิกการเชื่อมต่อ">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M18 6L6 18M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <form id="medicalForm" class="medical-form">
+                    <!-- Discord ID Display -->
+                    <div class="form-group discord-id-group">
+                        <label for="discordIdDisplay">
+                            <span class="form-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+                                </svg>
+                            </span>
+                            Discord ID
+                        </label>
+                        <div class="discord-id-wrapper">
+                            <input type="text" id="discordIdDisplay" class="discord-id-input" placeholder="กดปุ่มเชื่อมต่อ Discord เพื่อรับ ID" readonly />
+                            <input type="hidden" id="discordId" name="discordId" />
+                            <div id="discordIdStatus" class="discord-id-status">
+                                <span class="status-dot"></span>
+                                <span class="status-text">ยังไม่ได้เชื่อมต่อ</span>
+                            </div>
+                        </div>
+                        <span class="form-hint">ID จะถูกกรอกอัตโนมัติหลังจากเชื่อมต่อ Discord</span>
+                    </div>
+
+                    <!-- ชื่อ - นามสกุล (IC / ตามบัตร) -->
+                    <div class="form-group">
+                        <label for="icName">
+                            <span class="form-icon">&#128203;</span>
+                            ชื่อ - นามสกุล (IC / ตามบัตร)
+                        </label>
+                        <input type="text" id="icName" name="icName" placeholder="กรอกชื่อ-นามสกุลตามบัตรประชาชน" maxlength="100" required />
+                        <span class="form-hint">ชื่อจริงที่ปรากฏในเกม / ตามบัตรประชาชน</span>
+                    </div>
+
+                    <!-- อายุ (OC) -->
+                    <div class="form-group">
+                        <label for="ocAge">
+                            <span class="form-icon">&#127874;</span>
+                            อายุ (OC)
+                        </label>
+                        <input type="number" id="ocAge" name="ocAge" placeholder="กรอกอายุตัวละคร" min="1" max="120" required />
+                        <span class="form-hint">อายุของตัวละครในเกม</span>
+                    </div>
+
+                    <!-- เวลาที่สามารถปฏิบัติหน้าที่ได้ -->
+                    <div class="form-group time-range-group">
+                        <label>
+                            <span class="form-icon">&#9200;</span>
+                            เวลาที่สามารถปฏิบัติหน้าที่ได้
+                        </label>
+                        <div class="time-range-wrapper">
+                            <div class="time-input-wrapper">
+                                <input type="time" id="timeStart" name="timeStart" required />
+                                <span class="time-label">เริ่ม</span>
+                            </div>
+                            <span class="time-separator">—</span>
+                            <div class="time-input-wrapper">
+                                <input type="time" id="timeEnd" name="timeEnd" required />
+                                <span class="time-label">สิ้นสุด</span>
+                            </div>
+                        </div>
+                        <span class="form-hint">เลือกช่วงเวลาที่สามารถออนไลน์และปฏิบัติหน้าที่ได้ เช่น 18:00 - 00:00</span>
+                    </div>
+
+                    <!-- ประสบการณ์ด้านสายแพทย์ -->
+                    <div class="form-group">
+                        <label for="medicalExperience">
+                            <span class="form-icon">&#129658;</span>
+                            มีประสบการณ์ด้านสายแพทย์มาก่อนหรือไม่ (โปรดระบุ)
+                        </label>
+                        <textarea id="medicalExperience" name="medicalExperience" placeholder="เช่n เคยเป็นแพทย์ในเซิร์ฟอื่น, มีความรู้ด้านการรักษา, เคยผ่านการฝึกอบรม..." rows="4" maxlength="500" required></textarea>
+                        <span class="form-hint">ระบุประสบการณ์หรือความรู้ด้านสายแพทย์ที่มี (ถ้าไม่มีให้ระบุว่า "ไม่มี")</span>
+                    </div>
+
+                    <!-- เหตุผลที่ต้องการเข้าร่วมหน่วยแพทย์ -->
+                    <div class="form-group">
+                        <label for="joinReason">
+                            <span class="form-icon">&#128161;</span>
+                            เหตุผลที่ต้องการเข้าร่วมหน่วยแพทย์
+                        </label>
+                        <textarea id="joinReason" name="joinReason" placeholder="บอกเหตุผลที่อยากเข้าร่วมหน่วยแพทย์ของเรา..." rows="4" maxlength="500" required></textarea>
+                        <span class="form-hint">เขียนเหตุผลที่ต้องการเข้าร่วมหน่วยแพทย์ MHNK</span>
+                    </div>
+
+                    <!-- Edit Toggle Button -->
+                    <div class="form-edit-toggle">
+                        <button type="button" id="editToggleBtn" class="form-edit-btn">
+                            &#9998; แก้ไขข้อมูล
+                        </button>
+                    </div>
+
+                    <!-- Edit Mode View (inside form) -->
+                    <div id="discordEditView" class="form-edit-section" style="display: none;">
+                        <div class="edit-mode-banner">
+                            <span class="edit-mode-icon">&#9998;</span>
+                            <span>กำลังแก้ไขข้อมูล</span>
+                            <button type="button" id="cancelEditBtn" class="cancel-edit-btn">ยกเลิก</button>
+                        </div>
+                        <div class="form-group">
+                            <label for="editMessageId">
+                                <span class="form-icon">&#128196;</span>
+                                Message ID
+                            </label>
+                            <div class="message-id-wrapper">
+                                <input type="text" id="editMessageId" class="message-id-input" placeholder="วาง Message ID ที่คัดลอกจาก Discord" />
+                                <button type="button" id="fetchDataBtn" class="fetch-data-btn" title="โหลดข้อมูลจาก Discord">
+                                    <span class="fetch-btn-text">&#128229; โหลดข้อมูล</span>
+                                </button>
+                            </div>
+                            <div class="message-id-help">
+                                <span>&#128161;</span>
+                                <span>เปิด Discord → Settings → Advanced → เปิด Developer Mode → คลิกขวาที่ embed → Copy Message ID</span>
+                            </div>
+                            <input type="hidden" id="editCount" value="0" />
+                        </div>
+                    </div>
+
+                    <!-- Error Message -->
+                    <div id="errorContainer" class="error-container" style="display: none;">
+                        <div class="error-message">
+                            <span class="error-icon">&#9888;</span>
+                            <ul id="errorList"></ul>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" id="submitBtn" class="submit-btn" disabled>
+                        <span class="btn-icon">&#10003;</span>
+                        <span class="btn-text" id="submitBtnText">สมัครสมาชิก</span>
+                    </button>
+                    
+                    <!-- Discord Required Message -->
+                    <div id="discordRequiredMsg" class="discord-required-msg">
+                        <span class="info-icon">&#128161;</span>
+                        กรุณาเชื่อมต่อ Discord ก่อนสมัคร
+                    </div>
+                </form>
+            </div>
+
+            <!-- Success Card (Hidden by default) -->
+            <div id="successCard" class="success-card" style="display: none;">
+                <div class="success-icon">&#10004;</div>
+                <h2 id="successTitle">สมัครสำเร็จ!</h2>
+                <p>ข้อมูลการสมัครของคุณถูกส่งไปยังทีมงานเรียบร้อยแล้ว</p>
+                <p class="success-note">ทีมงานจะติดต่อกลับผ่าน Discord ของคุณ</p>
+
+                <!-- Message ID display for user to copy -->
+                <div class="message-id-copy-section">
+                    <label>Message ID (เก็บไว้สำหรับแก้ไขภายหลัง)</label>
+                    <div class="message-id-copy-wrapper">
+                        <input type="text" id="savedMessageId" class="message-id-copy-input" readonly />
+                        <button type="button" id="copyMessageIdBtn" class="copy-id-btn" onclick="copyMessageId()">
+                            &#128203; คัดลอก
+                        </button>
+                    </div>
+                    <p class="message-id-copy-hint">&#128161; คัดลอก ID นี้ไว้ก่อนปิดหน้าเว็บ ถ้าต้องการแก้ไขข้อมูลครั้งต่อไป</p>
+                </div>
+
+                <div class="success-actions">
+                    <button onclick="resetForm()" class="reset-btn">
+                        <span class="btn-icon">&#128260;</span>
+                        สมัครใหม่
+                    </button>
+                    <!-- Edit button in success card -->
+                    <button type="button" id="editAfterSuccessBtn" class="edit-after-success-btn">
+                        &#9998; แก้ไขข้อมูลนี้
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <p>&copy; 2026 <span>MHNK MEDICAL DEPARTMENT</span> &mdash; FiveM Server</p>
+    </footer>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="loading-spinner"></div>
+        <p>กำลังส่งข้อมูล...</p>
+    </div>
+
+    <!-- Discord Auth module + Production flag -->
+    <script src="src/utils/discordAuth.js?v=4.0"></script>
+    <script>
+        window.__PRODUCTION__ = !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1');
+    </script>
+    <script>
+        // Initialize shared Discord Auth
+        DiscordAuth.init({
+            loginUrl: '/auth/discord'
+        });
+
+        // ==================== STATE ====================
+        let isEditMode = false;
+        let currentDiscordUserId = '';
+        let currentMessageId = '';
+
+        const form = document.getElementById('medicalForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const submitBtnText = document.getElementById('submitBtnText');
+        const errorContainer = document.getElementById('errorContainer');
+        const errorList = document.getElementById('errorList');
+        const successCard = document.getElementById('successCard');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const discordIdInput = document.getElementById('discordId');
+
+        // View elements
+        const discordEditView = document.getElementById('discordEditView');
+        const editMessageId = document.getElementById('editMessageId');
+        const editCount = document.getElementById('editCount');
+        const cancelEditBtn = document.getElementById('cancelEditBtn');
+        const editToggleBtn = document.getElementById('editToggleBtn');
+        const editAfterSuccessBtn = document.getElementById('editAfterSuccessBtn');
+        const savedMessageId = document.getElementById('savedMessageId');
+        const fetchDataBtn = document.getElementById('fetchDataBtn');
+
+        // ==================== HELPERS ====================
+        function getDiscordId() {
+            return discordIdInput ? discordIdInput.value : '';
+        }
+
+        function getDiscordUserId() {
+            return currentDiscordUserId;
+        }
+
+        function getStorageKey() {
+            const uid = getDiscordUserId();
+            return uid ? `medical_registration_${uid}` : null;
+        }
+
+        function loadFromStorage() {
+            const key = getStorageKey();
+            if (!key) return null;
+            try {
+                const raw = localStorage.getItem(key);
+                return raw ? JSON.parse(raw) : null;
+            } catch { return null; }
+        }
+
+        function saveToStorage(data) {
+            const key = getStorageKey();
+            if (!key) return;
+            localStorage.setItem(key, JSON.stringify(data));
+        }
+
+        function removeFromStorage() {
+            const key = getStorageKey();
+            if (key) localStorage.removeItem(key);
+        }
+
+        // ==================== VIEW SWITCHING ====================
+        function switchToEditView() {
+            discordEditView.style.display = 'block';
+            document.querySelector('.form-edit-toggle').style.display = 'none';
+            isEditMode = true;
+            submitBtnText.textContent = 'บันทึกการแก้ไข';
+            submitBtn.classList.add('edit-mode');
+        }
+
+        function switchToLoginView() {
+            discordEditView.style.display = 'none';
+            document.querySelector('.form-edit-toggle').style.display = 'block';
+            isEditMode = false;
+            submitBtnText.textContent = 'สมัครสมาชิก';
+            submitBtn.classList.remove('edit-mode');
+            editMessageId.value = '';
+            editCount.value = '0';
+            currentMessageId = '';
+        }
+
+        function enterEditMode(savedData) {
+            switchToEditView();
+            if (savedData) {
+                setFormData(savedData.data);
+                if (savedData.messageId) {
+                    editMessageId.value = savedData.messageId;
+                    currentMessageId = savedData.messageId;
+                }
+                if (savedData.editCount) {
+                    editCount.value = savedData.editCount;
+                }
+            }
+        }
+
+        function exitEditMode() {
+            switchToLoginView();
+        }
+
+        function getFormData() {
+            return {
+                icName: document.getElementById('icName').value.trim(),
+                ocAge: document.getElementById('ocAge').value,
+                timeStart: document.getElementById('timeStart').value,
+                timeEnd: document.getElementById('timeEnd').value,
+                medicalExperience: document.getElementById('medicalExperience').value.trim(),
+                joinReason: document.getElementById('joinReason').value.trim(),
+                discordId: getDiscordId()
+            };
+        }
+
+        function setFormData(data) {
+            if (data.icName) document.getElementById('icName').value = data.icName;
+            if (data.ocAge) document.getElementById('ocAge').value = data.ocAge;
+            if (data.timeStart) document.getElementById('timeStart').value = data.timeStart;
+            if (data.timeEnd) document.getElementById('timeEnd').value = data.timeEnd;
+            if (data.medicalExperience) document.getElementById('medicalExperience').value = data.medicalExperience;
+            if (data.joinReason) document.getElementById('joinReason').value = data.joinReason;
+        }
+
+        function showErrors(messages) {
+            errorList.innerHTML = '';
+            (Array.isArray(messages) ? messages : [messages]).forEach(msg => {
+                const li = document.createElement('li');
+                li.textContent = msg;
+                errorList.appendChild(li);
+            });
+            errorContainer.style.display = 'block';
+        }
+
+        function copyMessageId() {
+            const input = document.getElementById('savedMessageId');
+            if (!input.value) return;
+            input.select();
+            input.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(input.value).then(() => {
+                const btn = document.getElementById('copyMessageIdBtn');
+                btn.textContent = '&#10003; คัดลอกแล้ว';
+                setTimeout(() => {
+                    btn.innerHTML = '&#128203; คัดลอก';
+                }, 2000);
+            }).catch(() => {
+                document.execCommand('copy');
+            });
+        }
+
+        // ==================== FORM SUBMIT ====================
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!getDiscordId()) {
+                showErrors(['กรุณาเชื่อมต่อ Discord ก่อนสมัคร']);
+                return;
+            }
+            
+            errorContainer.style.display = 'none';
+            errorList.innerHTML = '';
+
+            const formData = getFormData();
+
+            if (isEditMode) {
+                // === EDIT MODE ===
+                const messageId = editMessageId.value.trim();
+                if (!messageId) {
+                    showErrors(['กรุณากรอก Message ID ที่คัดลอกจาก Discord']);
+                    return;
+                }
+
+                if (!/^\d+$/.test(messageId)) {
+                    showErrors(['Message ID ไม่ถูกต้อง — ควรเป็นตัวเลขเท่านั้น']);
+                    return;
+                }
+
+                loadingOverlay.style.display = 'flex';
+                document.querySelector('#loadingOverlay p').textContent = 'กำลังแก้ไขข้อมูล...';
+
+                try {
+                    const response = await fetch('/api/medical/edit', {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            messageId,
+                            discordId: formData.discordId,
+                            discordUserId: getDiscordUserId(),
+                            icName: formData.icName,
+                            ocAge: formData.ocAge,
+                            timeStart: formData.timeStart,
+                            timeEnd: formData.timeEnd,
+                            medicalExperience: formData.medicalExperience,
+                            joinReason: formData.joinReason,
+                            editCount: parseInt(editCount.value) || 0
+                        })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        const saved = loadFromStorage() || {};
+                        saved.data = formData;
+                        saved.editCount = (parseInt(editCount.value) || 0) + 1;
+                        saveToStorage(saved);
+
+                        document.getElementById('successTitle').textContent = 'แก้ไขข้อมูลแล้ว!';
+                        savedMessageId.value = result.messageId || currentMessageId;
+                        form.parentElement.style.display = 'none';
+                        successCard.style.display = 'block';
+                    } else {
+                        showErrors(result.errors || [result.message]);
+                    }
+                } catch (err) {
+                    showErrors(['ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้ กรุณาลองใหม่อีกครั้ง']);
+                } finally {
+                    loadingOverlay.style.display = 'none';
+                    document.querySelector('#loadingOverlay p').textContent = 'กำลังส่งข้อมูล...';
+                    errorContainer.className = 'error-container';
+                }
+
+            } else {
+                // === NEW REGISTRATION ===
+                formData.discordUserId = getDiscordUserId() || null;
+                loadingOverlay.style.display = 'flex';
+
+                try {
+                    const response = await fetch('/api/medical', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(formData)
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        const storageData = {
+                            messageId: result.messageId,
+                            discordUserId: getDiscordUserId(),
+                            data: formData,
+                            editCount: 0
+                        };
+                        saveToStorage(storageData);
+
+                        document.getElementById('successTitle').textContent = 'สมัครสำเร็จ!';
+                        savedMessageId.value = result.messageId;
+                        form.parentElement.style.display = 'none';
+                        successCard.style.display = 'block';
+                    } else {
+                        if (result.errors && result.errors.length > 0) {
+                            showErrors(result.errors);
+                        } else {
+                            showErrors([result.message || 'เกิดข้อผิดพลาด']);
+                        }
+                    }
+                } catch (err) {
+                    showErrors(['ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้ กรุณาลองใหม่อีกครั้ง']);
+                } finally {
+                    loadingOverlay.style.display = 'none';
+                }
+            }
+        });
+
+        // ==================== EVENT LISTENERS ====================
+
+        // Edit Toggle button
+        editToggleBtn.addEventListener('click', () => {
+            if (isEditMode) {
+                exitEditMode();
+            } else {
+                successCard.style.display = 'none';
+                form.parentElement.style.display = 'block';
+                enterEditMode(null);
+            }
+        });
+
+        // Edit after success
+        editAfterSuccessBtn.addEventListener('click', () => {
+            successCard.style.display = 'none';
+            form.parentElement.style.display = 'block';
+            
+            const saved = loadFromStorage();
+            if (saved) {
+                enterEditMode(saved);
+                if (saved.messageId && editMessageId) {
+                    editMessageId.value = saved.messageId;
+                }
+            }
+        });
+
+        // Cancel edit
+        cancelEditBtn.addEventListener('click', () => {
+            exitEditMode();
+        });
+
+        // Fetch data button
+            fetchDataBtn.addEventListener('click', async () => {
+                const messageId = editMessageId.value.trim();
+                if (!messageId) {
+                    showErrors(['กรุณากรอก Message ID ก่อนกดดึงข้อมูล']);
+                    return;
+                }
+                if (!/^\d+$/.test(messageId)) {
+                    showErrors(['Message ID ไม่ถูกต้อง — ควรเป็นตัวเลขเท่านั้น']);
+                    return;
+                }
+
+                if (!getDiscordId()) {
+                    showErrors(['กรุณาเชื่อมต่อ Discord หรือกรอก Discord ID ก่อน']);
+                    return;
+                }
+
+                loadingOverlay.style.display = 'flex';
+                document.querySelector('#loadingOverlay p').textContent = 'กำลังโหลดข้อมูล...';
+
+                try {
+                    const discordUserId = getDiscordUserId();
+                    const queryParam = discordUserId ? `?discordUserId=${discordUserId}` : '';
+                    const response = await fetch(`/api/medical/fetch/${messageId}${queryParam}`);
+                    const result = await response.json();
+
+                    if (result.success && result.data) {
+                        setFormData(result.data);
+                        if (result.editCount) {
+                            editCount.value = result.editCount;
+                        }
+                        showErrors(['✅ ดึงข้อมูลสำเร็จ — แก้ไขแล้วกด "บันทึกการแก้ไข"']);
+                        errorContainer.className = 'error-container success-msg';
+                        errorContainer.style.display = 'block';
+                    } else {
+                        showErrors([result.message || 'ไม่พบข้อมูล']);
+                    }
+                } catch (err) {
+                    showErrors(['ไม่สามารถดึงข้อมูลได้ — Message ID ไม่ถูกต้อง']);
+                } finally {
+                    loadingOverlay.style.display = 'none';
+                    document.querySelector('#loadingOverlay p').textContent = 'กำลังส่งข้อมูล...';
+                    errorContainer.className = 'error-container';
+                }
+            });
+
+        // ==================== ON DISCORD AUTH CHANGE ====================
+        const observer = new MutationObserver(() => {
+            const uid = document.getElementById('discordUserId');
+            if (uid && uid.textContent && uid.textContent !== currentDiscordUserId) {
+                const rawText = uid.textContent;
+                const match = rawText.match(/\d+/);
+                currentDiscordUserId = match ? match[0] : rawText;
+            }
+        });
+        
+        const discordUserIdEl = document.getElementById('discordUserId');
+        if (discordUserIdEl) {
+            observer.observe(discordUserIdEl, { childList: true, characterData: true, subtree: true });
+        }
+
+        setTimeout(() => {
+            const uidEl = document.getElementById('discordUserId');
+            if (uidEl && uidEl.textContent) {
+                const match = uidEl.textContent.match(/\d+/);
+                currentDiscordUserId = match ? match[0] : uidEl.textContent;
+            }
+        }, 500);
+
+        // ==================== RESET ====================
+        function resetForm() {
+            form.reset();
+            const discordIdInputEl = document.getElementById('discordId');
+            const discordIdDisplay = document.getElementById('discordIdDisplay');
+            const discordIdStatus = document.getElementById('discordIdStatus');
+            const discordUserInfo = document.getElementById('discordUserInfo');
+            const discordLoginBtn = document.getElementById('discordLoginBtn');
+            const discordLoginSection = document.getElementById('discordLoginSection');
+            const discordRequiredMsg = document.getElementById('discordRequiredMsg');
+            if (discordIdInputEl) discordIdInputEl.value = '';
+            if (discordIdDisplay) discordIdDisplay.value = '';
+            if (discordIdStatus) {
+                discordIdStatus.classList.remove('connected');
+                const st = discordIdStatus.querySelector('.status-text');
+                if (st) st.textContent = 'ยังไม่ได้เชื่อมต่อ';
+            }
+            if (discordUserInfo) discordUserInfo.style.display = 'none';
+            if (discordLoginBtn) discordLoginBtn.style.display = 'flex';
+            if (discordLoginSection) discordLoginSection.classList.remove('connected');
+            submitBtn.disabled = true;
+            if (discordRequiredMsg) discordRequiredMsg.style.display = 'block';
+            errorContainer.style.display = 'none';
+            errorContainer.className = 'error-container';
+            successCard.style.display = 'none';
+            form.parentElement.style.display = 'block';
+            
+            exitEditMode();
+        }
+
+        window.resetForm = resetForm;
+        window.copyMessageId = copyMessageId;
+    </script>
+</body>
+</html>
+</longcat_arg_value>

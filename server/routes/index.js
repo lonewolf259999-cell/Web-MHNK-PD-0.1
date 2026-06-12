@@ -19,6 +19,7 @@ const registerController = require('../controllers/registerController');
 const authController = require('../controllers/authController');
 const proctorController = require('../controllers/proctorController');
 const councilController = require('../controllers/councilController');
+const medicalController = require('../controllers/medicalController');
 
 const router = Router();
 
@@ -56,5 +57,10 @@ router.post('/api/proctor/submit', asyncHandler(proctorController.submitProctor)
 
 // ==================== Council API ====================
 router.post('/api/council/submit', asyncHandler(councilController.submitCouncil));
+
+// ==================== Medical Registration ====================
+router.post('/api/medical', asyncHandler(medicalController.registerMedical));
+router.patch('/api/medical/edit', asyncHandler(medicalController.editMedical));
+router.get('/api/medical/fetch/:messageId', asyncHandler(medicalController.fetchMedical));
 
 module.exports = router;

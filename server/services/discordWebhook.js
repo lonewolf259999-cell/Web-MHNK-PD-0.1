@@ -481,4 +481,232 @@ async function fetchRegistrationMessage(messageId, verifiedDiscordUserId) {
     return { data, editCount, messageId };
 }
 
-module.exports = { sendRegistration, sendProctor, sendCouncil, editRegistrationMessage, fetchRegistrationMessage };
+/**
+ * สร้าง embed สำหรับใบสมัครแพทย์
+ */
+function buildMedicalEmbed(data, editCount = 0) {
+    const { icName, ocAge, timeStart, timeEnd, medicalExperience, joinReason, discordId } = data;
+
+    // ตรวจสอบว่า discordId เป็นตัวเลข (User ID) หรือไม่
+    const isNumericId = /^\d+$/.test(discordId);
+    const discordMention = isNumericId ? `<@${discordId}>` : discordId || 'ไม่ระบุ';
+    const discordDisplay = isNumericId ? discordMention : discordId || 'ไม่ระบุ';
+
+    const footerText = editCount > 0
+        ? `✏️ แก้ไขแล้ว ${editCount} ครั้ง • MHNK Medical Department`
+        : 'MHNK Medical Department • ระบบสมัครอัตโนมัติ';
+
+    // ตัดข้อความถ้ายาวเกินไปสำหรับ embed field (Discord limit = 1024 chars)
+    const truncate = (str, max = 1000) => str.length > max ? str.substring(0, max) + '...' : str;
+
+    const formatTimeRange = (start, end) => {
+        if (!start && !end) return 'ไม่ระบุ';
+        return `${start || '—'} - ${end || '—'}`;
+    };
+
+    return {
+        embed: {
+            title: '❤️‍🩹 ใบสมัครแพทย์ใหม่',
+            description: 'มีผู้สมัครเข้าร่วมหน่วยแพทย์ MHNK',
+            color: 0xef4444,
+            fields: [
+                { name: '📛 ชื่อ - นามสกุล (IC/ตามบัตร)', value: icName || 'ไม่ระบุ', inline: false },
+                { name: '🎂 อายุ (OC)', value: ocAge ? `${ocAge} ปี` : 'ไม่ระบุ', inline: true },
+                { name: '💬 Discord', value: discordDisplay, inline: true },
+                { name: '⏰ เวลาที่สามารถปฏิบัติหน้าที่ได้', value: formatTimeRange(timeStart, timeEnd), inline: false },
+                { name: '💊 ประสบการณ์ด้านสายแพทย์', value: truncate(medicalExperience), inline: false },
+                { name: '💡 เหตุผลที่ต้องการเข้าร่วม', value: truncate(joinReason), inline: false }
+            ],
+            footer: { text: footerText },
+            timestamp: new Date().toISOString()
+        },
+        content: discordMention !== 'ไม่ระบุ' ? discordMention : undefined
+    };
+}
+
+/**
+ * ส่งข้อมูลสมัครแพทย์ไปยัง Discord Webhook
+ * @param {Object} medicalData - ข้อมูลการสมัครแพทย์
+ * @returns {Promise<Object>} - { success, messageId }
+ */
+async function sendMedical(medicalData) {
+    const { icName, discordId } = medicalData;
+
+    const webhookUrl = config.DISCORD_MEDICAL_WEBHOOK_URL;
+    if (!webhookUrl) {
+        logger.error('Discord Medical Webhook URL is not configured');
+        throw new Error('ระบบยังไม่ได้ตั้งค่า Webhook สำหรับการสมัครแพทย์');
+    }
+
+    const { embed, content } = buildMedicalEmbed(medicalData, 0);
+    const payload = {
+        content,
+        embeds: [embed]
+    };
+
+    // ต้องใช้ ?wait=true เพื่อให้ Discord คืน message object (มี id กลับมา)
+    const waitUrl = webhookUrl + (webhookUrl.includes('?') ? '&' : '?') + 'wait=true';
+
+    // ส่ง Webhook และรับ messageId กลับมา
+    const response = await sendJson(waitUrl, payload);
+    const messageId = response.id;
+
+    if (!messageId) {
+        logger.error('Discord did not return a message ID');
+        throw new Error('Discord ไม่ได้คืน message ID — อาจเป็นปัญหา Discord API');
+    }
+
+    logger.info(`Medical registration sent: ${icName} (${discordId}) msgId=${messageId}`);
+    return { success: true, message: 'ส่งข้อมูลสำเร็จ', messageId };
+}
+
+/**
+ * แก้ไขข้อความใน Discord (PATCH embed) - Medical
+ * @param {Object} opts
+ * @param {string} opts.messageId - Discord Message ID
+ * @param {Object} opts.data - ข้อมูลใหม่
+ * @param {number} [opts.editCount] - จำนวนครั้งที่แก้ไขแล้ว
+ * @param {string} [opts.verifiedDiscordUserId] - Discord User ID สำหรับตรวจสอบความเป็นเจ้าของ
+ * @returns {Promise<Object>}
+ */
+async function editMedicalMessage({ messageId, data, editCount = 1, verifiedDiscordUserId }) {
+    const { icName, discordId } = data;
+
+    const webhookUrl = config.DISCORD_MEDICAL_WEBHOOK_URL;
+    if (!webhookUrl) {
+        logger.error('Discord Medical Webhook URL is not configured');
+        throw new Error('ระบบยังไม่ได้ตั้งค่า Webhook สำหรับการสมัครแพทย์');
+    }
+
+    if (!messageId) {
+        throw new Error('กรุณาระบุ Message ID');
+    }
+
+    // === ตรวจสอบความเป็นเจ้าของ (ถ้ามี verifiedDiscordUserId) ===
+    if (verifiedDiscordUserId) {
+        const fetchUrl = buildEditUrl(webhookUrl, messageId);
+        const existingMessage = await sendJson(fetchUrl, {}, 'GET');
+
+        const mentionPattern = `<@${verifiedDiscordUserId}>`;
+        const contentMatch = existingMessage.content && existingMessage.content.includes(mentionPattern);
+
+        let fieldMatch = false;
+        if (existingMessage.embeds && existingMessage.embeds.length > 0) {
+            const fields = existingMessage.embeds[0].fields || [];
+            for (const field of fields) {
+                if (field.value && field.value.includes(mentionPattern)) {
+                    fieldMatch = true;
+                    break;
+                }
+            }
+        }
+
+        if (!contentMatch && !fieldMatch) {
+            throw new Error('❌ ไม่ใช่ข้อมูลของคุณ — Message ID นี้เป็นของคนอื่น');
+        }
+    }
+
+    const editUrl = buildEditUrl(webhookUrl, messageId);
+    const { embed, content } = buildMedicalEmbed(data, editCount);
+    const payload = {
+        content,
+        embeds: [embed]
+    };
+
+    // PATCH แก้ไข embed
+    await sendJson(editUrl, payload, 'PATCH');
+
+    logger.info(`Medical registration edited: ${icName} (${discordId}) msgId=${messageId} editCount=${editCount}`);
+    return { success: true, message: 'แก้ไขข้อมูลสำเร็จ' };
+}
+
+/**
+ * ดึงข้อมูลจาก Discord embed (GET message) เพื่อโหลดข้อมูลเก่า - Medical
+ * @param {string} messageId - Discord Message ID
+ * @param {string} [verifiedDiscordUserId] - Discord User ID สำหรับตรวจสอบความเป็นเจ้าของ
+ * @returns {Promise<Object>}
+ */
+async function fetchMedicalMessage(messageId, verifiedDiscordUserId) {
+    const webhookUrl = config.DISCORD_MEDICAL_WEBHOOK_URL;
+    if (!webhookUrl) {
+        throw new Error('ระบบยังไม่ได้ตั้งค่า Webhook สำหรับการสมัครแพทย์');
+    }
+    if (!messageId) {
+        throw new Error('กรุณาระบุ Message ID');
+    }
+
+    const fetchUrl = buildEditUrl(webhookUrl, messageId);
+    const response = await sendJson(fetchUrl, {}, 'GET');
+
+    if (!response || !response.embeds || response.embeds.length === 0) {
+        throw new Error('ไม่พบ embed ในข้อความนี้ — Message ID อาจไม่ถูกต้อง');
+    }
+
+    const embed = response.embeds[0];
+    const fields = embed.fields || [];
+
+    // === ตรวจสอบความเป็นเจ้าของ (ถ้ามี verifiedDiscordUserId) ===
+    if (verifiedDiscordUserId) {
+        const mentionPattern = `<@${verifiedDiscordUserId}>`;
+        const contentMatch = response.content && response.content.includes(mentionPattern);
+
+        let fieldMatch = false;
+        for (const field of fields) {
+            if (field.value && field.value.includes(mentionPattern)) {
+                fieldMatch = true;
+                break;
+            }
+        }
+
+        if (!contentMatch && !fieldMatch) {
+            throw new Error('❌ ไม่ใช่ข้อมูลของคุณ — Message ID นี้เป็นของคนอื่น');
+        }
+    }
+
+    // Map fields from embed to medical registration data
+    const getFieldValue = (name) => {
+        const field = fields.find(f => f.name.includes(name));
+        if (!field) return '';
+        let value = field.value.replace(/\*\*/g, '').trim();
+        value = value.replace(/<@\d+>/g, '').trim();
+        return value;
+    };
+
+    // ดึงเวลาจาก field ที่มีรูปแบบ "HH:MM - HH:MM"
+    const getTimeRange = () => {
+        const field = fields.find(f => f.name.includes('เวลาที่สามารถปฏิบัติหน้าที่ได้'));
+        if (!field) return { timeStart: '', timeEnd: '' };
+        
+        let value = field.value.replace(/\*\*/g, '').trim();
+        const timeRegex = '(\\d{1,2}:\\d{2})';
+        const match = value.match(new RegExp(timeRegex + '\\s*[-–]\\s*' + timeRegex));
+        
+        if (match) {
+            return { timeStart: match[1], timeEnd: match[2] };
+        }
+        return { timeStart: '', timeEnd: '' };
+    };
+
+    const timeRange = getTimeRange();
+
+    const data = {
+        icName: getFieldValue('ชื่อ - นามสกุล'),
+        ocAge: parseInt(getFieldValue('อายุ')) || '',
+        timeStart: timeRange.timeStart,
+        timeEnd: timeRange.timeEnd,
+        medicalExperience: getFieldValue('ประสบการณ์ด้านสายแพทย์'),
+        joinReason: getFieldValue('เหตุผลที่ต้องการเข้าร่วม'),
+                discordId: getFieldValue('Discord'),
+    };
+
+    // Get editCount from footer if present
+    let editCount = 0;
+    if (embed.footer && embed.footer.text) {
+        const match = embed.footer.text.match(/แก้ไขแล้ว (\d+) ครั้ง/);
+        if (match) editCount = parseInt(match[1]);
+    }
+
+    return { data, editCount, messageId };
+}
+
+module.exports = { sendRegistration, sendProctor, sendCouncil, editRegistrationMessage, fetchRegistrationMessage, sendMedical, editMedicalMessage, fetchMedicalMessage };
