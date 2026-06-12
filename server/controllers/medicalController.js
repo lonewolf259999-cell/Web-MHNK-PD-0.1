@@ -112,7 +112,7 @@ async function editMedical(req, res) {
         }
 
         // Validate form data
-        const errors = validateMedicalRegistration({ icName, ocAge, timeStart, timeEnd, medicalExperience, joinReason, plan, discordId });
+        const errors = validateMedicalRegistration({ icName, ocAge, timeStart, timeEnd, medicalExperience, joinReason, discordId });
         if (errors.length > 0) {
             return res.status(400).json({
                 success: false,
@@ -131,7 +131,6 @@ async function editMedical(req, res) {
                 timeEnd: timeEnd.trim(),
                 medicalExperience: medicalExperience.trim(),
                 joinReason: joinReason.trim(),
-                plan: plan.trim(),
                 discordId: discordId.trim()
             },
             editCount: (parseInt(editCount) || 0) + 1,
