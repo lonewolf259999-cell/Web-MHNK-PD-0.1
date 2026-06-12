@@ -507,7 +507,7 @@ function buildMedicalEmbed(data, editCount = 0) {
     return {
         embed: {
             title: '❤️‍🩹 ใบสมัครแพทย์ใหม่',
-            description: 'มีผู้สมัครเข้าร่วมหน่วยแพทย์ MHNK',
+            description: 'ผู้สมัครเข้าร่วมหน่วยแพทย์ MHNK',
             color: 0xef4444,
             fields: [
                 { name: '📛 ชื่อ - นามสกุล (IC/ตามบัตร)', value: icName || 'ไม่ระบุ', inline: false },
