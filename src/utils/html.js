@@ -20,26 +20,39 @@ const HtmlUtils = {
     sanitize(html) {
         if (!html) return '';
         // ขั้นตอนที่ 1: escape ทุกอย่างก่อน (ป้องกัน XSS)
+        // เช่น <b>ข้อความ</b> → <b>ข้อความ</b>
         const escaped = this.escape(html);
-        // ขั้นตอนที่ 2: อนุญาตเฉพาะ tags ที่ปลอดภัยให้กลับมาเป็น HTML
-        // ใช้ String.fromCharCode(60) = '<', (62) = '>' เพื่อเลี่ยง auto-formatter
-        const lt = String.fromCharCode(60); // <
-        const gt = String.fromCharCode(62); // >
+        
+        // ใช้ \x26 (hex code ของ '&') เพื่อเลี่ยง auto-formatter
+        // \x26lt; = < (opening angle bracket escaped)
+        // \x26gt; = > (closing angle bracket escaped)
+        const L = '\x26lt;';   // <
+        const G = '\x26gt;';   // >
+        const SL = '\x26lt;/'; // </
+        
         return escaped
-            .replace(new RegExp(lt + 'b' + gt, 'g'), '<b>')
-            .replace(new RegExp(lt + '\\/b' + gt, 'g'), '</b>')
-            .replace(new RegExp(lt + 'strong' + gt, 'g'), '<strong>')
-            .replace(new RegExp(lt + '\\/strong' + gt, 'g'), '</strong>')
-            .replace(new RegExp(lt + 'i' + gt, 'g'), '<i>')
-            .replace(new RegExp(lt + '\\/i' + gt, 'g'), '</i>')
-            .replace(new RegExp(lt + 'em' + gt, 'g'), '<em>')
-            .replace(new RegExp(lt + '\\/em' + gt, 'g'), '</em>')
-            .replace(new RegExp(lt + 'u' + gt, 'g'), '<u>')
-            .replace(new RegExp(lt + '\\/u' + gt, 'g'), '</u>')
-            .replace(new RegExp(lt + 'br\\s*\\/?', 'gi'), '<br>')
-            // span style="color:..." — อนุญาตเฉพาะ style color เท่านั้น
-            .replace(new RegExp(lt + 'span\\s+style=("|\')color\\s*:\\s*([^"\']+)\\1\\s*' + gt, 'gi'), '<span style="color: $2">')
-            .replace(new RegExp(lt + '\\/span' + gt, 'g'), '</span>');
+            // <b> → <b>
+            .replace(new RegExp(L + 'b' + G, 'g'), '<b>')
+            .replace(new RegExp(SL + 'b' + G, 'g'), '</b>')
+            // <strong> → <strong>
+            .replace(new RegExp(L + 'strong' + G, 'g'), '<strong>')
+            .replace(new RegExp(SL + 'strong' + G, 'g'), '</strong>')
+            // <i> → <i>
+            .replace(new RegExp(L + 'i' + G, 'g'), '<i>')
+            .replace(new RegExp(SL + 'i' + G, 'g'), '</i>')
+            // <em> → <em>
+            .replace(new RegExp(L + 'em' + G, 'g'), '<em>')
+            .replace(new RegExp(SL + 'em' + G, 'g'), '</em>')
+            // <u> → <u>
+            .replace(new RegExp(L + 'u' + G, 'g'), '<u>')
+            .replace(new RegExp(SL + 'u' + G, 'g'), '</u>')
+            // <br> หรือ <br/> → <br>
+            .replace(new RegExp(L + 'br\\s*\\/' + G, 'gi'), '<br>')
+            .replace(new RegExp(L + 'br' + G, 'gi'), '<br>')
+            // <span style="color:..."> → <span style="color: ...">
+            .replace(new RegExp(L + 'span\\s+style=("|\')color\\s*:\\s*([^"\']+)\\1\\s*' + G, 'gi'), '<span style="color: $2">')
+            // </span> → </span>
+            .replace(new RegExp(SL + 'span' + G, 'g'), '</span>');
     },
 
     /**
