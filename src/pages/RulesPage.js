@@ -35,12 +35,6 @@ class RulesPage {
             return;
         }
 
-        // Create global index map before filtering
-        const globalIndexMap = {};
-        this.rulesData.forEach((rule, idx) => {
-            globalIndexMap[rule.id] = idx + 1;
-        });
-
         // Group rules by category
         const grouped = this.groupByCategory(this.rulesData);
         const q = query.toLowerCase();
@@ -59,7 +53,7 @@ class RulesPage {
                 <div class="rule-group" data-category="${HtmlUtils.escape(category)}">
                     <h3>${HtmlUtils.escape(categoryTitle)}</h3>
                     <div class="rule-list">
-                        ${matchedRules.map((rule) => this.createRuleItem(rule, globalIndexMap[rule.id])).join('')}
+                        ${matchedRules.map((rule, localIdx) => this.createRuleItem(rule, localIdx + 1)).join('')}
                     </div>
                 </div>
             `;
@@ -68,10 +62,10 @@ class RulesPage {
         this.container.innerHTML = html || this.createEmptyState();
     }
 
-    createRuleItem(rule, globalIndex) {
+    createRuleItem(rule, localIndex) {
         return `
             <div class="rule-item rule-item-admin" data-id="${HtmlUtils.escape(rule.id)}">
-                <span class="rule-num">${globalIndex}.</span>
+                <span class="rule-num">${localIndex}.</span>
                 <span class="rule-text">${HtmlUtils.escape(rule.text).replace(/\n/g, '<br>')}</span>
                 <div class="admin-actions">
                     ${AdminActions.renderButtons('rules', rule.id)}

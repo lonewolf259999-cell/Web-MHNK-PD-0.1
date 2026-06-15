@@ -36,12 +36,6 @@ class ConductPage {
             return;
         }
 
-        // Create global index map before filtering
-        const globalIndexMap = {};
-        this.data.forEach((item, idx) => {
-            globalIndexMap[item.id] = idx + 1;
-        });
-
         // Group conduct by category (column D = title/category) — same as rules
         const grouped = this.groupByCategory(this.data);
         const q = query.toLowerCase();
@@ -60,7 +54,7 @@ class ConductPage {
                 <div class="rule-group" data-category="${HtmlUtils.escape(category)}">
                     <h3>${HtmlUtils.escape(categoryTitle)}</h3>
                     <div class="rule-list">
-                        ${matchedItems.map((item) => this.createConductItem(item, globalIndexMap[item.id])).join('')}
+                        ${matchedItems.map((item, localIdx) => this.createConductItem(item, localIdx + 1)).join('')}
                     </div>
                 </div>
             `;
@@ -69,10 +63,10 @@ class ConductPage {
         this.container.innerHTML = html || this.createEmptyState();
     }
 
-    createConductItem(item, globalIndex) {
+    createConductItem(item, localIndex) {
         return `
             <div class="rule-item rule-item-admin" data-id="${HtmlUtils.escape(item.id)}">
-                <span class="rule-num">${globalIndex}.</span>
+                <span class="rule-num">${localIndex}.</span>
                 <span class="rule-text">${HtmlUtils.escape(item.text).replace(/\n/g, '<br>')}</span>
                 <div class="admin-actions">
                     ${AdminActions.renderButtons('conduct', item.id)}
