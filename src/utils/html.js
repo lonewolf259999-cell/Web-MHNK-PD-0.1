@@ -13,6 +13,32 @@ const HtmlUtils = {
     },
 
     /**
+     * Sanitize HTML — อนุญาตเฉพาะ tags ที่ปลอดภัย (b, strong, i, em, u, span style color, br)
+     * ใช้สำหรับแสดงผลข้อความที่ผู้ใช้พิมพ์ HTML เองจาก Google Sheets
+     */
+    sanitize(html) {
+        if (!html) return '';
+        // ขั้นตอนที่ 1: escape ทุกอย่างก่อน
+        const escaped = this.escape(html);
+        // ขั้นตอนที่ 2: อนุญาตเฉพาะ tags ที่ปลอดภัยให้กลับมาเป็น HTML
+        return escaped
+            .replace(/<b>/g, '<b>')
+            .replace(/<\/b>/g, '</b>')
+            .replace(/<strong>/g, '<strong>')
+            .replace(/<\/strong>/g, '</strong>')
+            .replace(/<i>/g, '<i>')
+            .replace(/<\/i>/g, '</i>')
+            .replace(/<em>/g, '<em>')
+            .replace(/<\/em>/g, '</em>')
+            .replace(/<u>/g, '<u>')
+            .replace(/<\/u>/g, '</u>')
+            .replace(/<br\s*\/?>/gi, '<br>')
+            // span style="color:..." — อนุญาตเฉพาะ style color เท่านั้น
+            .replace(/<span\s+style=("|')color\s*:\s*([^"']+)\1\s*>/gi, '<span style="color: $2">')
+            .replace(/<\/span>/g, '</span>');
+    },
+
+    /**
      * Format currency (th-TH locale)
      */
     formatCurrency(amount) {
