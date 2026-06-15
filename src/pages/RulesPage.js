@@ -66,7 +66,7 @@ class RulesPage {
         return `
             <div class="rule-item rule-item-admin" data-id="${HtmlUtils.escape(rule.id)}">
                 <span class="rule-num">${localIndex}.</span>
-                <span class="rule-text">${HtmlUtils.escape(rule.text).replace(/\n/g, '<br>')}</span>
+                <span class="rule-text">${HtmlUtils.sanitize(rule.text).replace(/\n/g, '<br>')}</span>
                 <div class="admin-actions">
                     ${AdminActions.renderButtons('rules', rule.id)}
                 </div>

@@ -48,6 +48,13 @@ const adminPanelLogger = window.getLogger ? window.getLogger('AdminPanel') : {
                 </div>
                 <div class="form-group">
                     <label>เนื้อหา / Text</label>
+                    <div class="editor-toolbar">
+                        <button type="button" class="editor-btn" onclick="window.AppAdmin.insertTag('b')" title="ตัวหนา"><b>B</b></button>
+                        <button type="button" class="editor-btn" onclick="window.AppAdmin.insertTag('color')" title="เลือกสี">
+                            <span style="background:linear-gradient(90deg,red,orange,yellow,green,blue,indigo,violet);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">A</span>
+                        </button>
+                        <input type="color" id="colorPicker" value="#ff0000" style="width:32px;height:32px;padding:0;border:none;cursor:pointer;border-radius:4px;" title="เลือกสี">
+                    </div>
                     <textarea id="adminFormText" placeholder="กรอกเนื้อหา..."></textarea>
                 </div>
                 <div class="form-row" id="adminFinesFields" style="display:none;">
@@ -212,6 +219,30 @@ const adminPanelLogger = window.getLogger ? window.getLogger('AdminPanel') : {
             currentType = type;
             currentItem = { id: id };
             document.getElementById('adminDeleteModal').classList.add('active');
+        },
+
+        /**
+         * insertTag - สำหรับปุ่ม toolbar (B, color)
+         * @param {string} tag - 'b' หรือ 'color'
+         */
+        insertTag: function(tag) {
+            const textarea = document.getElementById('adminFormText');
+            if (!textarea) return;
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const selectedText = textarea.value.substring(start, end);
+            let replacement = '';
+            if (tag === 'b') {
+                replacement = selectedText ? '<b>' + selectedText + '</b>' : '<b></b>';
+            } else if (tag === 'color') {
+                const colorPicker = document.getElementById('colorPicker');
+                const color = colorPicker ? colorPicker.value : '#ff0000';
+                replacement = selectedText
+                    ? '<span style="color:' + color + '">' + selectedText + '</span>'
+                    : '<span style="color:' + color + '"></span>';
+            }
+            textarea.setRangeText(replacement, start, end, 'end');
+            textarea.focus();
         },
 
         closeFormModal: function() { document.getElementById('adminFormModal').classList.remove('active'); },

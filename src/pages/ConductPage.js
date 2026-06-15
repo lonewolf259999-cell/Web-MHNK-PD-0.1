@@ -67,7 +67,7 @@ class ConductPage {
         return `
             <div class="rule-item rule-item-admin" data-id="${HtmlUtils.escape(item.id)}">
                 <span class="rule-num">${localIndex}.</span>
-                <span class="rule-text">${HtmlUtils.escape(item.text).replace(/\n/g, '<br>')}</span>
+                <span class="rule-text">${HtmlUtils.sanitize(item.text).replace(/\n/g, '<br>')}</span>
                 <div class="admin-actions">
                     ${AdminActions.renderButtons('conduct', item.id)}
                 </div>
