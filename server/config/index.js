@@ -38,6 +38,8 @@ module.exports = {
     DISCORD_CLIENT_ID: process.env.DISCORD_CLIENT_ID || '',
     DISCORD_CLIENT_SECRET: process.env.DISCORD_CLIENT_SECRET || '',
     APP_URL: process.env.APP_URL || `http://localhost:${process.env.PORT || 3001}`,
+    PENDING_SPREADSHEET_ID: process.env.PENDING_SPREADSHEET_ID || process.env.SHEET_ID,
+    PENDING_SHEET_NAME: process.env.PENDING_SHEET_NAME || 'Pending',
     CREDENTIALS_PATH,
     CACHE_TTL: 15000,          // 15 seconds memory cache
     FILE_CACHE_TTL: 600000,    // 10 minutes file cache

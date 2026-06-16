@@ -114,6 +114,10 @@ app.get('/proctor', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'public', 'proctor.html'));
 });
 
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'public', 'admin.html'));
+});
+
 // ==================== ERROR HANDLER (must be last) ====================
 app.use(errorHandler);
 

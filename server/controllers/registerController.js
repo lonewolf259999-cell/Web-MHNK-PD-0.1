@@ -5,6 +5,7 @@
    ======================================== */
 
 const { sendRegistration, editRegistrationMessage, fetchRegistrationMessage } = require('../services/discordWebhook');
+const { addPendingRegistration } = require('../services/sheetsWriteService');
 const { createLogger } = require('../utils/logger');
 
 const logger = createLogger('RegisterController');
@@ -57,7 +58,7 @@ function isValidUrl(string) {
  */
 async function register(req, res) {
     try {
-        const { ocName, icName, ocAge, icPhone, discordId, discordUserId, steamUrl } = req.body;
+        const { ocName, icName, ocAge, icPhone, discordId, discordUserId, steamUrl, discordDisplayName } = req.body;
 
         // Validate input
         const errors = validateRegistration({ ocName, icName, ocAge, icPhone, discordId, steamUrl });
@@ -81,6 +82,20 @@ async function register(req, res) {
         });
 
         logger.info(`New registration: ${ocName} (${discordId}) msgId=${result.messageId}`);
+
+        // เขียนข้อมูลลง Pending Sheet โดยไม่ยกเลิก request ถ้าล้มเหลว
+        try {
+            await addPendingRegistration({
+                discordId: discordId.trim(),
+                discordName: discordDisplayName || ocName.trim(),
+                icName: icName.trim(),
+                icPhone: icPhone.trim(),
+                ocAge: parseInt(ocAge),
+                steamUrl: steamUrl.trim(),
+            });
+        } catch (sheetErr) {
+            logger.error(`Pending sheet write failed (non-critical): ${sheetErr.message}`);
+        }
 
         res.json({
             success: true,

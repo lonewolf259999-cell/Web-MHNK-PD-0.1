@@ -20,6 +20,7 @@ const authController = require('../controllers/authController');
 const proctorController = require('../controllers/proctorController');
 const councilController = require('../controllers/councilController');
 const medicalController = require('../controllers/medicalController');
+const pendingController = require('../controllers/pendingController');
 
 const router = Router();
 
@@ -62,5 +63,10 @@ router.post('/api/council/submit', asyncHandler(councilController.submitCouncil)
 router.post('/api/medical', asyncHandler(medicalController.registerMedical));
 router.patch('/api/medical/edit', asyncHandler(medicalController.editMedical));
 router.get('/api/medical/fetch/:messageId', asyncHandler(medicalController.fetchMedical));
+
+// ==================== Pending Registration (Admin) ====================
+router.post('/api/pending', verifyPin, asyncHandler(pendingController.listPending));
+router.post('/api/pending/approve/:row', verifyPin, asyncHandler(pendingController.approve));
+router.post('/api/pending/reject/:row', verifyPin, asyncHandler(pendingController.reject));
 
 module.exports = router;

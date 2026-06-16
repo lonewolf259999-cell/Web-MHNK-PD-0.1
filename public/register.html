@@ -479,6 +479,7 @@
             } else {
                 // === NEW REGISTRATION ===
                 formData.discordUserId = getDiscordUserId() || null;
+                formData.discordDisplayName = document.getElementById('discordDisplayName')?.textContent?.replace(/^@/, '') || '';
                 loadingOverlay.style.display = 'flex';
 
                 try {

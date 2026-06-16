@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - MHNK Police Department</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #0f0f1a; color: #e0e0e0; min-height: 100vh; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        h1 { text-align: center; color: #f0c040; margin-bottom: 10px; font-size: 28px; }
+        .subtitle { text-align: center; color: #888; margin-bottom: 30px; }
+        
+        .login-box, .panel { background: #1a1a2e; border-radius: 12px; padding: 24px; margin-bottom: 20px; border: 1px solid #2a2a4a; }
+        .login-box { max-width: 400px; margin: 40px auto; text-align: center; }
+        .login-box h2 { margin-bottom: 20px; color: #f0c040; }
+        
+        input[type="password"], input[type="text"] { 
+            width: 100%; padding: 12px 16px; background: #252545; border: 1px solid #3a3a5a; 
+            border-radius: 8px; color: #fff; font-size: 16px; outline: none; margin-bottom: 15px;
+        }
+        input:focus { border-color: #f0c040; }
+        
+        button {
+            padding: 10px 24px; border: none; border-radius: 8px; font-size: 15px; cursor: pointer;
+            transition: all 0.2s; font-weight: 600;
+        }
+        button:hover { opacity: 0.85; transform: translateY(-1px); }
+        .btn-primary { background: #f0c040; color: #1a1a2e; }
+        .btn-success { background: #22c55e; color: #fff; }
+        .btn-danger { background: #ef4444; color: #fff; }
+        .btn-secondary { background: #3a3a5a; color: #e0e0e0; }
+        .btn-sm { padding: 6px 16px; font-size: 13px; }
+        
+        .stats { display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+        .stat-card { background: #1a1a2e; border-radius: 10px; padding: 16px 24px; flex: 1; min-width: 150px; text-align: center; border: 1px solid #2a2a4a; }
+        .stat-card .num { font-size: 32px; font-weight: 700; color: #f0c040; }
+        .stat-card .label { font-size: 13px; color: #888; margin-top: 4px; }
+        
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px 10px; text-align: left; border-bottom: 1px solid #2a2a4a; font-size: 14px; }
+        th { background: #252545; color: #aaa; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; position: sticky; top: 0; }
+        tr:hover td { background: #252545; }
+        .status-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .status-pending { background: #f59e0b33; color: #f59e0b; }
+        .status-approved { background: #22c55e33; color: #22c55e; }
+        .status-rejected { background: #ef444433; color: #ef4444; }
+        .actions { display: flex; gap: 6px; }
+        .empty-msg { text-align: center; padding: 40px; color: #666; font-size: 16px; }
+        .toast { position: fixed; top: 20px; right: 20px; padding: 12px 20px; border-radius: 8px; color: #fff; font-weight: 600; z-index: 999; display: none; animation: fadeIn 0.3s; }
+        .toast.success { background: #22c55e; }
+        .toast.error { background: #ef4444; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .loading { text-align: center; padding: 40px; color: #888; }
+        .loading::after { content: '...'; animation: dots 1.5s infinite; }
+        @keyframes dots { 0%,20% { content: '.'; } 40% { content: '..'; } 60%,100% { content: '...'; } }
+        .log-section { margin-top: 30px; }
+        .log-section summary { cursor: pointer; color: #888; font-size: 14px; padding: 8px 0; }
+        .log-section pre { background: #0f0f1a; padding: 12px; border-radius: 8px; font-size: 12px; max-height: 200px; overflow-y: auto; color: #aaa; margin-top: 8px; }
+        .filter-bar { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; align-items: center; }
+        .filter-bar input { width: auto; flex: 1; min-width: 200px; margin-bottom: 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚙️ Admin Panel</h1>
+        <p class="subtitle">MHNK Police Department — ระบบตรวจสอบและอนุมัติใบสมัคร</p>
+
+        <div id="toast" class="toast"></div>
+
+        <!-- Login -->
+        <div id="loginBox" class="login-box">
+            <h2>🔒 กรุณาใส่ PIN</h2>
+            <input type="password" id="pinInput" placeholder="Admin PIN" onkeydown="if(event.key==='Enter') doLogin()" />
+            <button class="btn-primary" onclick="doLogin()" style="width:100%">เข้าสู่ระบบ</button>
+        </div>
+
+        <!-- Panel (after login) -->
+        <div id="panel" style="display:none">
+            <div class="stats">
+                <div class="stat-card"><div class="num" id="statTotal">0</div><div class="label">ทั้งหมด</div></div>
+                <div class="stat-card"><div class="num" id="statPending">0</div><div class="label">รอตรวจ</div></div>
+                <div class="stat-card"><div class="num" id="statApproved">0</div><div class="label">อนุมัติแล้ว</div></div>
+                <div class="stat-card"><div class="num" id="statRejected">0</div><div class="label">ปฏิเสธ</div></div>
+            </div>
+
+            <div class="panel">
+                <div class="filter-bar">
+                    <input type="text" id="searchInput" placeholder="🔍 ค้นหา Discord ID, ชื่อ..." oninput="renderTable()" />
+                    <select id="statusFilter" onchange="renderTable()" style="padding:10px;background:#252545;border:1px solid #3a3a5a;border-radius:8px;color:#fff;font-size:14px">
+                        <option value="">ทั้งหมด</option>
+                        <option value="รอตรวจ">รอตรวจ</option>
+                        <option value="อนุมัติ">อนุมัติ</option>
+                        <option value="ปฏิเสธ">ปฏิเสธ</option>
+                    </select>
+                    <button class="btn-secondary btn-sm" onclick="loadData()">🔄 โหลดใหม่</button>
+                </div>
+
+                <div id="tableContainer" style="max-height: 600px; overflow-y: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>เวลา</th>
+                                <th>Discord ID</th>
+                                <th>ชื่อ Discord</th>
+                                <th>ชื่อ IC</th>
+                                <th>เบอร์</th>
+                                <th>อายุ</th>
+                                <th>Steam</th>
+                                <th>สถานะ</th>
+                                <th>จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody"></tbody>
+                    </table>
+                </div>
+                <div id="emptyMsg" class="empty-msg" style="display:none">💡 ไม่มีข้อมูล</div>
+            </div>
+
+            <div class="log-section">
+                <details>
+                    <summary>📋 Log การทำงาน (Debug)</summary>
+                    <pre id="logOutput">ยังไม่มี log</pre>
+                </details>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let PIN = '';
+        let allData = [];
+
+        function log(msg) {
+            const el = document.getElementById('logOutput');
+            const t = new Date().toLocaleTimeString();
+            el.textContent = `[${t}] ${msg}\n` + el.textContent;
+        }
+
+        function toast(msg, type = 'success') {
+            const el = document.getElementById('toast');
+            el.textContent = msg;
+            el.className = 'toast ' + type;
+            el.style.display = 'block';
+            setTimeout(() => el.style.display = 'none', 3000);
+        }
+
+        function doLogin() {
+            PIN = document.getElementById('pinInput').value.trim();
+            if (!PIN) { toast('กรุณากรอก PIN', 'error'); return; }
+            loadData();
+        }
+
+        async function loadData() {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '<tr><td colspan="10" class="loading">กำลังโหลด</td></tr>';
+            
+            try {
+                // ใช้ POST เพราะ verifyPin ต้องการ req.body.pin
+                const res = await fetch('/api/pending', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ pin: PIN })
+                });
+                const json = await res.json();
+                if (!res.ok) { toast(json.error || 'PIN ไม่ถูกต้อง', 'error'); return; }
+                if (json.success && Array.isArray(json.data)) {
+                    allData = json.data;
+                    updateStats();
+                    renderTable();
+                    document.getElementById('loginBox').style.display = 'none';
+                    document.getElementById('panel').style.display = 'block';
+                    log(`โหลดข้อมูล ${allData.length} รายการ`);
+                }
+            } catch (err) {
+                toast('เชื่อมต่อเซิร์ฟเวอร์ไม่สำเร็จ', 'error');
+                log(`Error: ${err.message}`);
+            }
+        }
+
+        function updateStats() {
+            const total = allData.length;
+            const pending = allData.filter(r => r['สถานะ'] === 'รอตรวจ').length;
+            const approved = allData.filter(r => r['สถานะ'] === 'อนุมัติ').length;
+            const rejected = allData.filter(r => r['สถานะ'] === 'ปฏิเสธ').length;
+            document.getElementById('statTotal').textContent = total;
+            document.getElementById('statPending').textContent = pending;
+            document.getElementById('statApproved').textContent = approved;
+            document.getElementById('statRejected').textContent = rejected;
+        }
+
+        function getStatusClass(status) {
+            if (status === 'รอตรวจ') return 'status-pending';
+            if (status === 'อนุมัติ') return 'status-approved';
+            if (status === 'ปฏิเสธ') return 'status-rejected';
+            return '';
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
+            const search = document.getElementById('searchInput').value.toLowerCase().trim();
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            let filtered = allData;
+            if (search) {
+                filtered = filtered.filter(r => 
+                    (r['Discord ID'] || '').toLowerCase().includes(search) ||
+                    (r['ชื่อ Discord'] || '').toLowerCase().includes(search) ||
+                    (r['ชื่อ IC'] || '').toLowerCase().includes(search)
+                );
+            }
+            if (statusFilter) {
+                filtered = filtered.filter(r => r['สถานะ'] === statusFilter);
+            }
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '';
+                document.getElementById('emptyMsg').style.display = 'block';
+                document.getElementById('tableContainer').querySelector('table').style.display = 'none';
+                return;
+            }
+            document.getElementById('emptyMsg').style.display = 'none';
+            document.getElementById('tableContainer').querySelector('table').style.display = '';
+
+            tbody.innerHTML = filtered.map((r, i) => {
+                const status = r['สถานะ'] || 'รอตรวจ';
+                const isPending = status === 'รอตรวจ';
+                return `<tr>
+                    <td>${i + 1}</td>
+                    <td style="font-size:12px;color:#888">${r['Timestamp'] || r['เวลา'] || '—'}</td>
+                    <td><code style="font-size:11px;color:#aaa">${r['Discord ID'] || '—'}</code></td>
+                    <td>${r['ชื่อ Discord'] || '—'}</td>
+                    <td>${r['ชื่อ IC'] || '—'}</td>
+                    <td>${r['เบอร์ IC'] || '—'}</td>
+                    <td>${r['อายุ OOC'] || r['อายุ'] || '—'}</td>
+                    <td style="font-size:11px;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+                        <a href="${r['Steam URL'] || r['Steam'] || '#'}" target="_blank" style="color:#6af">${(r['Steam URL'] || r['Steam'] || '—').substring(0, 30)}</a>
+                    </td>
+                    <td><span class="status-badge ${getStatusClass(status)}">${status}</span></td>
+                    <td class="actions">
+                        ${isPending ? `
+                            <button class="btn-success btn-sm" onclick="approve(${r._row}, '${r['Discord ID'] || ''}')">✅ อนุมัติ</button>
+                            <button class="btn-danger btn-sm" onclick="reject(${r._row}, '${r['Discord ID'] || ''}')">❌ ปฏิเสธ</button>
+                        ` : '<span style="color:#555;font-size:12px">—</span>'}
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        async function approve(row, discordId) {
+            if (!confirm(`อนุมัติผู้ใช้ Discord ID: ${discordId}?`)) return;
+            try {
+                const res = await fetch(`/api/pending/approve/${row}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ pin: PIN })
+                });
+                const json = await res.json();
+                if (json.success) {
+                    toast(`✅ อนุมัติ ${discordId} เรียบร้อย`);
+                    log(`อนุมัติ แถว ${row} (${discordId})`);
+                    await loadData(); // reload
+                } else {
+                    toast(json.message || 'เกิดข้อผิดพลาด', 'error');
+                }
+            } catch (err) {
+                toast('เชื่อมต่อไม่สำเร็จ', 'error');
+            }
+        }
+
+        async function reject(row, discordId) {
+            if (!confirm(`ปฏิเสธผู้ใช้ Discord ID: ${discordId}?`)) return;
+            try {
+                const res = await fetch(`/api/pending/reject/${row}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ pin: PIN })
+                });
+                const json = await res.json();
+                if (json.success) {
+                    toast(`ปฏิเสธ ${discordId} เรียบร้อย`);
+                    log(`ปฏิเสธ แถว ${row} (${discordId})`);
+                    await loadData();
+                } else {
+                    toast(json.message || 'เกิดข้อผิดพลาด', 'error');
+                }
+            } catch (err) {
+                toast('เชื่อมต่อไม่สำเร็จ', 'error');
+            }
+        }
+    </script>
+</body>
+</html>
