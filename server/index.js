@@ -73,7 +73,6 @@ app.use(express.json({ limit: '6mb' })); // จำกัดขนาด body (�
 app.use(globalLimiter);
 
 // ใช้ specific limiter กับบาง route
-app.use('/api/proctor/submit', submitLimiter);
 app.use('/api/register', submitLimiter);
 app.use('/auth/discord', authLimiter);
 
@@ -108,10 +107,6 @@ app.get('/profile', (req, res) => {
 
 app.get('/register', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'public', 'register.html'));
-});
-
-app.get('/proctor', (req, res) => {
-    res.sendFile(path.join(__dirname, '..', 'public', 'proctor.html'));
 });
 
 app.get('/admin', (req, res) => {

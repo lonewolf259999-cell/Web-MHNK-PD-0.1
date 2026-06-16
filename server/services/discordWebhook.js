@@ -296,52 +296,6 @@ async function editRegistrationMessage({ messageId, data, editCount = 1, verifie
 }
 
 /**
- * ส่งข้อมูลคุมสอบไปยัง Discord Webhook (Proctor)
- * @param {Object} proctorData - ข้อมูลการคุมสอบ
- * @returns {Promise<Object>} - ผลลัพธ์การส่ง
- */
-async function sendProctor(proctorData) {
-    const { proctorName, discordId, examineeName, examDate, notes, image } = proctorData;
-
-    const embed = {
-        title: '📋 บันทึกการคุมสอบ Proctor',
-        color: 0x1dc9b7,
-        fields: [
-            { name: '👮 ผู้คุมสอบ', value: proctorName || 'ไม่ระบุ', inline: true },
-            { name: '👤 ผู้สอบ', value: examineeName, inline: true },
-            { name: '📅 วันที่สอบ', value: examDate, inline: true },
-            { name: '🆔 Discord ID', value: `<@${discordId}>`, inline: false }
-        ],
-        timestamp: new Date().toISOString(),
-        footer: { text: 'MHNK Police Department - Proctor System' }
-    };
-
-    // เพิ่มหมายเหตุถ้ามี
-    if (notes && notes.trim()) {
-        embed.fields.push({
-            name: '📝 หมายเหตุ',
-            value: notes.trim(),
-            inline: false
-        });
-    }
-
-    const webhookUrl = config.DISCORD_PROCTOR_WEBHOOK_URL;
-    if (!webhookUrl) {
-        logger.error('Discord Proctor Webhook URL is not configured');
-        throw new Error('ระบบยังไม่ได้ตั้งค่า Webhook สำหรับ Proctor');
-    }
-
-    if (image) {
-        await sendMultipart(webhookUrl, embed, image, discordId, 'evidence.png');
-    } else {
-        await sendJson(webhookUrl, { content: `<@${discordId}>`, embeds: [embed] });
-    }
-
-    logger.info(`Proctor record submitted: ${examineeName} by ${proctorName}`);
-    return { success: true, message: 'บันทึกสำเร็จ' };
-}
-
-/**
  * ส่งข้อมูลสัญญาสตอรีไปยัง Discord Webhook (Council)
  * @param {Object} councilData - ข้อมูลสัญญาสตอรี
  * @returns {Promise<Object>} - ผลลัพธ์การส่ง
@@ -709,4 +663,4 @@ async function fetchMedicalMessage(messageId, verifiedDiscordUserId) {
     return { data, editCount, messageId };
 }
 
-module.exports = { sendRegistration, sendProctor, sendCouncil, editRegistrationMessage, fetchRegistrationMessage, sendMedical, editMedicalMessage, fetchMedicalMessage };
+module.exports = { sendRegistration, sendCouncil, editRegistrationMessage, fetchRegistrationMessage, sendMedical, editMedicalMessage, fetchMedicalMessage };

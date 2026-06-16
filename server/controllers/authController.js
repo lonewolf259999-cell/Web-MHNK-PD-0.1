@@ -20,7 +20,6 @@ function discordLogin(req, res) {
  * Get fallback page URL based on state parameter
  */
 function getFallbackPage(state) {
-    if (state === 'proctor') return '/proctor.html';
     if (state === 'council') return '/council.html';
     if (state === 'medical') return '/medical.html';
     return '/register.html';
