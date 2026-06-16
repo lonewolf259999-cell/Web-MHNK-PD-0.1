@@ -5,7 +5,7 @@
    ======================================== */
 
 const { sendRegistration, editRegistrationMessage, fetchRegistrationMessage } = require('../services/discordWebhook');
-const { addPendingRegistration } = require('../services/sheetsWriteService');
+const { addPendingRegistration, updatePendingRegistration } = require('../services/sheetsWriteService');
 const { createLogger } = require('../utils/logger');
 
 const logger = createLogger('RegisterController');
@@ -162,6 +162,18 @@ async function editRegistration(req, res) {
         });
 
         logger.info(`Registration edited: ${ocName} (${discordId}) msgId=${messageId}`);
+
+        // อัปเดต Pending Sheet ด้วย (ถ้ายังไม่อนุมัติ)
+        try {
+            await updatePendingRegistration(discordId.trim(), {
+                icName: icName.trim(),
+                icPhone: icPhone.trim(),
+                ocAge: parseInt(ocAge),
+                steamUrl: steamUrl.trim(),
+            });
+        } catch (sheetErr) {
+            logger.error(`Pending sheet update failed (non-critical): ${sheetErr.message}`);
+        }
 
         res.json({
             success: true,

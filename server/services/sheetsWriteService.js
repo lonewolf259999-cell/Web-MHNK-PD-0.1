@@ -84,6 +84,40 @@ async function approvePendingRegistration(rowNumber) {
 }
 
 /**
+ * อัปเดตข้อมูลใน Pending Sheet (เมื่อผู้ใช้แก้ไขข้อมูล) โดยค้นจาก Discord ID
+ * @param {string} discordId - Discord ID ของผู้ใช้
+ * @param {Object} data - { icName, icPhone, ocAge, steamUrl }
+ */
+async function updatePendingRegistration(discordId, data) {
+    const sheets = getSheets();
+    const { icName, icPhone, ocAge, steamUrl } = data;
+
+    const response = await sheets.spreadsheets.values.get({
+        spreadsheetId: config.PENDING_SPREADSHEET_ID,
+        range: `${config.PENDING_SHEET_NAME}!A:H`,
+    });
+
+    const rows = response.data.values || [];
+    for (let i = 1; i < rows.length; i++) {
+        const row = rows[i];
+        const pendingId = (row[1] || '').trim(); // Column B = Discord ID
+        if (pendingId === discordId) {
+            const rowNum = i + 1; // 1-based
+            await sheets.spreadsheets.values.update({
+                spreadsheetId: config.PENDING_SPREADSHEET_ID,
+                range: `${config.PENDING_SHEET_NAME}!D${rowNum}:G${rowNum}`,
+                valueInputOption: 'USER_ENTERED',
+                requestBody: { values: [[icName, icPhone, String(ocAge), steamUrl]] },
+            });
+            logger.info(`อัปเดต Pending: ${discordId} (IC: ${icName}) แถว ${rowNum}`);
+            return;
+        }
+    }
+    // ถ้าไม่เจอ Discord ID ใน Pending (อาจอนุมัติไปแล้ว) — ไม่ต้องทำอะไร
+    logger.warn(`อัปเดต Pending: ไม่พบ ${discordId} ใน Pending Sheet (อาจอนุมัติไปแล้ว)`);
+}
+
+/**
  * ปฏิเสธ: อัปเดตสถานะ → "ปฏิเสธ"
  * @param {number} rowNumber - แถวในชีต (1-based)
  */
@@ -103,4 +137,5 @@ module.exports = {
     getPendingRegistrations,
     approvePendingRegistration,
     rejectPendingRegistration,
+    updatePendingRegistration,
 };
