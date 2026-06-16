@@ -17,7 +17,6 @@ const staticController = require('../controllers/staticController');
 const rulesController = require('../controllers/rulesController');
 const registerController = require('../controllers/registerController');
 const authController = require('../controllers/authController');
-const councilController = require('../controllers/councilController');
 const medicalController = require('../controllers/medicalController');
 const pendingController = require('../controllers/pendingController');
 
@@ -51,9 +50,6 @@ router.get('/api/register/fetch/:messageId', asyncHandler(registerController.fet
 // ==================== Discord Auth ====================
 router.get('/auth/discord', authController.discordLogin);
 router.get('/auth/discord/callback', asyncHandler(authController.discordCallback));
-
-// ==================== Council API ====================
-router.post('/api/council/submit', asyncHandler(councilController.submitCouncil));
 
 // ==================== Medical Registration ====================
 router.post('/api/medical', asyncHandler(medicalController.registerMedical));

@@ -14,7 +14,7 @@ logger.info(`Config loaded - APP_URL: ${config.APP_URL}, REDIRECT_URI: ${REDIREC
 
 /**
  * สร้าง URL สำหรับ Discord OAuth2 Login
- * @param {string} state - ระบุหน้าที่เรียก (เช่น 'proctor' หรือ 'register')
+ * @param {string} state - ระบุหน้าที่เรียก (เช่น 'register' หรือ 'council')
  */
 function getAuthUrl(state = '') {
     const params = new URLSearchParams({

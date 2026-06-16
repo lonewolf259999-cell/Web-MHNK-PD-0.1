@@ -1,7 +1,7 @@
 /* ========================================
    Discord Webhook Service (Unified)
    - ส่งข้อมูลไปยัง Discord Webhook ทั้งแบบมีรูปและไม่มีรูป
-   - ใช้ร่วมกันทั้ง register, proctor และ council
+   - ใช้สำหรับ register และ medical
    - รองรับการแก้ไขข้อความ (Edit) ผ่าน message ID
    ======================================== */
 
@@ -82,7 +82,7 @@ function sendJson(url, payload, method = 'POST') {
 
 /**
  * ส่ง Webhook พร้อมรูปภาพ (multipart/form-data)
- * ใช้ร่วมกันทั้ง proctor และ council
+ * ใช้สำหรับ council
  * @param {string} url - Webhook URL
  * @param {Object} embed - Discord embed object
  * @param {string} base64Image - รูปภาพแบบ base64
@@ -293,78 +293,6 @@ async function editRegistrationMessage({ messageId, data, editCount = 1, verifie
 
     logger.info(`Registration edited: ${ocName} (${discordId}) msgId=${messageId} editCount=${editCount}`);
     return { success: true, message: 'แก้ไขข้อมูลสำเร็จ' };
-}
-
-/**
- * ส่งข้อมูลสัญญาสตอรีไปยัง Discord Webhook (Council)
- * @param {Object} councilData - ข้อมูลสัญญาสตอรี
- * @returns {Promise<Object>} - ผลลัพธ์การส่ง
- */
-async function sendCouncil(councilData) {
-    const {
-        discordId,
-        gangA, slotA,
-        gangB, slotB,
-        betAmount, fightCount, location,
-        dateStart, dateEnd, startTime,
-        preEventActivity,
-        outfitA, outfitB,
-        bluffRules, notes,
-        image
-    } = councilData;
-
-    const formatNumber = (num) => {
-        return Number(num).toLocaleString('en-US');
-    };
-
-    const fields = [
-        { name: '\u200B', value: `🟣 **${gangA}** \`${formatNumber(slotA)} SLOT\``, inline: false },
-        { name: '　　　　　　... VS ...', value: `🔴 **${gangB}** \`${formatNumber(slotB)} SLOT\``, inline: false },
-        { name: '💰 มูลค่าเดิมพัน', value: `\`${formatNumber(betAmount)} IC\``, inline: true },
-        { name: '⚔️ จำนวนไฟต์', value: `\`${fightCount} ไฟต์\``, inline: true },
-        { name: '📍 สถานที่', value: `\`${location}\``, inline: true },
-        { name: '🎮 กิจกรรมก่อนเริ่ม', value: `\`${preEventActivity}\``, inline: false },
-        { name: '📅 วันที่', value: `\`${dateStart} → ${dateEnd}\``, inline: false },
-        { name: '🕐 เวลาเริ่ม', value: `\`${startTime}\``, inline: false },
-        { name: '👕 ชุดที่ใส่', value: `🟣 **${gangA}** : \`${outfitA}\`\n🔴 **${gangB}** : \`${outfitB}\``, inline: false },
-        { name: '📋 กติกาการบลัฟ', value: bluffRules || 'การบลัฟ • 100% (พิมเอง)', inline: false },
-    ];
-
-    // เพิ่มหมายเหตุถ้ามี
-    if (notes && notes.trim()) {
-        fields.push({ name: '📝 หมายเหตุ', value: notes.trim(), inline: false });
-    }
-
-    const discordName = councilData.discordName || '';
-    const embed = {
-        title: '📜 สัญญาสตอรี',
-        description: discordName ? `👤 ผู้ดำเนินการ : **${discordName}**` : undefined,
-        fields: fields,
-        color: 0x9b59b6, // สีม่วง
-        footer: { text: 'MHNK Police Department • สัญญาสตอรี' },
-        timestamp: new Date().toISOString()
-    };
-
-    // ถ้ามีรูป merged (composite) ให้เพิ่ม image field ใน embed หลัก
-    if (image) {
-        embed.image = { url: 'attachment://council.png' };
-    }
-
-    const webhookUrl = config.DISCORD_COUNCIL_WEBHOOK_URL;
-    if (!webhookUrl) {
-        logger.error('Discord Council Webhook URL is not configured');
-        throw new Error('ระบบยังไม่ได้ตั้งค่า Webhook สำหรับสัญญาสตอรี');
-    }
-
-    if (image) {
-        await sendMultipart(webhookUrl, embed, image, discordId, 'council.png');
-    } else {
-        const payload = { content: `<@${discordId}>`, embeds: [embed] };
-        await sendJson(webhookUrl, payload);
-    }
-
-    logger.info(`Council record submitted: ${gangA} vs ${gangB}`);
-    return { success: true, message: 'บันทึกสำเร็จ' };
 }
 
 /**
@@ -663,4 +591,4 @@ async function fetchMedicalMessage(messageId, verifiedDiscordUserId) {
     return { data, editCount, messageId };
 }
 
-module.exports = { sendRegistration, sendCouncil, editRegistrationMessage, fetchRegistrationMessage, sendMedical, editMedicalMessage, fetchMedicalMessage };
+module.exports = { sendRegistration, editRegistrationMessage, fetchRegistrationMessage, sendMedical, editMedicalMessage, fetchMedicalMessage };
