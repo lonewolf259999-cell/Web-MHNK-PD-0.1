@@ -14,6 +14,7 @@ const path = require('path');
 const { createLogger } = require('./utils/logger');
 
 const routes = require('./routes');
+const { getSheets } = require('./config/googleAuth');
 const { errorHandler } = require('./middleware/errorHandler');
 const { preWarmCache } = require('./services/sheetsService');
 
@@ -79,6 +80,15 @@ app.use('/auth/discord', authLimiter);
 // ==================== API ROUTES ====================
 app.use(routes);
 
+// ==================== MAP MODULE (optional) ====================
+try {
+  const createPoiRoutes = require('../map-module/server/poi-routes');
+  app.use('/api/poi', createPoiRoutes(() => getSheets()));
+  logger.info('[MapModule] POI API mounted at /api/poi');
+} catch (e) {
+  logger.warn('[MapModule] POI API not loaded: ' + e.message);
+}
+
 // ==================== STATIC FILES ====================
 const staticOptions = {
     maxAge: '1h',
@@ -99,6 +109,11 @@ const staticOptions = {
 
 app.use(express.static(path.join(__dirname, '..', 'public'), staticOptions));
 app.use('/src', express.static(path.join(__dirname, '..', 'src'), staticOptions));
+try {
+  app.use('/map-module', express.static(path.join(__dirname, '..', 'map-module'), staticOptions));
+} catch (e) {
+  // map-module not present
+}
 
 // Fallback for SPA routing
 app.get('/profile', (req, res) => {
@@ -112,6 +127,16 @@ app.get('/register', (req, res) => {
 app.get('/admin', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'public', 'admin.html'));
 });
+
+// ==================== MAP MODULE ROUTE (optional) ====================
+try {
+  app.get('/MapMhnkPD', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'map-module', 'public', 'map.html'));
+  });
+  logger.info('[MapModule] /MapMhnkPD route registered');
+} catch (e) {
+  // map-module not present
+}
 
 // ==================== ERROR HANDLER (must be last) ====================
 app.use(errorHandler);

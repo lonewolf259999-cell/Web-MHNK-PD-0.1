@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🗺️ แผนที่ MHNK PD</title>
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+
+  <!-- Map Module Styles -->
+  <link rel="stylesheet" href="/map-module/src/map-style.css" />
+
+  <style>
+    /* Global reset */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f0f1a; overflow: hidden; }
+
+    /* Leaflet popup custom */
+    .leaflet-popup-content-wrapper {
+      background: #1a1a2e !important;
+      color: #e0e0e0 !important;
+      border-radius: 8px !important;
+      border: 1px solid #2a2a4a !important;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
+    }
+    .leaflet-popup-tip {
+      background: #1a1a2e !important;
+      border: 1px solid #2a2a4a !important;
+    }
+    .leaflet-popup-close-button {
+      color: #888 !important;
+    }
+    .leaflet-control-zoom a {
+      background: #1a1a2e !important;
+      color: #e0e0e0 !important;
+      border-color: #2a2a4a !important;
+    }
+    .leaflet-control-zoom a:hover {
+      background: #2a2a4a !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="mhnk-map-page">
+    <!-- Map Area -->
+    <div class="mhnk-map-main">
+      <div id="mhnk-map-container"></div>
+
+      <!-- Style Controls -->
+      <div class="mhnk-map-controls">
+        <span class="mhnk-current-style">🗺️ Atlas</span>
+      </div>
+
+      <!-- เป้ากลางจอ -->
+      <div class="mhnk-crosshair">
+        <div class="mhnk-crosshair-circle"></div>
+        <div class="mhnk-crosshair-h"></div>
+        <div class="mhnk-crosshair-v"></div>
+        <div class="mhnk-crosshair-coords" id="mhnk-crosshair-coords">X: 0.0, Y: 0.0</div>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="mhnk-map-sidebar">
+      <div class="mhnk-sidebar-header">
+        <h2>🗺️ แผนที่ MHNK PD</h2>
+        <small>คลิกบนแผนที่เพื่อเพิ่มจุดแจ้ง</small>
+      </div>
+
+      <div class="mhnk-sidebar-controls">
+        <div class="mhnk-search-box">
+          <input type="text" id="mhnk-poi-search" placeholder="🔍 ค้นหาชื่อสถานที่..." />
+        </div>
+        <select id="mhnk-poi-filter" class="mhnk-filter-select"></select>
+      </div>
+
+      <div class="mhnk-poi-stats" id="mhnk-poi-stats">📍 0 จุด</div>
+      <div class="mhnk-poi-list" id="mhnk-poi-list">
+        <div class="mhnk-empty">⏳ กำลังโหลด...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Overlay -->
+  <div class="mhnk-modal-overlay" id="mhnk-modal-overlay">
+    <div id="mhnk-modal-body"></div>
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+
+  <!-- Map Module Scripts -->
+  <script src="/map-module/src/map-categories.js"></script>
+  <script src="/map-module/src/map-core.js"></script>
+  <script src="/map-module/src/map-poi.js"></script>
+
+  <script>
+    // เริ่มต้นเมื่อโหลดหน้า
+    document.addEventListener('DOMContentLoaded', () => {
+      // เริ่มต้นแผนที่
+      try {
+        MHNK_MAP.init('mhnk-map-container');
+        console.log('[MHNK] Map init called');
+      } catch (e) {
+        console.error('[MHNK] Map init error:', e);
+      }
+
+      // เริ่ม POI หลังจาก map init ทำงานแล้ว (รอ event หรือ timeout)
+      const startPoi = () => {
+        try {
+          console.log('[MHNK] Starting POI...');
+          MHNK_POI.init();
+          console.log('[MHNK] POI started');
+        } catch (e) {
+          console.error('[MHNK] POI init error:', e);
+          // ลองอีกครั้งหลังจาก 1 วินาที
+          setTimeout(() => {
+            try { MHNK_POI.init(); console.log('[MHNK] POI retry OK'); } catch (e2) { console.error('[MHNK] POI retry error:', e2); }
+          }, 1000);
+        }
+      };
+
+      // ฟัง event map-ready
+      document.addEventListener('mhnk-map-ready', startPoi);
+
+      // Fallback: เริ่มหลังจาก 500ms ในกรณี event ไม่มา
+      setTimeout(startPoi, 500);
+    });
+  </script>
+</body>
+</html>

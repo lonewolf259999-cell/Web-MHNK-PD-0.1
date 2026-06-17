@@ -37,6 +37,7 @@ module.exports = {
     DISCORD_CLIENT_ID: process.env.DISCORD_CLIENT_ID || '',
     DISCORD_CLIENT_SECRET: process.env.DISCORD_CLIENT_SECRET || '',
     APP_URL: process.env.APP_URL || `http://localhost:${process.env.PORT || 3001}`,
+    MAP_SHEET_ID: process.env.MAP_SHEET_ID || process.env.SHEET_ID,
     PENDING_SPREADSHEET_ID: process.env.PENDING_SPREADSHEET_ID || process.env.SHEET_ID,
     PENDING_SHEET_NAME: process.env.PENDING_SHEET_NAME || 'Pending',
     CREDENTIALS_PATH,
