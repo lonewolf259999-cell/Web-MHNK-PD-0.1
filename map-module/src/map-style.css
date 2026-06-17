@@ -450,37 +450,6 @@
   background: rgba(233, 69, 96, 0.3);
 }
 
-/* ---- Popup ---- */
-.mhnk-poi-popup {
-  max-width: 280px;
-  font-size: 13px;
-}
-
-.mhnk-poi-popup-header {
-  padding: 8px 10px;
-  margin-bottom: 6px;
-  font-size: 14px;
-}
-
-.mhnk-poi-popup-body {
-  padding: 0 10px;
-}
-
-.mhnk-poi-popup-row {
-  margin-bottom: 4px;
-  line-height: 1.6;
-}
-
-.mhnk-poi-popup-label {
-  color: #888;
-  font-size: 11px;
-}
-
-.mhnk-poi-popup-footer {
-  padding: 8px 10px;
-  text-align: right;
-}
-
 /* ---- Tooltip ---- */
 .mhnk-poi-tooltip {
   background: #1a1a2e !important;

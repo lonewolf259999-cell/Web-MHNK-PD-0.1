@@ -218,15 +218,15 @@ const MHNK_MAP = {
     if (!this.map) return;
     const icon = this._createPoiIcon(poi.category);
     const marker = L.marker([poi.y, poi.x], { icon })
-      .addTo(this.poiLayer)
-      .bindPopup(this._createPopupHtml(poi));
+      .addTo(this.poiLayer);
     marker._poiData = poi;
     this.markers.push(marker);
+    // คลิก → เลื่อนแผนที่ให้จุดอยู่กึ่งกลาง
     marker.on('click', () => {
-      document.dispatchEvent(new CustomEvent('mhnk-poi-click', { detail: poi }));
+      this.map.setView([poi.y, poi.x], this.map.getZoom());
     });
-    // แสดงชื่อเมื่อเอาเมาส์ไปชี้
-    marker.on('mouseover', (e) => {
+    // ชี้ → แสดงชื่อ
+    marker.on('mouseover', () => {
       marker.bindTooltip(poi.name || 'ไม่มีชื่อ', {
         direction: 'top',
         offset: [0, -10],
@@ -278,40 +278,6 @@ const MHNK_MAP = {
       iconAnchor: [size / 2, size / 2],
       popupAnchor: [0, -size / 2]
     });
-  },
-
-  _createPopupHtml(poi) {
-    let catLabel = 'อื่นๆ';
-    try {
-      const cat = MAP_CATEGORIES[poi.category];
-      if (cat) catLabel = cat.label;
-    } catch (e) {}
-
-    return `
-      <div class="mhnk-poi-popup">
-        <div class="mhnk-poi-popup-header">
-          <strong>${poi.name || 'ไม่มีชื่อ'}</strong>
-        </div>
-        <div class="mhnk-poi-popup-body">
-          <div class="mhnk-poi-popup-row">
-            <span class="mhnk-poi-popup-label">หมวดหมู่:</span>
-            <span>${catLabel}</span>
-          </div>
-          <div class="mhnk-poi-popup-row">
-            <span class="mhnk-poi-popup-label">พิกัด:</span>
-            <span>X: ${poi.x?.toFixed(2)}, Y: ${poi.y?.toFixed(2)}</span>
-          </div>
-          ${poi.description ? `
-          <div class="mhnk-poi-popup-row">
-            <span class="mhnk-poi-popup-label">รายละเอียด:</span>
-            <span>${poi.description}</span>
-          </div>` : ''}
-        </div>
-        <div class="mhnk-poi-popup-footer">
-          <button class="mhnk-btn-sm mhnk-btn-danger" onclick="MHNK_POI.deletePoi('${poi.id}')">🗑️ ลบ</button>
-        </div>
-      </div>
-    `;
   },
 
   destroy() {
