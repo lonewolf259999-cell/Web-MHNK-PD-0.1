@@ -611,7 +611,7 @@ function buildProctorEmbed(proctor, applicant) {
                 { name: '👮 ผู้คุมสอบ', value: applicant.discordName || 'ไม่ระบุ', inline: false },
                 { name: '👤 ผู้สอบ', value: applicant.icName || 'ไม่ระบุ', inline: true },
                 { name: '📅 วันที่สอบ', value: shortDate, inline: true },
-                { name: '🆔 Discord ID ผู้สอบ', value: applicant.discordName || 'ไม่ระบุ', inline: false }
+                { name: '🆔 Discord ID ผู้สอบ', value: applicant.discordId || 'ไม่ระบุ', inline: false }
             ],
             footer: { text: `MHNK Police Department - Proctor System • ${thaiDate}` },
             timestamp: new Date().toISOString()
@@ -635,7 +635,7 @@ async function sendProctorWebhook(proctor, applicant) {
     const { embed } = buildProctorEmbed(proctor, applicant);
 
     const payload = {
-        content: applicant.discordName || '',
+        content: `@${applicant.discordName}`,
         embeds: [embed]
     };
 
