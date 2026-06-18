@@ -124,8 +124,8 @@ app.get('/register', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'public', 'register.html'));
 });
 
-app.get('/admin', (req, res) => {
-    res.sendFile(path.join(__dirname, '..', 'public', 'admin.html'));
+app.get('/proctor', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'public', 'proctor.html'));
 });
 
 // ==================== MAP MODULE ROUTE (optional) ====================

@@ -595,27 +595,23 @@ async function fetchMedicalMessage(messageId, verifiedDiscordUserId) {
  * สร้าง embed สำหรับ Proctor Approval
  */
 function buildProctorEmbed(proctor, applicant) {
-    const thaiDate = new Date().toLocaleDateString('th-TH', { 
+    const thaiDate = new Date().toLocaleString('th-TH', { 
         timeZone: 'Asia/Bangkok',
+        weekday: 'long',
         year: 'numeric', month: '2-digit', day: '2-digit',
         hour: '2-digit', minute: '2-digit'
     });
     const shortDate = new Date().toISOString().split('T')[0];
-
-    // Format applicant Discord ID as <@id> ถ้าเป็นตัวเลข
-    const rawApplicantId = (applicant.discordId || '').trim();
-    const isNumeric = /^\d+$/.test(rawApplicantId);
-    const applicantDisplay = isNumeric ? `<@${rawApplicantId}>` : (rawApplicantId || 'ไม่ระบุ');
 
     return {
         embed: {
             title: '📋 บันทึกการคุมสอบ Proctor',
             color: 0x1DC9B7,
             fields: [
-                { name: '👮 ผู้คุมสอบ', value: `@${proctor.name} <@${proctor.id}>`, inline: false },
+                { name: '👮 ผู้คุมสอบ', value: applicant.discordName || 'ไม่ระบุ', inline: false },
                 { name: '👤 ผู้สอบ', value: applicant.icName || 'ไม่ระบุ', inline: true },
                 { name: '📅 วันที่สอบ', value: shortDate, inline: true },
-                { name: '🆔 Discord ID', value: applicantDisplay, inline: false }
+                { name: '🆔 Discord ID ผู้สอบ', value: applicant.discordName || 'ไม่ระบุ', inline: false }
             ],
             footer: { text: `MHNK Police Department - Proctor System • ${thaiDate}` },
             timestamp: new Date().toISOString()
@@ -626,7 +622,7 @@ function buildProctorEmbed(proctor, applicant) {
 /**
  * ส่ง Proctor Approved webhook
  * @param {Object} proctor - { id, name }
- * @param {Object} applicant - { discordId (raw ID string), icName }
+ * @param {Object} applicant - { discordId, discordName, icName }
  * @returns {Promise<void>}
  */
 async function sendProctorWebhook(proctor, applicant) {
@@ -638,18 +634,11 @@ async function sendProctorWebhook(proctor, applicant) {
 
     const { embed } = buildProctorEmbed(proctor, applicant);
 
-    // แปลง discordId ใน applicant ให้เป็น <@id> ถ้าเป็นตัวเลข
-    const rawId = (applicant.discordId || '').trim();
-    const isNumericId = /^\d+$/.test(rawId);
-    const applicantMention = isNumericId ? `<@${rawId}>` : rawId;
-
-    // content: นอก Embed ให้ mention ผู้คุมสอบ
     const payload = {
-        content: `<@${proctor.id}>`,
+        content: applicant.discordName || '',
         embeds: [embed]
     };
 
-    // ใช้ ?wait=true เพื่อ debug แต่ไม่ต้องรับ messageId กลับ
     const waitUrl = webhookUrl + (webhookUrl.includes('?') ? '&' : '?') + 'wait=true';
     await sendJson(waitUrl, payload);
     logger.info(`Proctor webhook sent: proctor=${proctor.id} applicant=${applicant.icName}`);

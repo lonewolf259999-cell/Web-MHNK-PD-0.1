@@ -47,7 +47,7 @@ async function approve(req, res) {
     if (applicant) {
         sendProctorWebhook(
             { id: proctorId, name: proctorName },
-            { discordId: applicant['Discord ID'] || '', icName: applicant['ชื่อ IC'] || '' }
+            { discordId: applicant['Discord ID'] || '', discordName: applicant['ชื่อ Discord'] || '', icName: applicant['ชื่อ IC'] || '' }
         ).catch(err => logger.error(`Proctor webhook failed: ${err.message}`));
     }
 
