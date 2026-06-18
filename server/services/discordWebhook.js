@@ -140,7 +140,7 @@ function buildProctorEmbed(proctor, applicant) {
             title: '📋 บันทึกการคุมสอบ Proctor',
             color: 0x1DC9B7,
             fields: [
-                { name: '👮 ผู้คุมสอบ', value: proctor.name || 'ไม่ระบุ', inline: false },
+                { name: '👮 ผู้คุมสอบ', value: proctor.id ? `<@${proctor.id}>` : (proctor.name || 'ไม่ระบุ'), inline: false },
                 { name: '👤 ผู้สอบ', value: applicant.icName || 'ไม่ระบุ', inline: true },
                 { name: '📅 วันที่สอบ', value: shortDate, inline: true },
                 { name: '🆔 Discord ID ผู้สอบ', value: applicant.discordId ? `<@${applicant.discordId}>` : 'ไม่ระบุ', inline: false }
@@ -405,7 +405,7 @@ async function sendProctorWebhook(proctor, applicant) {
     const { embed } = buildProctorEmbed(proctor, applicant);
 
     const payload = {
-        content: applicant.discordId ? `<@${applicant.discordId}>` : undefined,
+        content: proctor.id ? `<@${proctor.id}>` : undefined,
         embeds: [embed]
     };
 
