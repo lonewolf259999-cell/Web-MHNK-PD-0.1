@@ -12,166 +12,61 @@ const { createLogger } = require('../utils/logger');
 
 const logger = createLogger('DiscordWebhook');
 
-/**
- * แก้ Webhook URL → เพิ่ม /messages/{messageId} สำหรับ PATCH
- */
+// ========== Helper Utilities ==========
+
 function buildEditUrl(webhookUrl, messageId) {
-    // webhookUrl = https://discord.com/api/webhooks/ID/TOKEN
-    // editUrl   = https://discord.com/api/webhooks/ID/TOKEN/messages/msgId
     const base = webhookUrl.replace(/\/+$/, '');
     return `${base}/messages/${messageId}`;
 }
 
-/**
- * ส่ง Webhook แบบ JSON (POST) หรือแก้ไข (PATCH)
- * @param {string} url - Webhook URL
- * @param {Object} payload - JSON payload
- * @param {string} [method] - 'POST' (default) or 'PATCH'
- * @returns {Promise<Object>} - parsed JSON response
- */
-function sendJson(url, payload, method = 'POST') {
-    return new Promise((resolve, reject) => {
-        const data = method !== 'GET' ? JSON.stringify(payload) : null;
-        const urlObj = new URL(url);
+function buildWaitUrl(webhookUrl) {
+    return webhookUrl + (webhookUrl.includes('?') ? '&' : '?') + 'wait=true';
+}
 
-        const options = {
-            hostname: urlObj.hostname,
-            path: urlObj.pathname + urlObj.search, // รวม query string เช่น ?wait=true
-            method: method,
-            headers: {},
-            timeout: config.REQUEST_TIMEOUT
-        };
+function toDiscordMention(discordId) {
+    if (!discordId) return 'ไม่ระบุ';
+    return /^\d+$/.test(discordId) ? `<@${discordId}>` : discordId;
+}
 
-        if (method !== 'GET') {
-            options.headers['Content-Type'] = 'application/json';
-            options.headers['Content-Length'] = Buffer.byteLength(data);
-        }
-
-        const protocol = urlObj.protocol === 'https:' ? https : http;
-        const req = protocol.request(options, (res) => {
-            let body = '';
-            res.on('data', chunk => body += chunk);
-            res.on('end', () => {
-                if (res.statusCode >= 200 && res.statusCode < 300) {
-                    try {
-                        resolve(body ? JSON.parse(body) : {});
-                    } catch {
-                        resolve(body || {});
-                    }
-                } else if (res.statusCode === 404) {
-                    reject(new Error('ไม่พบข้อความใน Discord (messageId ไม่ถูกต้องหรือถูกลบแล้ว)'));
-                } else if (res.statusCode === 429) {
-                    reject(new Error(' Discord API rate limit กรุณารอสักครู่แล้วลองใหม่'));
-                } else {
-                    reject(new Error(`Discord API error: ${res.statusCode} - ${body.slice(0, 200)}`));
-                }
-            });
-        });
-
-        req.on('error', reject);
-        req.on('timeout', () => {
-            req.destroy();
-            reject(new Error('Discord API request timeout'));
-        });
-        if (data !== null) {
-            req.write(data);
-        }
-        req.end();
-    });
+function toDiscordDisplay(discordId) {
+    return toDiscordMention(discordId);
 }
 
 /**
- * ส่ง Webhook พร้อมรูปภาพ (multipart/form-data)
- * ใช้สำหรับ council
- * @param {string} url - Webhook URL
- * @param {Object} embed - Discord embed object
- * @param {string} base64Image - รูปภาพแบบ base64
- * @param {string} discordId - Discord user ID สำหรับ mention
- * @param {string} filename - ชื่อไฟล์แนบ (default: 'evidence.png')
+ * ตรวจสอบความเป็นเจ้าของ message โดยหา <@userId> ใน content หรือ embed fields
  */
-function sendMultipart(url, embed, base64Image, discordId, filename = 'evidence.png') {
-    return new Promise((resolve, reject) => {
-        const urlObj = new URL(url);
+async function verifyOwnership(webhookUrl, messageId, userId) {
+    if (!userId) return;
 
-        // แยก base64 data
-        const base64Data = base64Image.split(',')[1];
-        const contentType = base64Image.split(';')[0].split(':')[1];
-        const imageBuffer = Buffer.from(base64Data, 'base64');
+    const fetchUrl = buildEditUrl(webhookUrl, messageId);
+    const existingMessage = await sendJson(fetchUrl, {}, 'GET');
 
-        // สร้าง boundary สำหรับ multipart
-        const boundary = '----WebKitFormBoundary' + Math.random().toString(36).substring(2);
+    const mentionPattern = `<@${userId}>`;
+    const contentMatch = existingMessage.content && existingMessage.content.includes(mentionPattern);
 
-        // สร้าง multipart body
-        const payloadJson = JSON.stringify({
-            content: discordId ? `<@${discordId}>` : undefined,
-            embeds: [embed]
-        });
+    let fieldMatch = false;
+    if (existingMessage.embeds && existingMessage.embeds.length > 0) {
+        const fields = existingMessage.embeds[0].fields || [];
+        for (const field of fields) {
+            if (field.value && field.value.includes(mentionPattern)) {
+                fieldMatch = true;
+                break;
+            }
+        }
+    }
 
-        const parts = [
-            `--${boundary}`,
-            'Content-Disposition: form-data; name="payload_json"',
-            'Content-Type: application/json',
-            '',
-            payloadJson,
-            `--${boundary}`,
-            `Content-Disposition: form-data; name="files[0]"; filename="${filename}"`,
-            `Content-Type: ${contentType}`,
-            '',
-        ];
-
-        const header = Buffer.from(parts.join('\r\n') + '\r\n');
-        const footer = Buffer.from(`\r\n--${boundary}--\r\n`);
-        const body = Buffer.concat([header, imageBuffer, footer]);
-
-        const options = {
-            hostname: urlObj.hostname,
-            path: urlObj.pathname,
-            method: 'POST',
-            headers: {
-                'Content-Type': `multipart/form-data; boundary=${boundary}`,
-                'Content-Length': body.length
-            },
-            timeout: config.REQUEST_TIMEOUT
-        };
-
-        const protocol = urlObj.protocol === 'https:' ? https : http;
-        const req = protocol.request(options, (res) => {
-            let responseBody = '';
-            res.on('data', chunk => responseBody += chunk);
-            res.on('end', () => {
-                if (res.statusCode >= 200 && res.statusCode < 300) {
-                    try {
-                        resolve(JSON.parse(responseBody));
-                    } catch {
-                        resolve(responseBody);
-                    }
-                } else {
-                    reject(new Error(`Webhook failed with status ${res.statusCode}`));
-                }
-            });
-        });
-
-        req.on('error', reject);
-        req.on('timeout', () => {
-            req.destroy();
-            reject(new Error('Webhook request timeout'));
-        });
-        req.write(body);
-        req.end();
-    });
+    if (!contentMatch && !fieldMatch) {
+        throw new Error('❌ ไม่ใช่ข้อมูลของคุณ — Message ID นี้เป็นของคนอื่น');
+    }
 }
 
 /**
- * สร้าง embed สำหรับใบสมัคร
+ * สร้าง embed fields จาก registration data
  */
 function buildRegistrationEmbed(data, editCount = 0) {
     const { ocName, icName, ocAge, icPhone, discordId, steamUrl } = data;
 
-    // ตรวจสอบว่า discordId เป็นตัวเลข (User ID) หรือไม่
-    const isNumericId = /^\d+$/.test(discordId);
-    const discordMention = isNumericId ? `<@${discordId}>` : discordId || 'ไม่ระบุ';
-    const discordDisplay = isNumericId ? discordMention : discordId || 'ไม่ระบุ';
-
+    const discordDisplay = toDiscordDisplay(discordId);
     const footerText = editCount > 0
         ? `✏️ แก้ไขแล้ว ${editCount} ครั้ง • MHNK Police Department`
         : 'MHNK Police Department • ระบบสมัครอัตโนมัติ';
@@ -192,193 +87,18 @@ function buildRegistrationEmbed(data, editCount = 0) {
             footer: { text: footerText },
             timestamp: new Date().toISOString()
         },
-        content: discordMention !== 'ไม่ระบุ' ? discordMention : undefined
+        content: discordDisplay !== 'ไม่ระบุ' ? discordDisplay : undefined
     };
 }
 
-/**
- * ส่งข้อมูลสมัครไปยัง Discord Webhook (Register)
- * @param {Object} registrationData - ข้อมูลการสมัคร
- * @returns {Promise<Object>} - { success, messageId }
- */
-async function sendRegistration(registrationData) {
-    const { ocName, icName, ocAge, icPhone, discordId, steamUrl } = registrationData;
-
-    const webhookUrl = config.DISCORD_REGISTER_WEBHOOK_URL;
-    if (!webhookUrl) {
-        logger.error('Discord Register Webhook URL is not configured');
-        throw new Error('ระบบยังไม่ได้ตั้งค่า Webhook สำหรับการสมัคร');
-    }
-
-    const { embed, content } = buildRegistrationEmbed(registrationData, 0);
-    const payload = {
-        content,
-        embeds: [embed]
-    };
-
-    // ต้องใช้ ?wait=true เพื่อให้ Discord คืน message object (มี id กลับมา)
-    // ถ้าไม่ใช้ ?wait=true Discord จะคืน 204 No Content (ไม่มี body)
-    const waitUrl = webhookUrl + (webhookUrl.includes('?') ? '&' : '?') + 'wait=true';
-
-    // ส่ง Webhook และรับ messageId กลับมา
-    const response = await sendJson(waitUrl, payload);
-    const messageId = response.id;
-
-    if (!messageId) {
-        logger.error('Discord did not return a message ID');
-        throw new Error('Discord ไม่ได้คืน message ID — อาจเป็นปัญหา Discord API');
-    }
-
-    logger.info(`Registration sent: ${ocName} (${discordId}) msgId=${messageId}`);
-    return { success: true, message: 'ส่งข้อมูลสำเร็จ', messageId };
-}
-
-/**
- * แก้ไขข้อความใน Discord (PATCH embed)
- * @param {Object} opts
- * @param {string} opts.messageId - Discord Message ID
- * @param {Object} opts.data - ข้อมูลใหม่ { ocName, icName, ocAge, icPhone, discordId, steamUrl }
- * @param {number} [opts.editCount] - จำนวนครั้งที่แก้ไขแล้ว
- * @param {string} [opts.verifiedDiscordUserId] - Discord User ID สำหรับตรวจสอบความเป็นเจ้าของ
- * @returns {Promise<Object>}
- */
-async function editRegistrationMessage({ messageId, data, editCount = 1, verifiedDiscordUserId }) {
-    const { ocName, discordId } = data;
-
-    const webhookUrl = config.DISCORD_REGISTER_WEBHOOK_URL;
-    if (!webhookUrl) {
-        logger.error('Discord Register Webhook URL is not configured');
-        throw new Error('ระบบยังไม่ได้ตั้งค่า Webhook สำหรับการสมัคร');
-    }
-
-    if (!messageId) {
-        throw new Error('กรุณาระบุ Message ID');
-    }
-
-    // === ตรวจสอบความเป็นเจ้าของ (ถ้ามี verifiedDiscordUserId) ===
-    if (verifiedDiscordUserId) {
-        const fetchUrl = buildEditUrl(webhookUrl, messageId);
-        const existingMessage = await sendJson(fetchUrl, {}, 'GET');
-
-        // ตรวจสอบว่า content ของ message มี <@verifiedDiscordUserId> หรือไม่
-        const mentionPattern = `<@${verifiedDiscordUserId}>`;
-        const contentMatch = existingMessage.content && existingMessage.content.includes(mentionPattern);
-
-        // ตรวจสอบใน embed fields ด้วย
-        let fieldMatch = false;
-        if (existingMessage.embeds && existingMessage.embeds.length > 0) {
-            const fields = existingMessage.embeds[0].fields || [];
-            for (const field of fields) {
-                if (field.value && field.value.includes(mentionPattern)) {
-                    fieldMatch = true;
-                    break;
-                }
-            }
-        }
-
-        if (!contentMatch && !fieldMatch) {
-            throw new Error('❌ ไม่ใช่ข้อมูลของคุณ — Message ID นี้เป็นของคนอื่น');
-        }
-    }
-
-    const editUrl = buildEditUrl(webhookUrl, messageId);
-    const { embed, content } = buildRegistrationEmbed(data, editCount);
-    const payload = {
-        content,
-        embeds: [embed]
-    };
-
-    // PATCH แก้ไข embed
-    await sendJson(editUrl, payload, 'PATCH');
-
-    logger.info(`Registration edited: ${ocName} (${discordId}) msgId=${messageId} editCount=${editCount}`);
-    return { success: true, message: 'แก้ไขข้อมูลสำเร็จ' };
-}
-
-/**
- * ดึงข้อมูลจาก Discord embed (GET message) เพื่อโหลดข้อมูลเก่า
- * @param {string} messageId - Discord Message ID
- * @param {string} [verifiedDiscordUserId] - Discord User ID สำหรับตรวจสอบความเป็นเจ้าของ
- * @returns {Promise<Object>} - { ocName, icName, ocAge, icPhone, discordId, steamUrl }
- */
-async function fetchRegistrationMessage(messageId, verifiedDiscordUserId) {
-    const webhookUrl = config.DISCORD_REGISTER_WEBHOOK_URL;
-    if (!webhookUrl) {
-        throw new Error('ระบบยังไม่ได้ตั้งค่า Webhook สำหรับการสมัคร');
-    }
-    if (!messageId) {
-        throw new Error('กรุณาระบุ Message ID');
-    }
-
-    const fetchUrl = buildEditUrl(webhookUrl, messageId); // GET endpoint เหมือนกับ edit
-    const response = await sendJson(fetchUrl, {}, 'GET');
-
-    if (!response || !response.embeds || response.embeds.length === 0) {
-        throw new Error('ไม่พบ embed ในข้อความนี้ — Message ID อาจไม่ถูกต้อง');
-    }
-
-    const embed = response.embeds[0];
-    const fields = embed.fields || [];
-
-    // === ตรวจสอบความเป็นเจ้าของ (ถ้ามี verifiedDiscordUserId) ===
-    if (verifiedDiscordUserId) {
-        const mentionPattern = `<@${verifiedDiscordUserId}>`;
-        const contentMatch = response.content && response.content.includes(mentionPattern);
-
-        let fieldMatch = false;
-        for (const field of fields) {
-            if (field.value && field.value.includes(mentionPattern)) {
-                fieldMatch = true;
-                break;
-            }
-        }
-
-        if (!contentMatch && !fieldMatch) {
-            throw new Error('❌ ไม่ใช่ข้อมูลของคุณ — Message ID นี้เป็นของคนอื่น');
-        }
-    }
-
-    // Map fields from embed to registration data
-    const getFieldValue = (name) => {
-        const field = fields.find(f => f.name.includes(name));
-        return field ? field.value.replace(/\*\*/g, '').trim() : '';
-    };
-
-    const data = {
-        ocName: getFieldValue('ชื่อ เล่น IC'),
-        icName: getFieldValue('ชื่อ IC'),
-        ocAge: parseInt(getFieldValue('อายุ OC')) || '',
-        icPhone: getFieldValue('เบอร์ IC'),
-        discordId: getFieldValue('Discord'),
-        steamUrl: getFieldValue('Steam'),
-    };
-
-    // Get editCount from footer if present
-    let editCount = 0;
-    if (embed.footer && embed.footer.text) {
-        const match = embed.footer.text.match(/แก้ไขแล้ว (\d+) ครั้ง/);
-        if (match) editCount = parseInt(match[1]);
-    }
-
-    return { data, editCount, messageId };
-}
-
-/**
- * สร้าง embed สำหรับใบสมัครแพทย์
- */
 function buildMedicalEmbed(data, editCount = 0) {
     const { icName, ocAge, timeStart, timeEnd, medicalExperience, joinReason, discordId } = data;
 
-    // ตรวจสอบว่า discordId เป็นตัวเลข (User ID) หรือไม่
-    const isNumericId = /^\d+$/.test(discordId);
-    const discordMention = isNumericId ? `<@${discordId}>` : discordId || 'ไม่ระบุ';
-    const discordDisplay = isNumericId ? discordMention : discordId || 'ไม่ระบุ';
-
+    const discordDisplay = toDiscordDisplay(discordId);
     const footerText = editCount > 0
         ? `✏️ แก้ไขแล้ว ${editCount} ครั้ง • MHNK Medical Department`
         : 'MHNK Medical Department • ระบบสมัครอัตโนมัติ';
 
-    // ตัดข้อความถ้ายาวเกินไปสำหรับ embed field (Discord limit = 1024 chars)
     const truncate = (str, max = 1000) => str.length > max ? str.substring(0, max) + '...' : str;
 
     const formatTimeRange = (start, end) => {
@@ -402,198 +122,10 @@ function buildMedicalEmbed(data, editCount = 0) {
             footer: { text: footerText },
             timestamp: new Date().toISOString()
         },
-        content: discordMention !== 'ไม่ระบุ' ? discordMention : undefined
+        content: discordDisplay !== 'ไม่ระบุ' ? discordDisplay : undefined
     };
 }
 
-/**
- * ส่งข้อมูลสมัครแพทย์ไปยัง Discord Webhook
- * @param {Object} medicalData - ข้อมูลการสมัครแพทย์
- * @returns {Promise<Object>} - { success, messageId }
- */
-async function sendMedical(medicalData) {
-    const { icName, discordId } = medicalData;
-
-    const webhookUrl = config.DISCORD_MEDICAL_WEBHOOK_URL;
-    if (!webhookUrl) {
-        logger.error('Discord Medical Webhook URL is not configured');
-        throw new Error('ระบบยังไม่ได้ตั้งค่า Webhook สำหรับการสมัครแพทย์');
-    }
-
-    const { embed, content } = buildMedicalEmbed(medicalData, 0);
-    const payload = {
-        content,
-        embeds: [embed]
-    };
-
-    // ต้องใช้ ?wait=true เพื่อให้ Discord คืน message object (มี id กลับมา)
-    const waitUrl = webhookUrl + (webhookUrl.includes('?') ? '&' : '?') + 'wait=true';
-
-    // ส่ง Webhook และรับ messageId กลับมา
-    const response = await sendJson(waitUrl, payload);
-    const messageId = response.id;
-
-    if (!messageId) {
-        logger.error('Discord did not return a message ID');
-        throw new Error('Discord ไม่ได้คืน message ID — อาจเป็นปัญหา Discord API');
-    }
-
-    logger.info(`Medical registration sent: ${icName} (${discordId}) msgId=${messageId}`);
-    return { success: true, message: 'ส่งข้อมูลสำเร็จ', messageId };
-}
-
-/**
- * แก้ไขข้อความใน Discord (PATCH embed) - Medical
- * @param {Object} opts
- * @param {string} opts.messageId - Discord Message ID
- * @param {Object} opts.data - ข้อมูลใหม่
- * @param {number} [opts.editCount] - จำนวนครั้งที่แก้ไขแล้ว
- * @param {string} [opts.verifiedDiscordUserId] - Discord User ID สำหรับตรวจสอบความเป็นเจ้าของ
- * @returns {Promise<Object>}
- */
-async function editMedicalMessage({ messageId, data, editCount = 1, verifiedDiscordUserId }) {
-    const { icName, discordId } = data;
-
-    const webhookUrl = config.DISCORD_MEDICAL_WEBHOOK_URL;
-    if (!webhookUrl) {
-        logger.error('Discord Medical Webhook URL is not configured');
-        throw new Error('ระบบยังไม่ได้ตั้งค่า Webhook สำหรับการสมัครแพทย์');
-    }
-
-    if (!messageId) {
-        throw new Error('กรุณาระบุ Message ID');
-    }
-
-    // === ตรวจสอบความเป็นเจ้าของ (ถ้ามี verifiedDiscordUserId) ===
-    if (verifiedDiscordUserId) {
-        const fetchUrl = buildEditUrl(webhookUrl, messageId);
-        const existingMessage = await sendJson(fetchUrl, {}, 'GET');
-
-        const mentionPattern = `<@${verifiedDiscordUserId}>`;
-        const contentMatch = existingMessage.content && existingMessage.content.includes(mentionPattern);
-
-        let fieldMatch = false;
-        if (existingMessage.embeds && existingMessage.embeds.length > 0) {
-            const fields = existingMessage.embeds[0].fields || [];
-            for (const field of fields) {
-                if (field.value && field.value.includes(mentionPattern)) {
-                    fieldMatch = true;
-                    break;
-                }
-            }
-        }
-
-        if (!contentMatch && !fieldMatch) {
-            throw new Error('❌ ไม่ใช่ข้อมูลของคุณ — Message ID นี้เป็นของคนอื่น');
-        }
-    }
-
-    const editUrl = buildEditUrl(webhookUrl, messageId);
-    const { embed, content } = buildMedicalEmbed(data, editCount);
-    const payload = {
-        content,
-        embeds: [embed]
-    };
-
-    // PATCH แก้ไข embed
-    await sendJson(editUrl, payload, 'PATCH');
-
-    logger.info(`Medical registration edited: ${icName} (${discordId}) msgId=${messageId} editCount=${editCount}`);
-    return { success: true, message: 'แก้ไขข้อมูลสำเร็จ' };
-}
-
-/**
- * ดึงข้อมูลจาก Discord embed (GET message) เพื่อโหลดข้อมูลเก่า - Medical
- * @param {string} messageId - Discord Message ID
- * @param {string} [verifiedDiscordUserId] - Discord User ID สำหรับตรวจสอบความเป็นเจ้าของ
- * @returns {Promise<Object>}
- */
-async function fetchMedicalMessage(messageId, verifiedDiscordUserId) {
-    const webhookUrl = config.DISCORD_MEDICAL_WEBHOOK_URL;
-    if (!webhookUrl) {
-        throw new Error('ระบบยังไม่ได้ตั้งค่า Webhook สำหรับการสมัครแพทย์');
-    }
-    if (!messageId) {
-        throw new Error('กรุณาระบุ Message ID');
-    }
-
-    const fetchUrl = buildEditUrl(webhookUrl, messageId);
-    const response = await sendJson(fetchUrl, {}, 'GET');
-
-    if (!response || !response.embeds || response.embeds.length === 0) {
-        throw new Error('ไม่พบ embed ในข้อความนี้ — Message ID อาจไม่ถูกต้อง');
-    }
-
-    const embed = response.embeds[0];
-    const fields = embed.fields || [];
-
-    // === ตรวจสอบความเป็นเจ้าของ (ถ้ามี verifiedDiscordUserId) ===
-    if (verifiedDiscordUserId) {
-        const mentionPattern = `<@${verifiedDiscordUserId}>`;
-        const contentMatch = response.content && response.content.includes(mentionPattern);
-
-        let fieldMatch = false;
-        for (const field of fields) {
-            if (field.value && field.value.includes(mentionPattern)) {
-                fieldMatch = true;
-                break;
-            }
-        }
-
-        if (!contentMatch && !fieldMatch) {
-            throw new Error('❌ ไม่ใช่ข้อมูลของคุณ — Message ID นี้เป็นของคนอื่น');
-        }
-    }
-
-    // Map fields from embed to medical registration data
-    const getFieldValue = (name) => {
-        const field = fields.find(f => f.name.includes(name));
-        if (!field) return '';
-        let value = field.value.replace(/\*\*/g, '').trim();
-        value = value.replace(/<@\d+>/g, '').trim();
-        return value;
-    };
-
-    // ดึงเวลาจาก field ที่มีรูปแบบ "HH:MM - HH:MM"
-    const getTimeRange = () => {
-        const field = fields.find(f => f.name.includes('เวลาที่สามารถปฏิบัติหน้าที่ได้'));
-        if (!field) return { timeStart: '', timeEnd: '' };
-        
-        let value = field.value.replace(/\*\*/g, '').trim();
-        const timeRegex = '(\\d{1,2}:\\d{2})';
-        const match = value.match(new RegExp(timeRegex + '\\s*[-–]\\s*' + timeRegex));
-        
-        if (match) {
-            return { timeStart: match[1], timeEnd: match[2] };
-        }
-        return { timeStart: '', timeEnd: '' };
-    };
-
-    const timeRange = getTimeRange();
-
-    const data = {
-        icName: getFieldValue('ชื่อ - นามสกุล'),
-        ocAge: parseInt(getFieldValue('อายุ')) || '',
-        timeStart: timeRange.timeStart,
-        timeEnd: timeRange.timeEnd,
-        medicalExperience: getFieldValue('ประสบการณ์ด้านสายแพทย์'),
-        joinReason: getFieldValue('เหตุผลที่ต้องการเข้าร่วม'),
-                discordId: getFieldValue('Discord'),
-    };
-
-    // Get editCount from footer if present
-    let editCount = 0;
-    if (embed.footer && embed.footer.text) {
-        const match = embed.footer.text.match(/แก้ไขแล้ว (\d+) ครั้ง/);
-        if (match) editCount = parseInt(match[1]);
-    }
-
-    return { data, editCount, messageId };
-}
-
-/**
- * สร้าง embed สำหรับ Proctor Approval
- */
 function buildProctorEmbed(proctor, applicant) {
     const thaiDate = new Date().toLocaleString('th-TH', { 
         timeZone: 'Asia/Bangkok',
@@ -619,12 +151,250 @@ function buildProctorEmbed(proctor, applicant) {
     };
 }
 
-/**
- * ส่ง Proctor Approved webhook
- * @param {Object} proctor - { id, name }
- * @param {Object} applicant - { discordId, discordName, icName }
- * @returns {Promise<void>}
- */
+// ========== HTTP Request ==========
+
+function sendJson(url, payload, method = 'POST') {
+    return new Promise((resolve, reject) => {
+        const data = method !== 'GET' ? JSON.stringify(payload) : null;
+        const urlObj = new URL(url);
+
+        const options = {
+            hostname: urlObj.hostname,
+            path: urlObj.pathname + urlObj.search,
+            method: method,
+            headers: {},
+            timeout: config.REQUEST_TIMEOUT
+        };
+
+        if (method !== 'GET') {
+            options.headers['Content-Type'] = 'application/json';
+            options.headers['Content-Length'] = Buffer.byteLength(data);
+        }
+
+        const protocol = urlObj.protocol === 'https:' ? https : http;
+        const req = protocol.request(options, (res) => {
+            let body = '';
+            res.on('data', chunk => body += chunk);
+            res.on('end', () => {
+                if (res.statusCode >= 200 && res.statusCode < 300) {
+                    try {
+                        resolve(body ? JSON.parse(body) : {});
+                    } catch {
+                        resolve(body || {});
+                    }
+                } else if (res.statusCode === 404) {
+                    reject(new Error('ไม่พบข้อความใน Discord (messageId ไม่ถูกต้องหรือถูกลบแล้ว)'));
+                } else if (res.statusCode === 429) {
+                    reject(new Error('Discord API rate limit กรุณารอสักครู่แล้วลองใหม่'));
+                } else {
+                    reject(new Error(`Discord API error: ${res.statusCode} - ${body.slice(0, 200)}`));
+                }
+            });
+        });
+
+        req.on('error', reject);
+        req.on('timeout', () => {
+            req.destroy();
+            reject(new Error('Discord API request timeout'));
+        });
+        if (data !== null) req.write(data);
+        req.end();
+    });
+}
+
+// ========== Send Webhook / Edit / Fetch ==========
+
+async function sendRegistration(registrationData) {
+    const { ocName, icName, ocAge, icPhone, discordId, steamUrl } = registrationData;
+
+    const webhookUrl = config.DISCORD_REGISTER_WEBHOOK_URL;
+    if (!webhookUrl) {
+        logger.error('Discord Register Webhook URL is not configured');
+        throw new Error('ระบบยังไม่ได้ตั้งค่า Webhook สำหรับการสมัคร');
+    }
+
+    const { embed, content } = buildRegistrationEmbed(registrationData, 0);
+    const payload = { content, embeds: [embed] };
+
+    const response = await sendJson(buildWaitUrl(webhookUrl), payload);
+    const messageId = response.id;
+
+    if (!messageId) {
+        logger.error('Discord did not return a message ID');
+        throw new Error('Discord ไม่ได้คืน message ID — อาจเป็นปัญหา Discord API');
+    }
+
+    logger.info(`Registration sent: ${ocName} (${discordId}) msgId=${messageId}`);
+    return { success: true, message: 'ส่งข้อมูลสำเร็จ', messageId };
+}
+
+async function editRegistrationMessage({ messageId, data, editCount = 1, verifiedDiscordUserId }) {
+    const { ocName, discordId } = data;
+
+    const webhookUrl = config.DISCORD_REGISTER_WEBHOOK_URL;
+    if (!webhookUrl) {
+        logger.error('Discord Register Webhook URL is not configured');
+        throw new Error('ระบบยังไม่ได้ตั้งค่า Webhook สำหรับการสมัคร');
+    }
+    if (!messageId) throw new Error('กรุณาระบุ Message ID');
+
+    if (verifiedDiscordUserId) {
+        await verifyOwnership(webhookUrl, messageId, verifiedDiscordUserId);
+    }
+
+    const editUrl = buildEditUrl(webhookUrl, messageId);
+    const { embed, content } = buildRegistrationEmbed(data, editCount);
+    await sendJson(editUrl, { content, embeds: [embed] }, 'PATCH');
+
+    logger.info(`Registration edited: ${ocName} (${discordId}) msgId=${messageId} editCount=${editCount}`);
+    return { success: true, message: 'แก้ไขข้อมูลสำเร็จ' };
+}
+
+async function fetchRegistrationMessage(messageId, verifiedDiscordUserId) {
+    const webhookUrl = config.DISCORD_REGISTER_WEBHOOK_URL;
+    if (!webhookUrl) throw new Error('ระบบยังไม่ได้ตั้งค่า Webhook สำหรับการสมัคร');
+    if (!messageId) throw new Error('กรุณาระบุ Message ID');
+
+    const fetchUrl = buildEditUrl(webhookUrl, messageId);
+    const response = await sendJson(fetchUrl, {}, 'GET');
+
+    if (!response || !response.embeds || response.embeds.length === 0) {
+        throw new Error('ไม่พบ embed ในข้อความนี้ — Message ID อาจไม่ถูกต้อง');
+    }
+
+    const embed = response.embeds[0];
+    const fields = embed.fields || [];
+
+    if (verifiedDiscordUserId) {
+        await verifyOwnership(webhookUrl, messageId, verifiedDiscordUserId);
+    }
+
+    const getFieldValue = (name) => {
+        const field = fields.find(f => f.name.includes(name));
+        return field ? field.value.replace(/\*\*/g, '').trim() : '';
+    };
+
+    const data = {
+        ocName: getFieldValue('ชื่อ เล่น IC'),
+        icName: getFieldValue('ชื่อ IC'),
+        ocAge: parseInt(getFieldValue('อายุ OC')) || '',
+        icPhone: getFieldValue('เบอร์ IC'),
+        discordId: getFieldValue('Discord'),
+        steamUrl: getFieldValue('Steam'),
+    };
+
+    let editCount = 0;
+    if (embed.footer && embed.footer.text) {
+        const match = embed.footer.text.match(/แก้ไขแล้ว (\d+) ครั้ง/);
+        if (match) editCount = parseInt(match[1]);
+    }
+
+    return { data, editCount, messageId };
+}
+
+async function sendMedical(medicalData) {
+    const { icName, discordId } = medicalData;
+
+    const webhookUrl = config.DISCORD_MEDICAL_WEBHOOK_URL;
+    if (!webhookUrl) {
+        logger.error('Discord Medical Webhook URL is not configured');
+        throw new Error('ระบบยังไม่ได้ตั้งค่า Webhook สำหรับการสมัครแพทย์');
+    }
+
+    const { embed, content } = buildMedicalEmbed(medicalData, 0);
+    const payload = { content, embeds: [embed] };
+
+    const response = await sendJson(buildWaitUrl(webhookUrl), payload);
+    const messageId = response.id;
+
+    if (!messageId) {
+        logger.error('Discord did not return a message ID');
+        throw new Error('Discord ไม่ได้คืน message ID — อาจเป็นปัญหา Discord API');
+    }
+
+    logger.info(`Medical registration sent: ${icName} (${discordId}) msgId=${messageId}`);
+    return { success: true, message: 'ส่งข้อมูลสำเร็จ', messageId };
+}
+
+async function editMedicalMessage({ messageId, data, editCount = 1, verifiedDiscordUserId }) {
+    const { icName, discordId } = data;
+
+    const webhookUrl = config.DISCORD_MEDICAL_WEBHOOK_URL;
+    if (!webhookUrl) {
+        logger.error('Discord Medical Webhook URL is not configured');
+        throw new Error('ระบบยังไม่ได้ตั้งค่า Webhook สำหรับการสมัครแพทย์');
+    }
+    if (!messageId) throw new Error('กรุณาระบุ Message ID');
+
+    if (verifiedDiscordUserId) {
+        await verifyOwnership(webhookUrl, messageId, verifiedDiscordUserId);
+    }
+
+    const editUrl = buildEditUrl(webhookUrl, messageId);
+    const { embed, content } = buildMedicalEmbed(data, editCount);
+    await sendJson(editUrl, { content, embeds: [embed] }, 'PATCH');
+
+    logger.info(`Medical registration edited: ${icName} (${discordId}) msgId=${messageId} editCount=${editCount}`);
+    return { success: true, message: 'แก้ไขข้อมูลสำเร็จ' };
+}
+
+async function fetchMedicalMessage(messageId, verifiedDiscordUserId) {
+    const webhookUrl = config.DISCORD_MEDICAL_WEBHOOK_URL;
+    if (!webhookUrl) throw new Error('ระบบยังไม่ได้ตั้งค่า Webhook สำหรับการสมัครแพทย์');
+    if (!messageId) throw new Error('กรุณาระบุ Message ID');
+
+    const fetchUrl = buildEditUrl(webhookUrl, messageId);
+    const response = await sendJson(fetchUrl, {}, 'GET');
+
+    if (!response || !response.embeds || response.embeds.length === 0) {
+        throw new Error('ไม่พบ embed ในข้อความนี้ — Message ID อาจไม่ถูกต้อง');
+    }
+
+    const embed = response.embeds[0];
+    const fields = embed.fields || [];
+
+    if (verifiedDiscordUserId) {
+        await verifyOwnership(webhookUrl, messageId, verifiedDiscordUserId);
+    }
+
+    const getFieldValue = (name) => {
+        const field = fields.find(f => f.name.includes(name));
+        if (!field) return '';
+        let value = field.value.replace(/\*\*/g, '').trim();
+        value = value.replace(/<@\d+>/g, '').trim();
+        return value;
+    };
+
+    const getTimeRange = () => {
+        const field = fields.find(f => f.name.includes('เวลาที่สามารถปฏิบัติหน้าที่ได้'));
+        if (!field) return { timeStart: '', timeEnd: '' };
+        let value = field.value.replace(/\*\*/g, '').trim();
+        const timeRegex = '(\\d{1,2}:\\d{2})';
+        const match = value.match(new RegExp(timeRegex + '\\s*[-–]\\s*' + timeRegex));
+        return match ? { timeStart: match[1], timeEnd: match[2] } : { timeStart: '', timeEnd: '' };
+    };
+
+    const timeRange = getTimeRange();
+
+    const data = {
+        icName: getFieldValue('ชื่อ - นามสกุล'),
+        ocAge: parseInt(getFieldValue('อายุ')) || '',
+        timeStart: timeRange.timeStart,
+        timeEnd: timeRange.timeEnd,
+        medicalExperience: getFieldValue('ประสบการณ์ด้านสายแพทย์'),
+        joinReason: getFieldValue('เหตุผลที่ต้องการเข้าร่วม'),
+        discordId: getFieldValue('Discord'),
+    };
+
+    let editCount = 0;
+    if (embed.footer && embed.footer.text) {
+        const match = embed.footer.text.match(/แก้ไขแล้ว (\d+) ครั้ง/);
+        if (match) editCount = parseInt(match[1]);
+    }
+
+    return { data, editCount, messageId };
+}
+
 async function sendProctorWebhook(proctor, applicant) {
     const webhookUrl = config.DISCORD_PROCTOR_WEBHOOK_URL;
     if (!webhookUrl) {
@@ -639,9 +409,16 @@ async function sendProctorWebhook(proctor, applicant) {
         embeds: [embed]
     };
 
-    const waitUrl = webhookUrl + (webhookUrl.includes('?') ? '&' : '?') + 'wait=true';
-    await sendJson(waitUrl, payload);
+    await sendJson(buildWaitUrl(webhookUrl), payload);
     logger.info(`Proctor webhook sent: proctor=${proctor.id} applicant=${applicant.icName}`);
 }
 
-module.exports = { sendRegistration, editRegistrationMessage, fetchRegistrationMessage, sendMedical, editMedicalMessage, fetchMedicalMessage, sendProctorWebhook };
+module.exports = {
+    sendRegistration,
+    editRegistrationMessage,
+    fetchRegistrationMessage,
+    sendMedical,
+    editMedicalMessage,
+    fetchMedicalMessage,
+    sendProctorWebhook
+};
