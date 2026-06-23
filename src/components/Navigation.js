@@ -27,6 +27,13 @@ class NavigationComponent {
     }
 
     navigateTo(page) {
+        // 🔀 ชั่วคราว: redirect หน้า "rules" ไปยัง Google Sites แทน
+        if (page === 'rules') {
+            const googleSitesUrl = 'https://sites.google.com/view/mahanakorndiwa/%E0%B8%AB%E0%B8%99%E0%B8%A7%E0%B8%A2%E0%B8%87%E0%B8%B2%E0%B8%99/%E0%B8%81%E0%B8%8F%E0%B8%95%E0%B8%B3%E0%B8%A3%E0%B8%A7%E0%B8%88';
+            window.open(googleSitesUrl, '_blank');
+            return; // ไม่ต้องทำ navigation ปกติ
+        }
+
         // Update tabs
         this.tabs.forEach(tab => {
             tab.classList.toggle('active', tab.dataset.page === page);
