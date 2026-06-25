@@ -56,8 +56,8 @@
         .status-rejected { background: #ef444433; color: #ef4444; }
         .actions { display: flex; gap: 6px; min-width: 150px; justify-content: flex-start; align-items: center; }
         .actions .btn-done {
-            padding: 6px 16px; background: #2a2a4a; color: #666; font-size: 13px; font-weight: 600;
-            border: none; border-radius: 8px; cursor: default;
+            padding: 6px 16px; background: #2a2a4a; color: #555; font-size: 13px; font-weight: 600;
+            border: none; border-radius: 8px; cursor: default; display: inline-flex; align-items: center; justify-content: center;
         }
         .empty-msg { text-align: center; padding: 40px; color: #666; font-size: 16px; }
         .toast { position: fixed; top: 20px; right: 20px; padding: 12px 20px; border-radius: 8px; color: #fff; font-weight: 600; z-index: 999; display: none; animation: fadeIn 0.3s; }
@@ -372,7 +372,7 @@
                         ${isPending ? `
                             <button class="btn-success btn-sm" onclick="approve(${r._row})" ${dcConnected ? '' : 'disabled title="กรุณาเชื่อมต่อ Discord ก่อน"'}>&#10004; อนุมัติ</button>
                             <button class="btn-danger btn-sm" onclick="reject(${r._row})" ${dcConnected ? '' : 'disabled title="กรุณาเชื่อมต่อ Discord ก่อน"'}>&#10008; ปฏิเสธ</button>
-                        ` : '<button class="btn-done" disabled>— ดำเนินการแล้ว —</button>'}
+                        ` : '<button class="btn-done" disabled>— อนุมัติ —</button><button class="btn-done" disabled>— ปฏิเสธ —</button>'}
                     </td>
                 </tr>`;
             }).join('');
