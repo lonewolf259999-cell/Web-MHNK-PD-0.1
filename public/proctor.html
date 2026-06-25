@@ -5,33 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - MHNK Police Department</title>
     <style>
+        /* ========== Reset & Base ========== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #0f0f1a; color: #e0e0e0; min-height: 100vh; }
         .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
         h1 { text-align: center; color: #f0c040; margin-bottom: 10px; font-size: 28px; }
         .subtitle { text-align: center; color: #888; margin-bottom: 30px; }
-        
-        .login-box, .panel { background: #1a1a2e; border-radius: 12px; padding: 24px; margin-bottom: 20px; border: 1px solid #2a2a4a; }
-        .login-box { max-width: 420px; margin: 40px auto; text-align: center; }
-        
-        input[type="password"], input[type="text"] { 
-            width: 100%; padding: 12px 16px; background: #252545; border: 1px solid #3a3a5a; 
+
+        /* ========== Form Elements ========== */
+        input[type="password"], input[type="text"] {
+            width: 100%; padding: 12px 16px; background: #252545; border: 1px solid #3a3a5a;
             border-radius: 8px; color: #fff; font-size: 16px; outline: none; margin-bottom: 15px;
         }
         input:focus { border-color: #f0c040; }
         input:disabled { opacity: 0.35; cursor: not-allowed; }
-        
+
         button {
             padding: 10px 24px; border: none; border-radius: 8px; font-size: 15px; cursor: pointer;
             transition: all 0.2s; font-weight: 600;
         }
         button:hover { opacity: 0.85; transform: translateY(-1px); }
         button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+        /* ========== Buttons ========== */
         .btn-primary { background: #f0c040; color: #1a1a2e; }
         .btn-success { background: #22c55e; color: #fff; }
         .btn-danger { background: #ef4444; color: #fff; }
         .btn-secondary { background: #3a3a5a; color: #e0e0e0; }
         .btn-sm { padding: 6px 16px; font-size: 13px; }
+
         .btn-discord {
             display: inline-flex; align-items: center; gap: 10px;
             padding: 12px 24px; background: #5865F2; color: #fff;
@@ -40,56 +42,16 @@
         }
         .btn-discord:hover { background: #4752c4; }
         .btn-discord:disabled { opacity: 0.4; cursor: not-allowed; }
-        
-        .stats { display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
-        .stat-card { background: #1a1a2e; border-radius: 10px; padding: 16px 24px; flex: 1; min-width: 150px; text-align: center; border: 1px solid #2a2a4a; }
-        .stat-card .num { font-size: 32px; font-weight: 700; color: #f0c040; }
-        .stat-card .label { font-size: 13px; color: #888; margin-top: 4px; }
-        
-        .table-wrap { max-height: 600px; overflow-y: auto; }
-        .table-wrap table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        .table-wrap th, .table-wrap td { padding: 12px 6px; text-align: left; border-bottom: 1px solid #2a2a4a; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .table-wrap th { background: #252545; color: #aaa; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; position: sticky; top: 0; }
-        .table-wrap tr:hover td { background: #252545; }
-        .col-idx { width: 32px; }
-        .col-time { width: 110px; }
-        .col-did { width: 110px; }
-        .col-dname { width: 120px; }
-        .col-icname { width: 120px; }
-        .col-phone { width: 80px; }
-        .col-age { width: 50px; }
-        .col-steam { width: 120px; }
-        .col-status { width: 80px; }
-        .col-actions { width: 150px; }
-        
-        .status-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
-        .status-pending { background: #f59e0b33; color: #f59e0b; }
-        .status-approved { background: #22c55e33; color: #22c55e; }
-        .status-rejected { background: #ef444433; color: #ef4444; }
-        .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; width: 150px; }
-        .actions button { width: 100%; min-width: 0; text-align: center; }
-        .actions .btn-done {
-            background: #2a2a4a; color: #555; font-size: 13px; font-weight: 600;
-            border: none; border-radius: 8px; cursor: default; padding: 6px 4px;
-        }
-        .empty-msg { text-align: center; padding: 40px; color: #666; font-size: 16px; }
-        .toast { position: fixed; top: 20px; right: 20px; padding: 12px 20px; border-radius: 8px; color: #fff; font-weight: 600; z-index: 999; display: none; animation: fadeIn 0.3s; }
-        .toast.success { background: #22c55e; }
-        .toast.error { background: #ef4444; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        .loading { text-align: center; padding: 40px; color: #888; }
-        .loading::after { content: '...'; animation: dots 1.5s infinite; }
-        @keyframes dots { 0%,20% { content: '.'; } 40% { content: '..'; } 60%,100% { content: '...'; } }
-        .log-section { margin-top: 30px; }
-        .log-section summary { cursor: pointer; color: #888; font-size: 14px; padding: 8px 0; }
-        .log-section pre { background: #0f0f1a; padding: 12px; border-radius: 8px; font-size: 12px; max-height: 200px; overflow-y: auto; color: #aaa; margin-top: 8px; }
-        .filter-bar { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; align-items: center; }
-        .filter-bar input { width: auto; flex: 1; min-width: 200px; margin-bottom: 0; }
 
-        /* Discord login section inside login box */
+        /* ========== Login Box ========== */
+        .login-box, .panel {
+            background: #1a1a2e; border-radius: 12px; padding: 24px;
+            margin-bottom: 20px; border: 1px solid #2a2a4a;
+        }
+        .login-box { max-width: 420px; margin: 40px auto; text-align: center; }
+
         .dc-section {
-            margin-bottom: 20px; padding-bottom: 20px;
-            border-bottom: 1px solid #2a2a4a;
+            margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #2a2a4a;
         }
         .dc-section .dc-user {
             display: flex; align-items: center; gap: 12px; justify-content: center;
@@ -103,12 +65,82 @@
         .dc-section .dc-id { font-size: 12px; color: #888; }
         .dc-section .dc-disconnect {
             background: none; border: none; color: #888; cursor: pointer;
-            padding: 4px; border-radius: 4px; display: inline-flex; align-items: center;
-            margin-left: 8px;
+            padding: 4px; border-radius: 4px; display: inline-flex; align-items: center; margin-left: 8px;
         }
         .dc-section .dc-disconnect:hover { color: #ef4444; background: #2a2a4a; }
-        .dc-section-label {
-            color: #888; font-size: 13px; margin-bottom: 12px; display: block;
+        .dc-section-label { color: #888; font-size: 13px; margin-bottom: 12px; display: block; }
+
+        /* ========== Stats ========== */
+        .stats { display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+        .stat-card {
+            background: #1a1a2e; border-radius: 10px; padding: 16px 24px;
+            flex: 1; min-width: 150px; text-align: center; border: 1px solid #2a2a4a;
+        }
+        .stat-card .num { font-size: 32px; font-weight: 700; color: #f0c040; }
+        .stat-card .label { font-size: 13px; color: #888; margin-top: 4px; }
+
+        /* ========== Filter Bar ========== */
+        .filter-bar { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; align-items: center; }
+        .filter-bar input { width: auto; flex: 1; min-width: 200px; margin-bottom: 0; }
+
+        /* ========== Table ========== */
+        .table-wrap { max-height: 600px; overflow-y: auto; }
+        .table-wrap table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        .table-wrap th, .table-wrap td {
+            padding: 12px 6px; text-align: left; border-bottom: 1px solid #2a2a4a;
+            font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .table-wrap th {
+            background: #252545; color: #aaa; font-size: 12px;
+            text-transform: uppercase; letter-spacing: 0.5px; position: sticky; top: 0;
+        }
+        .table-wrap tr:hover td { background: #252545; }
+
+        .col-idx { width: 32px; }
+        .col-time { width: 110px; }
+        .col-did { width: 110px; }
+        .col-dname { width: 120px; }
+        .col-icname { width: 120px; }
+        .col-phone { width: 80px; }
+        .col-age { width: 50px; }
+        .col-steam { width: 120px; }
+        .col-status { width: 80px; }
+        .col-actions { width: 160px; }
+
+        .status-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .status-pending { background: #f59e0b33; color: #f59e0b; }
+        .status-approved { background: #22c55e33; color: #22c55e; }
+        .status-rejected { background: #ef444433; color: #ef4444; }
+
+        /* ========== Actions Column (จัดการ) ========== */
+        .actions { display: flex; gap: 6px; width: 100%; }
+        .actions button { flex: 1; min-width: 0; text-align: center; white-space: nowrap; }
+        .actions .btn-done {
+            background: #2a2a4a; color: #888; font-size: 13px; font-weight: 600;
+            border: none; border-radius: 8px; cursor: not-allowed; padding: 6px 4px; width: 100%;
+        }
+
+        /* ========== Toast ========== */
+        .toast {
+            position: fixed; top: 20px; right: 20px; padding: 12px 20px; border-radius: 8px;
+            color: #fff; font-weight: 600; z-index: 999; display: none; animation: fadeIn 0.3s;
+        }
+        .toast.success { background: #22c55e; }
+        .toast.error { background: #ef4444; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ========== Loading ========== */
+        .loading { text-align: center; padding: 40px; color: #888; }
+        .loading::after { content: '...'; animation: dots 1.5s infinite; }
+        @keyframes dots { 0%,20% { content: '.'; } 40% { content: '..'; } 60%,100% { content: '...'; } }
+
+        /* ========== Misc ========== */
+        .empty-msg { text-align: center; padding: 40px; color: #666; font-size: 16px; }
+        .log-section { margin-top: 30px; }
+        .log-section summary { cursor: pointer; color: #888; font-size: 14px; padding: 8px 0; }
+        .log-section pre {
+            background: #0f0f1a; padding: 12px; border-radius: 8px; font-size: 12px;
+            max-height: 200px; overflow-y: auto; color: #aaa; margin-top: 8px;
         }
     </style>
 </head>
@@ -121,15 +153,12 @@
 
         <!-- Login -->
         <div id="loginBox" class="login-box">
-            <!-- Discord Section -->
             <div class="dc-section">
                 <span class="dc-section-label">🔗 ขั้นตอนที่ 1: เชื่อมต่อ Discord</span>
-                <!-- Not connected view -->
                 <a id="discordLoginLink" href="/auth/discord?state=admin" class="btn-discord" style="width:100%;justify-content:center">
                     <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
                     เชื่อมต่อ Discord
                 </a>
-                <!-- Connected view -->
                 <div id="dcConnected" style="display:none">
                     <div class="dc-user">
                         <img id="dcAvatar" class="dc-avatar" src="" alt="" />
@@ -144,13 +173,12 @@
                     <div style="margin-top:10px;color:#22c55e;font-size:13px">✅ เชื่อมต่อ Discord สำเร็จ</div>
                 </div>
             </div>
-            <!-- PIN Section -->
             <span class="dc-section-label">🔒 ขั้นตอนที่ 2: กรุณาใส่ PIN</span>
             <input type="password" id="pinInput" placeholder="Admin PIN" disabled onkeydown="if(event.key==='Enter') doLogin()" />
             <button class="btn-primary" onclick="doLogin()" style="width:100%" id="loginBtn" disabled>เข้าสู่ระบบ</button>
         </div>
 
-        <!-- Panel (after login) -->
+        <!-- Panel -->
         <div id="panel" style="display:none">
             <div class="stats">
                 <div class="stat-card"><div class="num" id="statTotal">0</div><div class="label">ทั้งหมด</div></div>
@@ -203,23 +231,20 @@
     </div>
 
     <script>
-        // ========== Production flag ==========
-        window.__PRODUCTION__ = !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1');
-
-        // ========== State ==========
+        /* ========== State ========== */
         let PIN = '';
         let allData = [];
         let proctorDiscordId = '';
         let proctorDiscordName = '';
 
-        // ========== Helpers ==========
+        /* ========== Helpers ========== */
         function log(msg) {
             const el = document.getElementById('logOutput');
             const t = new Date().toLocaleTimeString();
             el.textContent = `[${t}] ${msg}\n` + el.textContent;
         }
 
-        function toast(msg, type = 'success') {
+        function toast(msg, type) {
             const el = document.getElementById('toast');
             el.textContent = msg;
             el.className = 'toast ' + type;
@@ -227,12 +252,12 @@
             setTimeout(() => el.style.display = 'none', 3000);
         }
 
-        function setPinEnabled(enabled) {
-            document.getElementById('pinInput').disabled = !enabled;
-            document.getElementById('loginBtn').disabled = !enabled;
+        function enablePin(enable) {
+            document.getElementById('pinInput').disabled = !enable;
+            document.getElementById('loginBtn').disabled = !enable;
         }
 
-        // ========== Discord Auth ==========
+        /* ========== Discord Auth ========== */
         function initDiscordAuth() {
             const params = new URLSearchParams(window.location.search);
             const authStatus = params.get('auth');
@@ -252,25 +277,25 @@
                 proctorDiscordName = discordName || '';
                 loginLink.style.display = 'none';
                 connected.style.display = 'block';
-                const avatarUrl = discordAvatar
+
+                avatar.src = discordAvatar
                     ? `https://cdn.discordapp.com/avatars/${discordUserId}/${discordAvatar}.png?size=64`
                     : 'https://cdn.discordapp.com/embed/avatars/0.png';
-                avatar.src = avatarUrl;
-                name.textContent = `@${discordName || ''}`;
-                id.textContent = `ID: ${discordUserId}`;
-                log(`Discord เชื่อมต่อแล้ว: ${discordName} (${discordUserId})`);
-                setPinEnabled(true);
-                // Clean URL
+                name.textContent = '@' + (discordName || '');
+                id.textContent = 'ID: ' + discordUserId;
+
+                log('Discord เชื่อมต่อแล้ว: ' + discordName + ' (' + discordUserId + ')');
+                enablePin(true);
+
                 const cleanPath = window.location.pathname;
                 window.history.replaceState({}, document.title, cleanPath);
             } else {
-                // ยังไม่เชื่อมต่อ — แสดงปุ่มเชื่อมต่อ, PIN ถูกปิดไว้
                 loginLink.style.display = 'inline-flex';
                 connected.style.display = 'none';
-                setPinEnabled(false);
+                enablePin(false);
             }
 
-            disconnect.addEventListener('click', () => {
+            disconnect.addEventListener('click', function () {
                 proctorDiscordId = '';
                 proctorDiscordName = '';
                 loginLink.style.display = 'inline-flex';
@@ -278,26 +303,29 @@
                 name.textContent = '';
                 id.textContent = '';
                 avatar.src = '';
-                setPinEnabled(false);
+                enablePin(false);
                 log('Discord ตัดการเชื่อมต่อ');
             });
         }
 
-        // ========== Login & Data ==========
+        /* ========== Login & Data ========== */
         function doLogin() {
             if (!proctorDiscordId) {
                 toast('กรุณาเชื่อมต่อ Discord ก่อน', 'error');
                 return;
             }
             PIN = document.getElementById('pinInput').value.trim();
-            if (!PIN) { toast('กรุณากรอก PIN', 'error'); return; }
+            if (!PIN) {
+                toast('กรุณากรอก PIN', 'error');
+                return;
+            }
             loadData();
         }
 
         async function loadData() {
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '<tr><td colspan="10" class="loading">กำลังโหลด</td></tr>';
-            
+
             try {
                 const res = await fetch('/api/pending', {
                     method: 'POST',
@@ -305,26 +333,32 @@
                     body: JSON.stringify({ pin: PIN })
                 });
                 const json = await res.json();
-                if (!res.ok) { toast(json.error || 'PIN ไม่ถูกต้อง', 'error'); return; }
+
+                if (!res.ok) {
+                    toast(json.error || 'PIN ไม่ถูกต้อง', 'error');
+                    return;
+                }
+
                 if (json.success && Array.isArray(json.data)) {
                     allData = json.data;
                     updateStats();
                     renderTable();
                     document.getElementById('loginBox').style.display = 'none';
                     document.getElementById('panel').style.display = 'block';
-                    log(`โหลดข้อมูล ${allData.length} รายการ`);
+                    log('โหลดข้อมูล ' + allData.length + ' รายการ');
                 }
             } catch (err) {
                 toast('เชื่อมต่อเซิร์ฟเวอร์ไม่สำเร็จ', 'error');
-                log(`Error: ${err.message}`);
+                log('Error: ' + err.message);
             }
         }
 
+        /* ========== Stats & Table ========== */
         function updateStats() {
             const total = allData.length;
-            const pending = allData.filter(r => r['สถานะ'] === 'รอตรวจ').length;
-            const approved = allData.filter(r => r['สถานะ'] === 'อนุมัติ').length;
-            const rejected = allData.filter(r => r['สถานะ'] === 'ปฏิเสธ').length;
+            const pending = allData.filter(function (r) { return r['สถานะ'] === 'รอตรวจ'; }).length;
+            const approved = allData.filter(function (r) { return r['สถานะ'] === 'อนุมัติ'; }).length;
+            const rejected = allData.filter(function (r) { return r['สถานะ'] === 'ปฏิเสธ'; }).length;
             document.getElementById('statTotal').textContent = total;
             document.getElementById('statPending').textContent = pending;
             document.getElementById('statApproved').textContent = approved;
@@ -345,14 +379,14 @@
 
             let filtered = allData;
             if (search) {
-                filtered = filtered.filter(r => 
-                    (r['Discord ID'] || '').toLowerCase().includes(search) ||
-                    (r['ชื่อ Discord'] || '').toLowerCase().includes(search) ||
-                    (r['ชื่อ IC'] || '').toLowerCase().includes(search)
-                );
+                filtered = filtered.filter(function (r) {
+                    return (r['Discord ID'] || '').toLowerCase().includes(search) ||
+                        (r['ชื่อ Discord'] || '').toLowerCase().includes(search) ||
+                        (r['ชื่อ IC'] || '').toLowerCase().includes(search);
+                });
             }
             if (statusFilter) {
-                filtered = filtered.filter(r => r['สถานะ'] === statusFilter);
+                filtered = filtered.filter(function (r) { return r['สถานะ'] === statusFilter; });
             }
 
             if (filtered.length === 0) {
@@ -366,36 +400,48 @@
 
             const dcConnected = !!proctorDiscordId;
 
-            tbody.innerHTML = filtered.map((r, i) => {
+            tbody.innerHTML = filtered.map(function (r, i) {
                 const status = r['สถานะ'] || 'รอตรวจ';
                 const isPending = status === 'รอตรวจ';
-                return `<tr>
-                    <td>${i + 1}</td>
-                    <td>${r['Timestamp'] || r['เวลา'] || '—'}</td>
-                    <td><code style="font-size:11px;color:#aaa">${r['Discord ID'] || '—'}</code></td>
-                    <td>${r['ชื่อ Discord'] || '—'}</td>
-                    <td>${r['ชื่อ IC'] || '—'}</td>
-                    <td>${r['เบอร์ IC'] || '—'}</td>
-                    <td>${r['อายุ OOC'] || r['อายุ'] || '—'}</td>
-                    <td><a href="${r['Steam URL'] || r['Steam'] || '#'}" target="_blank" style="color:#6af">${(r['Steam URL'] || r['Steam'] || '—').substring(0, 30)}</a></td>
-                    <td><span class="status-badge ${getStatusClass(status)}">${status}</span></td>
-                    <td class="actions">
-                        ${isPending ? `
-                            <button class="btn-success btn-sm" onclick="approve(${r._row})" ${dcConnected ? '' : 'disabled title="กรุณาเชื่อมต่อ Discord ก่อน"'}>&#10004; อนุมัติ</button>
-                            <button class="btn-danger btn-sm" onclick="reject(${r._row})" ${dcConnected ? '' : 'disabled title="กรุณาเชื่อมต่อ Discord ก่อน"'}>&#10008; ปฏิเสธ</button>
-                        ` : '<button class="btn-done" disabled>ดำเนินการ</button><button class="btn-done" disabled>แล้ว</button>'}
-                    </td>
-                </tr>`;
+                var actionsHtml;
+                if (isPending) {
+                    actionsHtml = '<button class="btn-success btn-sm" onclick="approve(' + r._row + ')"' +
+                        (dcConnected ? '' : ' disabled title="กรุณาเชื่อมต่อ Discord ก่อน"') +
+                        '>&#10004; อนุมัติ</button>' +
+                        '<button class="btn-danger btn-sm" onclick="reject(' + r._row + ')"' +
+                        (dcConnected ? '' : ' disabled title="กรุณาเชื่อมต่อ Discord ก่อน"') +
+                        '>&#10008; ปฏิเสธ</button>';
+                } else {
+                    actionsHtml = '<button class="btn-done" disabled>เสร็จสิ้น</button>';
+                }
+                return '<tr>' +
+                    '<td>' + (i + 1) + '</td>' +
+                    '<td>' + (r['Timestamp'] || r['เวลา'] || '—') + '</td>' +
+                    '<td><code style="font-size:11px;color:#aaa">' + (r['Discord ID'] || '—') + '</code></td>' +
+                    '<td>' + (r['ชื่อ Discord'] || '—') + '</td>' +
+                    '<td>' + (r['ชื่อ IC'] || '—') + '</td>' +
+                    '<td>' + (r['เบอร์ IC'] || '—') + '</td>' +
+                    '<td>' + (r['อายุ OOC'] || r['อายุ'] || '—') + '</td>' +
+                    '<td><a href="' + (r['Steam URL'] || r['Steam'] || '#') + '" target="_blank" style="color:#6af">' +
+                    (r['Steam URL'] || r['Steam'] || '—').substring(0, 30) + '</a></td>' +
+                    '<td><span class="status-badge ' + getStatusClass(status) + '">' + status + '</span></td>' +
+                    '<td class="actions">' + actionsHtml + '</td>' +
+                    '</tr>';
             }).join('');
         }
 
+        /* ========== Approve / Reject ========== */
         async function approve(row) {
-            if (!proctorDiscordId) { toast('กรุณาเชื่อมต่อ Discord ก่อนอนุมัติ', 'error'); return; }
-            const item = allData.find(r => r._row === row);
+            if (!proctorDiscordId) {
+                toast('กรุณาเชื่อมต่อ Discord ก่อนอนุมัติ', 'error');
+                return;
+            }
+            const item = allData.find(function (r) { return r._row === row; });
             const discordId = item ? item['Discord ID'] || '' : '';
-            if (!confirm(`อนุมัติผู้ใช้ Discord ID: ${discordId}?`)) return;
+            if (!confirm('อนุมัติผู้ใช้ Discord ID: ' + discordId + '?')) return;
+
             try {
-                const res = await fetch(`/api/pending/approve/${row}`, {
+                const res = await fetch('/api/pending/approve/' + row, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -406,8 +452,8 @@
                 });
                 const json = await res.json();
                 if (json.success) {
-                    toast(`&#10004; อนุมัติ ${discordId} เรียบร้อย`);
-                    log(`อนุมัติ แถว ${row} (${discordId}) โดย proctor ${proctorDiscordId}`);
+                    toast('&#10004; อนุมัติ ' + discordId + ' เรียบร้อย');
+                    log('อนุมัติ แถว ' + row + ' (' + discordId + ') โดย proctor ' + proctorDiscordId);
                     await loadData();
                 } else {
                     toast(json.message || 'เกิดข้อผิดพลาด', 'error');
@@ -418,20 +464,24 @@
         }
 
         async function reject(row) {
-            if (!proctorDiscordId) { toast('กรุณาเชื่อมต่อ Discord ก่อนปฏิเสธ', 'error'); return; }
-            const item = allData.find(r => r._row === row);
+            if (!proctorDiscordId) {
+                toast('กรุณาเชื่อมต่อ Discord ก่อนปฏิเสธ', 'error');
+                return;
+            }
+            const item = allData.find(function (r) { return r._row === row; });
             const discordId = item ? item['Discord ID'] || '' : '';
-            if (!confirm(`ปฏิเสธผู้ใช้ Discord ID: ${discordId}?`)) return;
+            if (!confirm('ปฏิเสธผู้ใช้ Discord ID: ' + discordId + '?')) return;
+
             try {
-                const res = await fetch(`/api/pending/reject/${row}`, {
+                const res = await fetch('/api/pending/reject/' + row, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ pin: PIN })
                 });
                 const json = await res.json();
                 if (json.success) {
-                    toast(`ปฏิเสธ ${discordId} เรียบร้อย`);
-                    log(`ปฏิเสธ แถว ${row} (${discordId})`);
+                    toast('ปฏิเสธ ' + discordId + ' เรียบร้อย');
+                    log('ปฏิเสธ แถว ' + row + ' (' + discordId + ')');
                     await loadData();
                 } else {
                     toast(json.message || 'เกิดข้อผิดพลาด', 'error');
@@ -441,7 +491,7 @@
             }
         }
 
-        // ========== Init ==========
+        /* ========== Init ========== */
         initDiscordAuth();
     </script>
 </body>
