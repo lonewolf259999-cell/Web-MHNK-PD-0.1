@@ -46,22 +46,31 @@
         .stat-card .num { font-size: 32px; font-weight: 700; color: #f0c040; }
         .stat-card .label { font-size: 13px; color: #888; margin-top: 4px; }
         
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 12px 10px; text-align: left; border-bottom: 1px solid #2a2a4a; font-size: 14px; }
-        th { background: #252545; color: #aaa; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; position: sticky; top: 0; }
-        tr:hover td { background: #252545; }
+        .table-wrap { max-height: 600px; overflow-y: auto; }
+        .table-wrap table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        .table-wrap th, .table-wrap td { padding: 12px 6px; text-align: left; border-bottom: 1px solid #2a2a4a; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .table-wrap th { background: #252545; color: #aaa; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; position: sticky; top: 0; }
+        .table-wrap tr:hover td { background: #252545; }
+        .col-idx { width: 32px; }
+        .col-time { width: 110px; }
+        .col-did { width: 110px; }
+        .col-dname { width: 120px; }
+        .col-icname { width: 120px; }
+        .col-phone { width: 80px; }
+        .col-age { width: 50px; }
+        .col-steam { width: 120px; }
+        .col-status { width: 80px; }
+        .col-actions { width: 150px; }
+        
         .status-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
         .status-pending { background: #f59e0b33; color: #f59e0b; }
         .status-approved { background: #22c55e33; color: #22c55e; }
         .status-rejected { background: #ef444433; color: #ef4444; }
-        .actions { display: flex; gap: 6px; min-width: 150px; justify-content: flex-start; align-items: center; }
-        .actions .btn-sm,
+        .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; width: 150px; }
+        .actions button { width: 100%; min-width: 0; text-align: center; }
         .actions .btn-done {
-            flex: 1; min-width: 0; white-space: nowrap; text-align: center;
-        }
-        .actions .btn-done {
-            padding: 6px 16px; background: #2a2a4a; color: #555; font-size: 13px; font-weight: 600;
-            border: none; border-radius: 8px; cursor: default; display: inline-flex; align-items: center; justify-content: center;
+            background: #2a2a4a; color: #555; font-size: 13px; font-weight: 600;
+            border: none; border-radius: 8px; cursor: default; padding: 6px 4px;
         }
         .empty-msg { text-align: center; padding: 40px; color: #666; font-size: 16px; }
         .toast { position: fixed; top: 20px; right: 20px; padding: 12px 20px; border-radius: 8px; color: #fff; font-weight: 600; z-index: 999; display: none; animation: fadeIn 0.3s; }
@@ -162,20 +171,20 @@
                     <button class="btn-secondary btn-sm" onclick="loadData()">🔄 โหลดใหม่</button>
                 </div>
 
-                <div id="tableContainer" style="max-height: 600px; overflow-y: auto;">
+                <div id="tableContainer" class="table-wrap">
                     <table>
                         <thead>
                             <tr>
-                                <th>#</th>
-                                <th>เวลา</th>
-                                <th>Discord ID</th>
-                                <th>ชื่อ Discord</th>
-                                <th>ชื่อ IC</th>
-                                <th>เบอร์</th>
-                                <th>อายุ</th>
-                                <th>Steam</th>
-                                <th>สถานะ</th>
-                                <th>จัดการ</th>
+                                <th class="col-idx">#</th>
+                                <th class="col-time">เวลา</th>
+                                <th class="col-did">Discord ID</th>
+                                <th class="col-dname">ชื่อ Discord</th>
+                                <th class="col-icname">ชื่อ IC</th>
+                                <th class="col-phone">เบอร์</th>
+                                <th class="col-age">อายุ</th>
+                                <th class="col-steam">Steam</th>
+                                <th class="col-status">สถานะ</th>
+                                <th class="col-actions">จัดการ</th>
                             </tr>
                         </thead>
                         <tbody id="tableBody"></tbody>
@@ -362,15 +371,13 @@
                 const isPending = status === 'รอตรวจ';
                 return `<tr>
                     <td>${i + 1}</td>
-                    <td style="font-size:12px;color:#888">${r['Timestamp'] || r['เวลา'] || '—'}</td>
+                    <td>${r['Timestamp'] || r['เวลา'] || '—'}</td>
                     <td><code style="font-size:11px;color:#aaa">${r['Discord ID'] || '—'}</code></td>
                     <td>${r['ชื่อ Discord'] || '—'}</td>
                     <td>${r['ชื่อ IC'] || '—'}</td>
                     <td>${r['เบอร์ IC'] || '—'}</td>
                     <td>${r['อายุ OOC'] || r['อายุ'] || '—'}</td>
-                    <td style="font-size:11px;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
-                        <a href="${r['Steam URL'] || r['Steam'] || '#'}" target="_blank" style="color:#6af">${(r['Steam URL'] || r['Steam'] || '—').substring(0, 30)}</a>
-                    </td>
+                    <td><a href="${r['Steam URL'] || r['Steam'] || '#'}" target="_blank" style="color:#6af">${(r['Steam URL'] || r['Steam'] || '—').substring(0, 30)}</a></td>
                     <td><span class="status-badge ${getStatusClass(status)}">${status}</span></td>
                     <td class="actions">
                         ${isPending ? `
