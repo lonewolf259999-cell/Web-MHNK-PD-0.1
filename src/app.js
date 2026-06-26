@@ -18,6 +18,7 @@ const App = {
     search: null,
     sidebar: null,
     rosterPage: null,
+    casesPage: null,
     rulesPage: null,
     conductPage: null,
     finesPage: null,
@@ -44,6 +45,7 @@ const App = {
         this.rosterPage = new RosterPage();
         
         // Create placeholder instances for other pages (they load data lazily)
+        this.casesPage = new CasesPage();
         this.rulesPage = new RulesPage();
         this.conductPage = new ConductPage();
         this.finesPage = new FinesPage();
@@ -144,6 +146,9 @@ const App = {
         
         try {
             switch (pageName) {
+                case 'cases':
+                    await this.casesPage.load();
+                    break;
                 case 'rules':
                     await this.rulesPage.load();
                     break;
@@ -187,6 +192,9 @@ const App = {
             case 'roster':
                 this.rosterPage.render(this.officers, query);
                 this.updateCounts(query ? this.rosterPage.search(this.officers, query).length : this.officers.length);
+                break;
+            case 'cases':
+                this.casesPage.render(query);
                 break;
             case 'conduct':
                 this.conductPage.render(query);

@@ -148,14 +148,23 @@
                         <span class="form-hint">ชื่อที่ให้เพื่อนเรียก</span>
                     </div>
 
-                    <!-- ชื่อ IC -->
+                    <!-- ชื่อ IC (First Name + Last Name) -->
                     <div class="form-group">
-                        <label for="icName">
+                        <label>
                             <span class="form-icon">&#128203;</span>
                             ชื่อ IC / ชื่อตามบัตรประชาชน
                         </label>
-                        <input type="text" id="icName" name="icName" placeholder="กรอกชื่อจริงตามบัตรประชาชน" maxlength="100" required />
-                        <span class="form-hint">ชื่อจริงที่ปรากฏในเกม</span>
+                        <div class="row-fields">
+                            <div class="field-half">
+                                <input type="text" id="icFirstName" name="icFirstName" placeholder="First Name" maxlength="50" required />
+                                <span class="form-hint">ชื่อจริง (ห้ามเว้นวรรค)</span>
+                            </div>
+                            <div class="field-half">
+                                <input type="text" id="icLastName" name="icLastName" placeholder="Last Name" maxlength="50" required />
+                                <span class="form-hint">นามสกุล (ห้ามเว้นวรรค)</span>
+                            </div>
+                        </div>
+                        <input type="hidden" id="icName" name="icName" />
                     </div>
 
                     <!-- อายุ OC -->
@@ -361,7 +370,17 @@
             switchToLoginView();
         }
 
+        function combineIcName() {
+            const first = document.getElementById('icFirstName').value.trim();
+            const last = document.getElementById('icLastName').value.trim();
+            const combined = (first + ' ' + last).trim();
+            document.getElementById('icName').value = combined;
+            return combined;
+        }
+
         function getFormData() {
+            // Combine first + last name into icName
+            combineIcName();
             return {
                 ocName: document.getElementById('ocName').value.trim(),
                 icName: document.getElementById('icName').value.trim(),
@@ -372,9 +391,36 @@
             };
         }
 
+        function validateNames() {
+            const errors = [];
+            const first = document.getElementById('icFirstName').value.trim();
+            const last = document.getElementById('icLastName').value.trim();
+            
+            if (first && /\s/.test(first)) {
+                errors.push('First Name ห้ามมีเว้นวรรค');
+            }
+            if (last && /\s/.test(last)) {
+                errors.push('Last Name ห้ามมีเว้นวรรค');
+            }
+            return errors;
+        }
+
+        function splitIcName(fullName) {
+            if (!fullName) return { first: '', last: '' };
+            const parts = fullName.trim().split(' ');
+            const first = parts[0] || '';
+            const last = parts.slice(1).join(' ') || '';
+            return { first, last };
+        }
+
         function setFormData(data) {
             if (data.ocName) document.getElementById('ocName').value = data.ocName;
-            if (data.icName) document.getElementById('icName').value = data.icName;
+            if (data.icName) {
+                const { first, last } = splitIcName(data.icName);
+                document.getElementById('icFirstName').value = first;
+                document.getElementById('icLastName').value = last;
+                document.getElementById('icName').value = data.icName;
+            }
             if (data.ocAge) document.getElementById('ocAge').value = data.ocAge;
             if (data.icPhone) document.getElementById('icPhone').value = data.icPhone;
             if (data.steamUrl) document.getElementById('steamUrl').value = data.steamUrl;
@@ -412,6 +458,13 @@
             
             if (!getDiscordId()) {
                 showErrors(['กรุณาเชื่อมต่อ Discord ก่อนสมัคร']);
+                return;
+            }
+            
+            // Validate first/last name has no spaces
+            const nameErrors = validateNames();
+            if (nameErrors.length > 0) {
+                showErrors(nameErrors);
                 return;
             }
             

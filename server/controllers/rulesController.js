@@ -12,8 +12,8 @@ const logger = createLogger('RulesController');
  */
 async function getRulesData(req, res) {
     const type = req.params.type;
-    if (!['conduct', 'rules', 'fines'].includes(type)) {
-        return res.status(400).json({ error: 'Invalid type. Must be: conduct, rules, or fines' });
+    if (!['conduct', 'rules', 'fines', 'cases'].includes(type)) {
+        return res.status(400).json({ error: 'Invalid type. Must be: conduct, rules, fines, or cases' });
     }
 
     try {
@@ -27,6 +27,9 @@ async function getRulesData(req, res) {
                 break;
             case 'fines':
                 data = await sheetsService.getFines();
+                break;
+            case 'cases':
+                data = await sheetsService.getCases();
                 break;
         }
 

@@ -37,7 +37,7 @@ router.post('/api/mark-paid', verifyPin, asyncHandler(adminController.markPaid))
 router.get('/api/schedule-config', asyncHandler(staticController.getStaticData));
 
 // ==================== Rules/Conduct/Fines CRUD (Google Sheets) ====================
-router.get('/api/rules-data/:type(conduct|rules|fines)', setNoCache, asyncHandler(rulesController.getRulesData));
+router.get('/api/rules-data/:type(conduct|rules|fines|cases)', setNoCache, asyncHandler(rulesController.getRulesData));
 router.post('/api/rules-data/:type(conduct|rules|fines)', verifyPin, asyncHandler(rulesController.addRule));
 router.put('/api/rules-data/:type(conduct|rules|fines)/:id', verifyPin, asyncHandler(rulesController.updateRule));
 router.delete('/api/rules-data/:type(conduct|rules|fines)/:id', verifyPin, asyncHandler(rulesController.deleteRule));

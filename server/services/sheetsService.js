@@ -183,6 +183,57 @@ async function getFines() {
 }
 
 /**
+ * Fetch cases data from the Cases Google Sheet
+ * Uses CASES_DATA_SHEET_ID, sheet name 'Cases'
+ * Columns: A=id, B=title, C=description (HTML supported), D=video_url (Google Drive link)
+ * Data starts at row 2 (skip header row 1)
+ */
+async function getCases() {
+    const cacheKey = 'cases_data';
+    const cached = cacheService.get(cacheKey);
+    if (cached) return cached;
+
+    const sheetName = 'Cases';
+
+    logger.debug(`Fetching cases from sheet: ${sheetName}`);
+
+    try {
+        const sheets = getSheets();
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId: config.CASES_DATA_SHEET_ID,
+            range: `${sheetName}!A:D`,
+        });
+
+        const rows = response.data.values || [];
+
+        // Skip header row (row 1 = index 0)
+        const dataRows = rows.slice(1);
+
+        const items = [];
+        for (const row of dataRows) {
+            const id = row[0] ? String(row[0]).trim() : '';
+            if (!id) continue;
+
+            const item = {
+                id,
+                title: row[1] ? String(row[1]).trim() : '',
+                description: row[2] ? String(row[2]).trim() : '',
+                video_url: row[3] ? String(row[3]).trim() : '',
+            };
+
+            items.push(item);
+        }
+
+        logger.info(`Loaded ${items.length} cases`);
+        cacheService.set(cacheKey, items);
+        return items;
+    } catch (err) {
+        logger.error(`Error fetching cases: ${err.message}`);
+        throw err;
+    }
+}
+
+/**
  * Add a new rule/conduct/fine to Google Sheets
  */
 async function addRule(type, data) {
@@ -417,6 +468,7 @@ module.exports = {
     getConduct,
     getRules,
     getFines,
+    getCases,
     addRule,
     updateRule,
     deleteRule

@@ -103,6 +103,13 @@ const ApiService = {
     },
 
     /**
+     * Get cases data from Google Sheets
+     */
+    async getCases() {
+        return this.fetch('/api/rules-data/cases', 'cases_data');
+    },
+
+    /**
      * Add new rule/conduct/fine
      */
     async addRule(type, data, pin) {

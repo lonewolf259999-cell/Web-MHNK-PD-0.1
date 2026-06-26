@@ -62,6 +62,9 @@
                 <button class="nav-tab active" data-page="roster">
                     <span>&#9878;</span> รายชื่อ
                 </button>
+                <button class="nav-tab" data-page="cases">
+                    <span>&#9878;</span> การทำคดี
+                </button>
                 <button class="nav-tab" data-page="conduct">
                     <span>&#128218;</span> ข้อปฏิบัติ
                 </button>
@@ -102,6 +105,19 @@
                     <span class="section-total">ทั้งหมด <strong id="totalBadge">0</strong> นาย</span>
                 </div>
                 <div class="officer-grid" id="officerGrid">
+                    <div class="loading-container">
+                        <div class="loader"></div>
+                        <div class="loading-text">กำลังโหลด...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cases Page (lazy loaded) -->
+            <div class="page-content" id="page-cases">
+                <div class="section-header">
+                    <h2><span class="icon">&#9878;</span> การทำคดี</h2>
+                </div>
+                <div class="cases-container" id="casesContainer">
                     <div class="loading-container">
                         <div class="loader"></div>
                         <div class="loading-text">กำลังโหลด...</div>
@@ -190,6 +206,7 @@
     
     <!-- Page scripts (load in parallel, non-blocking) -->
     <script defer src="src/pages/RosterPage.js?v=4.0"></script>
+    <script defer src="src/pages/CasesPage.js?v=4.0"></script>
     <script defer src="src/pages/RulesPage.js?v=4.0"></script>
     <script defer src="src/pages/ConductPage.js?v=4.0"></script>
     <script defer src="src/pages/FinesPage.js?v=4.0"></script>

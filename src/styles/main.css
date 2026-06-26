@@ -30,6 +30,7 @@
 @import url('../styles/pages/schedule.css');
 @import url('../styles/pages/profile.css');
 @import url('../styles/pages/register.css');
+@import url('../styles/pages/cases.css');
 
 /* 7. States */
 @import url('../styles/states.css');
