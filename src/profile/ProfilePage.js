@@ -77,9 +77,53 @@ class ProfilePage {
             }
 
             this.renderProfile(this.officer, weeks);
+
+            // Load cumulative stats from all weeks in background
+            this.loadCumulativeStats();
         } catch (error) {
             profileLogger.error(`Error loading profile: ${error.message}`);
             this.showError();
+        }
+    }
+
+    async loadCumulativeStats() {
+        if (!this.weeks || this.weeks.length === 0) return;
+
+        let totalCases = 0;
+        let totalTake2 = 0;
+        let totalInter = 0;
+
+        // Load all weeks data in parallel
+        const weekDataPromises = this.weeks.map(w => 
+            ApiService.getWeekData(w).catch(() => null)
+        );
+        const allWeekData = await Promise.allSettled(weekDataPromises);
+
+        const searchName = this.officerName.toLowerCase();
+
+        for (const result of allWeekData) {
+            if (result.status !== 'fulfilled' || !result.value) continue;
+            const weekData = result.value;
+
+            // Find this officer in the week data
+            for (const key of Object.keys(weekData)) {
+                if (key.toLowerCase().includes(searchName) || searchName.includes(key.toLowerCase())) {
+                    const d = weekData[key];
+                    totalCases += parseInt(d.totalCases) || 0;
+                    totalTake2 += parseInt(d.take2) || 0;
+                    totalInter += parseInt(d.interrogations) || 0;
+                    break;
+                }
+            }
+        }
+
+        // Update UI
+        const statsEl = document.getElementById('profileTotalStats');
+        if (statsEl) {
+            document.getElementById('totalCasesAll').textContent = totalCases.toLocaleString();
+            document.getElementById('totalTake2All').textContent = totalTake2.toLocaleString();
+            document.getElementById('totalInterAll').textContent = totalInter.toLocaleString();
+            statsEl.style.display = 'block';
         }
     }
 
