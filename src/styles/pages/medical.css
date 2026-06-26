@@ -900,6 +900,58 @@
     color: var(--color-success);
 }
 
+/* Row Fields (side-by-side inputs) */
+.row-fields {
+    display: flex;
+    gap: 12px;
+}
+
+.field-half {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+.field-half input {
+    width: 100%;
+    padding: 14px 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--color-text-primary);
+    font-size: 15px;
+    transition: all var(--transition-fast);
+}
+
+.field-half input::placeholder {
+    color: var(--color-text-muted);
+}
+
+.field-half input:focus {
+    border-color: var(--color-accent);
+    background: var(--color-accent-soft);
+    box-shadow: 0 0 0 3px rgba(29, 201, 183, 0.1);
+}
+
+.field-half input:hover {
+    border-color: rgba(29, 201, 183, 0.3);
+}
+
+.field-half .form-hint {
+    font-size: 11px;
+    color: var(--color-text-muted);
+    padding-left: 0;
+}
+
+@media (max-width: 480px) {
+    .row-fields {
+        flex-direction: column;
+        gap: 16px;
+    }
+}
+
 /* Responsive */
 @media (max-width: 640px) {
     .medical-main {
