@@ -36,7 +36,7 @@ function sendWebhook(reason, discordId) {
 
         const embed = {
             title: '📢 ประกาศลาออกจากการเป็นเจ้าหน้าที่',
-            description: `ต่อจากนี้ คุณ <@${discordId}> ได้${reasonLabel}จากการเป็นเจ้าหน้าที่\nต่อจากนี้การกระทำใดๆก็แล้วแต่จะไม่ข้องเกี่ยวกับ สน อีกต่อไป\n\nณ วันที่ ${dateStr}\n\nขอบคุณสำหรับการทำงานที่ผ่านมา\n<@&1521131727039500401>`,
+            description: `ต่อจากนี้ คุณ <@${discordId}> ได้${reasonLabel}จากการเป็นเจ้าหน้าที่\nต่อจากนี้การกระทำใดๆก็แล้วแต่จะไม่ข้องเกี่ยวกับ สน อีกต่อไป\n\nณ วันที่ ${dateStr}\n\nขอบคุณสำหรับการทำงานที่ผ่านมา\n@DEKMHNK DIWA`,
             color: reason === 'ถูกปลดออก' ? 0xef4444 : 0x3b82f6,
             timestamp: now.toISOString(),
         };
