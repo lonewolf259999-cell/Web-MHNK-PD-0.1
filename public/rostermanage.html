@@ -287,9 +287,7 @@
         let namepdData = [];
         let outdcData = [];
         let rosterDiscordId = '';
-        let rosterDiscordName = '';
-        let currentTab = 'namepd';
-        let pendingConfirm = null; // { fn, args }
+        let pendingConfirm = null;
 
         /* ========== Helpers ========== */
         function log(msg) {
@@ -340,7 +338,6 @@
 
             if (authStatus === 'success' && discordUserId) {
                 rosterDiscordId = discordUserId;
-                rosterDiscordName = discordName || '';
                 loginLink.style.display = 'none';
                 connected.style.display = 'block';
                 avatar.src = discordAvatar
@@ -358,7 +355,6 @@
             }
             disconnect.addEventListener('click', function () {
                 rosterDiscordId = '';
-                rosterDiscordName = '';
                 loginLink.style.display = 'inline-flex';
                 connected.style.display = 'none';
                 enablePin(false);
@@ -410,7 +406,6 @@
 
         /* ========== Tabs ========== */
         function switchTab(tab) {
-            currentTab = tab;
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('tabNamePD').style.display = tab === 'namepd' ? 'block' : 'none';
             document.getElementById('tabOutDC').style.display = tab === 'outdc' ? 'block' : 'none';
