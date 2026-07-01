@@ -148,7 +148,7 @@ async function moveToOutDC(row, reason) {
         },
     });
 
-    const clearCols = ['D', 'E', 'H', 'J', 'K', 'M', 'N'];
+    const clearCols = ['D', 'E', 'G', 'H', 'J', 'K', 'M', 'N'];
     for (let c = 15; c <= 21; c++) {
         clearCols.push(String.fromCharCode(64 + c));
     }
