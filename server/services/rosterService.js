@@ -32,13 +32,7 @@ function sendWebhook(reason, discordId) {
         const reasonLabel = reason === 'ถูกปลดออก' ? 'ถูกปลดออก' : 'ลาออก';
 
         const body = JSON.stringify({
-            content: `<@${discordId}> @DEKMHNK DIWA`,
-            embeds: [{
-                title: '📢 ประกาศลาออกจากการเป็นเจ้าหน้าที่',
-                description: `ต่อจากนี้ คุณ <@${discordId}> ได้${reasonLabel}จากการเป็นเจ้าหน้าที่\nต่อจากนี้การกระทำใดๆก็แล้วแต่จะไม่ข้องเกี่ยวกับ สน อีกต่อไป\n\nณ วันที่ ${dateStr}\n\nขอบคุณสำหรับการทำงานที่ผ่านมา`,
-                color: reason === 'ถูกปลดออก' ? 0xef4444 : 0x3b82f6,
-                timestamp: now.toISOString(),
-            }],
+            content: `<@${discordId}> @DEKMHNK DIWA\n\n# 📢 ประกาศลาออกจากการเป็นเจ้าหน้าที่\n- คุณ <@${discordId}> ได้${reasonLabel}จากการเป็นเจ้าหน้าที่\nต่อจากนี้การกระทำใดๆก็แล้วแต่จะไม่ข้องเกี่ยวกับ สน อีกต่อไป\n\nณ วันที่ ${dateStr}\n\nขอบคุณสำหรับการทำงานที่ผ่านมา`,
         });
 
         const urlObj = new URL(webhookUrl);
