@@ -33,16 +33,17 @@ async function getOutDC(req, res) {
 async function updateStatus(req, res) {
     const row = parseInt(req.params.row, 10);
     const { status } = req.body;
-    if (!row || !status) {
+    if (!row || status === undefined || status === null) {
         return res.status(400).json({ success: false, error: 'Missing row or status' });
     }
-    const validStatuses = ['ออกจาก Discord', 'ถูกปลดออก', 'ติดต่อขอออก'];
+    const validStatuses = ['', 'ออกจาก Discord', 'ถูกปลดออก', 'ติดต่อขอออก'];
     if (!validStatuses.includes(status)) {
         return res.status(400).json({ success: false, error: 'Invalid status' });
     }
     await rosterService.updateStatus(row, status);
-    logger.info(`อัปเดตสถานะ: แถว ${row} = ${status}`);
-    res.json({ success: true, message: `อัปเดตสถานะเป็น "${status}" แล้ว` });
+    const displayStatus = status || '✅ ปกติ';
+    logger.info(`อัปเดตสถานะ: แถว ${row} = ${displayStatus}`);
+    res.json({ success: true, message: `อัปเดตสถานะเป็น "${displayStatus}" แล้ว` });
 }
 
 /**

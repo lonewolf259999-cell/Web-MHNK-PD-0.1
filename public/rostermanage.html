@@ -157,7 +157,6 @@
 
         <div id="toast" class="toast"></div>
 
-        <!-- Confirm Dialog -->
         <div id="confirmDialog" class="confirm-dialog">
             <div class="confirm-box">
                 <h3 id="confirmTitle">⚠️ ยืนยัน</h3>
@@ -169,7 +168,6 @@
             </div>
         </div>
 
-        <!-- Login -->
         <div id="loginBox" class="login-box">
             <div class="dc-section">
                 <span class="dc-section-label">🔗 ขั้นตอนที่ 1: เชื่อมต่อ Discord</span>
@@ -196,9 +194,7 @@
             <button class="btn-primary" onclick="doLogin()" style="width:100%" id="loginBtn" disabled>เข้าสู่ระบบ</button>
         </div>
 
-        <!-- Panel -->
         <div id="panel" style="display:none">
-            <!-- Stats -->
             <div class="stats">
                 <div class="stat-card"><div class="num" id="statNamePD">0</div><div class="label">ในระบบ (NamePD)</div></div>
                 <div class="stat-card"><div class="num" id="statOutDC">0</div><div class="label">ออกแล้ว (OutDC)</div></div>
@@ -206,13 +202,11 @@
                 <div class="stat-card"><div class="num" id="statFired">0</div><div class="label">ถูกปลดออก</div></div>
             </div>
 
-            <!-- Tabs -->
             <div class="tab-bar">
                 <button class="tab-btn active" onclick="switchTab('namepd')">📋 NamePD (ในระบบ)</button>
                 <button class="tab-btn" onclick="switchTab('outdc')">🗂️ OutDC (ออกแล้ว)</button>
             </div>
 
-            <!-- NamePD Tab -->
             <div id="tabNamePD" class="panel">
                 <div class="filter-bar">
                     <input type="text" id="searchInput" placeholder="🔍 ค้นหา ชื่อ, รหัส, Discord ID..." oninput="renderTable()" />
@@ -225,8 +219,7 @@
                     </select>
                     <button class="btn-secondary btn-sm" onclick="loadData()">🔄 โหลดใหม่</button>
                 </div>
-
-                <div id="tableContainer" class="table-wrap">
+                <div class="table-wrap">
                     <table>
                         <thead>
                             <tr>
@@ -235,7 +228,9 @@
                                 <th>ชื่อ-นามสกุล</th>
                                 <th>Discord ID</th>
                                 <th>ยศ</th>
+                                <th>เคส</th>
                                 <th>Steam</th>
+                                <th>ระยะเวลา</th>
                                 <th>สถานะ</th>
                                 <th>เปลี่ยนสถานะ</th>
                                 <th>ย้ายออก</th>
@@ -247,7 +242,6 @@
                 <div id="emptyMsg" class="empty-msg" style="display:none">💡 ไม่มีข้อมูล</div>
             </div>
 
-            <!-- OutDC Tab -->
             <div id="tabOutDC" class="panel" style="display:none">
                 <div class="filter-bar">
                     <input type="text" id="searchInputOut" placeholder="🔍 ค้นหา..." oninput="renderOutDCTable()" />
@@ -263,6 +257,7 @@
                                 <th>Discord ID</th>
                                 <th>ยศ</th>
                                 <th>Steam</th>
+                                <th>ไม่เข้าเวร</th>
                                 <th>สาเหตุ</th>
                             </tr>
                         </thead>
@@ -282,14 +277,12 @@
     </div>
 
     <script>
-        /* ========== State ========== */
         let PIN = '';
         let namepdData = [];
         let outdcData = [];
         let rosterDiscordId = '';
         let pendingConfirm = null;
 
-        /* ========== Helpers ========== */
         function log(msg) {
             const el = document.getElementById('logOutput');
             const t = new Date().toLocaleTimeString();
@@ -321,7 +314,6 @@
             closeConfirm();
         }
 
-        /* ========== Discord Auth ========== */
         function initDiscordAuth() {
             const params = new URLSearchParams(window.location.search);
             const authStatus = params.get('auth');
@@ -362,7 +354,6 @@
             });
         }
 
-        /* ========== Login & Data ========== */
         function doLogin() {
             if (!rosterDiscordId) { toast('กรุณาเชื่อมต่อ Discord ก่อน', 'error'); return; }
             PIN = document.getElementById('pinInput').value.trim();
@@ -371,13 +362,14 @@
         }
 
         async function loadData() {
-            document.getElementById('tableBody').innerHTML = '<tr><td colspan="9" class="loading">กำลังโหลด</td></tr>';
-            document.getElementById('outdcTableBody').innerHTML = '<tr><td colspan="7" class="loading">กำลังโหลด</td></tr>';
+            document.getElementById('tableBody').innerHTML = '<tr><td colspan="10" class="loading">กำลังโหลด</td></tr>';
+            document.getElementById('outdcTableBody').innerHTML = '<tr><td colspan="8" class="loading">กำลังโหลด</td></tr>';
             try {
+                const body = JSON.stringify({ pin: PIN });
                 const headers = { 'Content-Type': 'application/json' };
                 const [resNamepd, resOutdc] = await Promise.all([
-                    fetch('/api/roster/namepd', { method: 'POST', headers, body: JSON.stringify({ pin: PIN }) }).then(r => r.json()),
-                    fetch('/api/roster/outdc', { method: 'POST', headers, body: JSON.stringify({ pin: PIN }) }).then(r => r.json()),
+                    fetch('/api/roster/namepd', { method: 'POST', headers, body }).then(r => r.json()),
+                    fetch('/api/roster/outdc', { method: 'POST', headers, body }).then(r => r.json()),
                 ]);
                 if (!resNamepd.success) { toast(resNamepd.error || 'PIN ไม่ถูกต้อง', 'error'); return; }
                 namepdData = resNamepd.data || [];
@@ -394,7 +386,6 @@
             }
         }
 
-        /* ========== Stats ========== */
         function updateStats() {
             const left = namepdData.filter(m => m.status === 'ออกจาก Discord').length;
             const fired = namepdData.filter(m => m.status === 'ถูกปลดออก').length;
@@ -404,7 +395,6 @@
             document.getElementById('statFired').textContent = fired;
         }
 
-        /* ========== Tabs ========== */
         function switchTab(tab) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('tabNamePD').style.display = tab === 'namepd' ? 'block' : 'none';
@@ -412,7 +402,6 @@
             event.target.classList.add('active');
         }
 
-        /* ========== Tables ========== */
         function getStatusClass(status) {
             if (!status) return 'status-normal';
             if (status === 'ออกจาก Discord') return 'status-left';
@@ -448,11 +437,9 @@
             if (filtered.length === 0) {
                 tbody.innerHTML = '';
                 document.getElementById('emptyMsg').style.display = 'block';
-                document.getElementById('tableContainer').querySelector('table').style.display = 'none';
                 return;
             }
             document.getElementById('emptyMsg').style.display = 'none';
-            document.getElementById('tableContainer').querySelector('table').style.display = '';
 
             tbody.innerHTML = filtered.map(function (m, i) {
                 const status = m.status || '';
@@ -467,7 +454,9 @@
                     '<td>' + m.name.replace(/\[MHNK-PD\]/g, '') + '</td>' +
                     '<td><code style="font-size:11px;color:#aaa">' + m.discordId + '</code></td>' +
                     '<td>' + m.rank + '</td>' +
+                    '<td>' + (m.cases || '0') + '</td>' +
                     '<td style="font-size:11px;color:#888">' + m.steam + '</td>' +
+                    '<td>' + m.duration + '</td>' +
                     '<td><span class="status-badge ' + getStatusClass(status) + '">' + getStatusText(status) + '</span></td>' +
                     '<td>' + selectHtml + '</td>' +
                     '<td class="actions">' +
@@ -493,11 +482,9 @@
             if (filtered.length === 0) {
                 tbody.innerHTML = '';
                 document.getElementById('outdcEmptyMsg').style.display = 'block';
-                document.getElementById('outdcTableContainer').querySelector('table').style.display = 'none';
                 return;
             }
             document.getElementById('outdcEmptyMsg').style.display = 'none';
-            document.getElementById('outdcTableContainer').querySelector('table').style.display = '';
 
             tbody.innerHTML = filtered.map(function (m, i) {
                 return '<tr>' +
@@ -507,12 +494,12 @@
                     '<td><code style="font-size:11px;color:#aaa">' + m.discordId + '</code></td>' +
                     '<td>' + m.rank + '</td>' +
                     '<td style="font-size:11px;color:#888">' + m.steam + '</td>' +
+                    '<td>' + m.noDuty + '</td>' +
                     '<td><span class="status-badge ' + getStatusClass(m.reason) + '">' + getStatusText(m.reason) + '</span></td>' +
                     '</tr>';
             }).join('');
         }
 
-        /* ========== Actions ========== */
         async function updateStatus(row, newStatus) {
             if (!PIN) return;
             try {
@@ -535,7 +522,6 @@
         }
 
         function confirmMoveOut(row, code, name) {
-            // First check if status is set
             const member = namepdData.find(m => m.row === row);
             const reason = member ? member.status : '';
             if (!reason) {
@@ -569,7 +555,6 @@
             }
         }
 
-        /* ========== Init ========== */
         initDiscordAuth();
     </script>
 </body>
