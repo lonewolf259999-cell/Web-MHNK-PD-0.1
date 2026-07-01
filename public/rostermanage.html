@@ -436,7 +436,9 @@
                 const dayNum = parseInt(dayFilter, 10);
                 if (!isNaN(dayNum)) {
                     filtered = filtered.filter(m => {
-                        const days = parseInt(m.days, 10);
+                        // ดึงเฉพาะจำนวนวันจากคอลัมน์ L เช่น "15 วัน 20 ชม." → 15
+                        const durMatch = m.duration.match(/(\d+)\s*วัน/);
+                        const days = durMatch ? parseInt(durMatch[1], 10) : NaN;
                         return !isNaN(days) && days === dayNum;
                     });
                 }
