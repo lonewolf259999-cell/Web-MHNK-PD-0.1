@@ -35,7 +35,6 @@ module.exports = {
     DISCORD_COUNCIL_WEBHOOK_URL: process.env.DISCORD_COUNCIL_WEBHOOK_URL || '',
     DISCORD_MEDICAL_WEBHOOK_URL: process.env.DISCORD_MEDICAL_WEBHOOK_URL || '',
     DISCORD_PROCTOR_WEBHOOK_URL: process.env.DISCORD_PROCTOR_WEBHOOK_URL || '',
-    DISCORD_OUTPD_WEBHOOK_URL: process.env.DISCORD_OUTPD_WEBHOOK_URL || '',
     DISCORD_CLIENT_ID: process.env.DISCORD_CLIENT_ID || '',
     DISCORD_CLIENT_SECRET: process.env.DISCORD_CLIENT_SECRET || '',
     APP_URL: process.env.APP_URL || `http://localhost:${process.env.PORT || 3001}`,

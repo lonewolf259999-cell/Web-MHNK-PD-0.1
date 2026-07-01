@@ -4,137 +4,11 @@
    - ย้ายสมาชิกจาก NamePD → OutDC
    ======================================== */
 
-const https = require('https');
-const http = require('http');
 const { getSheets } = require('../config/googleAuth');
 const config = require('../config');
 const { createLogger } = require('../utils/logger');
 
 const logger = createLogger('Roster');
-
-/**
- * ดึง Discord User ID แบบ pure (ไม่มี `<@>`)
- */
-function extractUserId(raw) {
-    if (!raw) return '';
-    const m = String(raw).match(/\d{17,19}/);
-    return m ? m[0] : '';
-}
-
-/**
- * ส่ง HTTP POST ไป Bot API เพื่อเตะสมาชิก
- */
-function kickFromDiscord(userId) {
-    return new Promise((resolve, reject) => {
-        const data = JSON.stringify({ userId });
-        const options = {
-            hostname: 'localhost',
-            port: 3000,
-            path: '/api/kick-member',
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Content-Length': Buffer.byteLength(data),
-            },
-        };
-        const req = http.request(options, (res) => {
-            let body = '';
-            res.on('data', chunk => body += chunk);
-            res.on('end', () => {
-                try { resolve(JSON.parse(body)); }
-                catch { resolve({ success: false, error: 'Invalid response' }); }
-            });
-        });
-        req.on('error', (err) => reject(err));
-        req.write(data);
-        req.end();
-    });
-}
-
-/**
- * ส่ง HTTP POST ไป Bot API เพื่อสลับบทบาท (เกิน 15 วัน)
- */
-function swapRoles15Day(userId) {
-    return new Promise((resolve, reject) => {
-        const data = JSON.stringify({ userId });
-        const options = {
-            hostname: 'localhost',
-            port: 3000,
-            path: '/api/swap-roles',
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Content-Length': Buffer.byteLength(data),
-            },
-        };
-        const req = http.request(options, (res) => {
-            let body = '';
-            res.on('data', chunk => body += chunk);
-            res.on('end', () => {
-                try { resolve(JSON.parse(body)); }
-                catch { resolve({ success: false, error: 'Invalid response' }); }
-            });
-        });
-        req.on('error', (err) => reject(err));
-        req.write(data);
-        req.end();
-    });
-}
-
-/**
- * ส่ง WebHook แจ้งเตือนไปยังห้อง Discord
- */
-function sendWebhook(reason, code, name, discordId) {
-    return new Promise((resolve) => {
-        const webhookUrl = config.DISCORD_OUTPD_WEBHOOK_URL;
-        if (!webhookUrl) {
-            logger.warn('WebHook', 'ไม่ได้ตั้งค่า DISCORD_OUTPD_WEBHOOK_URL');
-            resolve({ success: false });
-            return;
-        }
-
-        const now = new Date();
-        const dateStr = now.toLocaleDateString('th-TH', {
-            day: '2-digit', month: '2-digit', year: 'numeric',
-            hour: '2-digit', minute: '2-digit',
-        });
-
-        const displayName = discordId ? `<@${extractUserId(discordId)}>` : name;
-        const reasonLabel = reason === 'ถูกปลดออก' ? 'ถูกปลดออก' : 'ลาออก';
-
-        const embed = {
-            title: `📢 ประกาศ${reasonLabel}จากการเป็นเจ้าหน้าที่`,
-            description: `ต่อจากนี้ คุณ ${displayName} (${code}) ได้${reasonLabel === 'ลาออก' ? 'ลาออก' : 'ถูกปลดออก'}จากการเป็นเจ้าหน้าที่\nต่อจากนี้การกระทำใดๆก็แล้วแต่จะไม่ข้องเกี่ยวกับ สน อีกต่อไป\n\nณ วันที่ ${dateStr}\n\nขอบคุณสำหรับการทำงานที่ผ่านมา\n<@&1521131727039500401>`,
-            color: reason === 'ถูกปลดออก' ? 0xef4444 : 0x3b82f6,
-            timestamp: now.toISOString(),
-        };
-
-        const body = JSON.stringify({ embeds: [embed] });
-
-        const urlObj = new URL(webhookUrl);
-        const options = {
-            hostname: urlObj.hostname,
-            path: urlObj.pathname + urlObj.search,
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Content-Length': Buffer.byteLength(body),
-            },
-        };
-
-        const req = https.request(options, (res) => {
-            let resp = '';
-            res.on('data', chunk => resp += chunk);
-            res.on('end', () => resolve({ success: res.statusCode === 204, status: res.statusCode }));
-        });
-        req.on('error', (err) => {
-            logger.error('WebHook', `ส่ง WebHook ล้มเหลว: ${err.message}`);
-            resolve({ success: false, error: err.message });
-        });
-        req.write(body);
-        req.end();
-    });
-}
 
 /**
  * อ่านรายชื่อทั้งหมดจาก NamePD (คอลัมน์ C ถึง N)
@@ -228,9 +102,6 @@ async function updateStatus(row, status) {
  * ย้ายสมาชิกจาก NamePD ไป OutDC
  * - ลบ NamePD: D, E, H, J, K, M, N, O-U (คง C=code, F=ยศ, G=เคส, I=วัน, L=ระยะเวลา)
  * - เพิ่ม OutDC: C ถึง N
- * @param {number} row - 1-based row ใน NamePD
- * @param {string} reason - สาเหตุที่ย้ายออก
- * @returns {{code, name, discordId, outRow}}
  */
 async function moveToOutDC(row, reason) {
     const sheets = getSheets();
@@ -277,17 +148,14 @@ async function moveToOutDC(row, reason) {
         },
     });
 
-    const clearCols = [
-        { col: 'D' }, { col: 'E' }, { col: 'H' }, { col: 'J' },
-        { col: 'K' }, { col: 'M' }, { col: 'N' },
-    ];
+    const clearCols = ['D', 'E', 'H', 'J', 'K', 'M', 'N'];
     for (let c = 15; c <= 21; c++) {
-        clearCols.push({ col: String.fromCharCode(64 + c) });
+        clearCols.push(String.fromCharCode(64 + c));
     }
-    for (const item of clearCols) {
+    for (const col of clearCols) {
         await sheets.spreadsheets.values.update({
             spreadsheetId: config.ROSTER_SHEET_ID,
-            range: `${config.ROSTER_SHEET_NAME}!${item.col}${row}`,
+            range: `${config.ROSTER_SHEET_NAME}!${col}${row}`,
             valueInputOption: 'USER_ENTERED',
             resource: { values: [['']] },
         });
@@ -302,8 +170,4 @@ module.exports = {
     getOutDCMembers,
     updateStatus,
     moveToOutDC,
-    kickFromDiscord,
-    swapRoles15Day,
-    sendWebhook,
-    extractUserId,
 };
