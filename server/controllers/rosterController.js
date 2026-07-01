@@ -44,7 +44,7 @@ async function updateStatus(req, res) {
 
 /**
  * POST /api/roster/move-out/:row
- * ย้ายสมาชิกจาก NamePD → OutDC อย่างเดียว ไม่มีการเตะ ไม่มี WebHook
+ * ย้ายสมาชิกจาก NamePD → OutDC + ส่ง WebHook (เฉพาะถูกปลดออก/ติดต่อขอออก)
  */
 async function moveToOutDC(req, res) {
     const row = parseInt(req.params.row, 10);
@@ -58,8 +58,31 @@ async function moveToOutDC(req, res) {
     }
     try {
         const result = await rosterService.moveToOutDC(row, reason);
-        logger.info(`ย้ายออก: ${result.code} ${result.name} → OutDC (${reason})`);
-        res.json({ success: true, message: `ย้าย ${result.code} ${result.name} ออกแล้ว`, data: result });
+
+        // ส่ง WebHook เฉพาะถูกปลดออก/ติดต่อขอออก
+        const errors = [];
+        if (reason === 'ถูกปลดออก' || reason === 'ติดต่อขอออก') {
+            try {
+                const discordId = result.discordId.replace(/[<@>]/g, '');
+                if (discordId) {
+                    const whRes = await rosterService.sendWebhook(reason, discordId);
+                    if (!whRes.success) {
+                        errors.push(`WebHook: ${whRes.error || 'status=' + whRes.status}`);
+                    }
+                }
+            } catch (err) {
+                errors.push(`WebHook error: ${err.message}`);
+            }
+        }
+
+        const extraMsg = errors.length > 0 ? ' (⚠️ ' + errors.join('; ') + ')' : '';
+        logger.info(`ย้ายออก: ${result.code} ${result.name} → OutDC (${reason})${extraMsg}`);
+        res.json({
+            success: true,
+            message: `ย้าย ${result.code} ${result.name} ออกแล้ว${extraMsg}`,
+            data: result,
+            warnings: errors.length > 0 ? errors : undefined,
+        });
     } catch (err) {
         logger.error(`ย้ายออกล้มเหลว: ${err.message}`);
         res.status(500).json({ success: false, error: err.message });

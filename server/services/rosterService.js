@@ -4,11 +4,69 @@
    - ย้ายสมาชิกจาก NamePD → OutDC
    ======================================== */
 
+const https = require('https');
 const { getSheets } = require('../config/googleAuth');
 const config = require('../config');
 const { createLogger } = require('../utils/logger');
 
 const logger = createLogger('Roster');
+
+/**
+ * ส่ง WebHook แจ้งเตือนไปยังห้อง Discord
+ */
+function sendWebhook(reason, discordId) {
+    return new Promise((resolve) => {
+        const webhookUrl = config.DISCORD_OUTPD_WEBHOOK_URL;
+        if (!webhookUrl) {
+            logger.warn('WebHook', 'ไม่ได้ตั้งค่า DISCORD_OUTPD_WEBHOOK_URL');
+            resolve({ success: false });
+            return;
+        }
+
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('th-TH', {
+            day: '2-digit', month: '2-digit', year: 'numeric',
+            hour: '2-digit', minute: '2-digit',
+        });
+
+        const reasonLabel = reason === 'ถูกปลดออก' ? 'ถูกปลดออก' : 'ลาออก';
+
+        // นอก Embed: mention Discord user
+        const content = `<@${discordId}>`;
+
+        const embed = {
+            title: '📢 ประกาศลาออกจากการเป็นเจ้าหน้าที่',
+            description: `ต่อจากนี้ คุณ <@${discordId}> ได้${reasonLabel}จากการเป็นเจ้าหน้าที่\nต่อจากนี้การกระทำใดๆก็แล้วแต่จะไม่ข้องเกี่ยวกับ สน อีกต่อไป\n\nณ วันที่ ${dateStr}\n\nขอบคุณสำหรับการทำงานที่ผ่านมา\n<@&1521131727039500401>`,
+            color: reason === 'ถูกปลดออก' ? 0xef4444 : 0x3b82f6,
+            timestamp: now.toISOString(),
+        };
+
+        const body = JSON.stringify({ content, embeds: [embed] });
+
+        const urlObj = new URL(webhookUrl);
+        const options = {
+            hostname: urlObj.hostname,
+            path: urlObj.pathname + urlObj.search,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Content-Length': Buffer.byteLength(body),
+            },
+        };
+
+        const req = https.request(options, (res) => {
+            let resp = '';
+            res.on('data', chunk => resp += chunk);
+            res.on('end', () => resolve({ success: res.statusCode === 204, status: res.statusCode }));
+        });
+        req.on('error', (err) => {
+            logger.error('WebHook', `ส่ง WebHook ล้มเหลว: ${err.message}`);
+            resolve({ success: false, error: err.message });
+        });
+        req.write(body);
+        req.end();
+    });
+}
 
 /**
  * อ่านรายชื่อทั้งหมดจาก NamePD (คอลัมน์ C ถึง N)
@@ -170,4 +228,5 @@ module.exports = {
     getOutDCMembers,
     updateStatus,
     moveToOutDC,
+    sendWebhook,
 };
