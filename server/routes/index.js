@@ -19,6 +19,7 @@ const registerController = require('../controllers/registerController');
 const authController = require('../controllers/authController');
 const medicalController = require('../controllers/medicalController');
 const pendingController = require('../controllers/pendingController');
+const rosterController = require('../controllers/rosterController');
 
 const router = Router();
 
@@ -60,5 +61,11 @@ router.get('/api/medical/fetch/:messageId', asyncHandler(medicalController.fetch
 router.post('/api/pending', verifyPin, asyncHandler(pendingController.listPending));
 router.post('/api/pending/approve/:row', verifyPin, asyncHandler(pendingController.approve));
 router.post('/api/pending/reject/:row', verifyPin, asyncHandler(pendingController.reject));
+
+// ==================== Roster Management (Admin) ====================
+router.post('/api/roster/namepd', verifyPin, asyncHandler(rosterController.getNamePD));
+router.post('/api/roster/outdc', verifyPin, asyncHandler(rosterController.getOutDC));
+router.put('/api/roster/status/:row', verifyPin, asyncHandler(rosterController.updateStatus));
+router.post('/api/roster/move-out/:row', verifyPin, asyncHandler(rosterController.moveToOutDC));
 
 module.exports = router;

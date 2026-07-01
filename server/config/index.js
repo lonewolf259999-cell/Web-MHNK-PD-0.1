@@ -42,6 +42,9 @@ module.exports = {
     MAP_SHEET_ID: process.env.MAP_SHEET_ID || process.env.SHEET_ID,
     PENDING_SPREADSHEET_ID: process.env.PENDING_SPREADSHEET_ID || process.env.SHEET_ID,
     PENDING_SHEET_NAME: process.env.PENDING_SHEET_NAME || 'Pending',
+    ROSTER_SHEET_ID: process.env.ROSTER_SHEET_ID || process.env.SHEET_ID,
+    ROSTER_SHEET_NAME: 'NamePD',
+    ROSTER_OUT_SHEET_NAME: 'OutDC',
     CREDENTIALS_PATH,
     CACHE_TTL: 15000,          // 15 seconds memory cache
     FILE_CACHE_TTL: 600000,    // 10 minutes file cache
