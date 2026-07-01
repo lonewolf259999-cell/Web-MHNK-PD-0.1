@@ -210,6 +210,7 @@
             <div id="tabNamePD" class="panel">
                 <div class="filter-bar">
                     <input type="text" id="searchInput" placeholder="🔍 ค้นหา ชื่อ, รหัส, Discord ID..." oninput="renderTable()" />
+                    <input type="text" id="dayFilter" placeholder="📅 จำนวนวัน..." style="width:120px;flex:none" oninput="renderTable()" />
                     <select id="statusFilter" onchange="renderTable()">
                         <option value="">สถานะทั้งหมด</option>
                         <option value="">ปกติ</option>
@@ -420,6 +421,7 @@
         function renderTable() {
             const tbody = document.getElementById('tableBody');
             const search = document.getElementById('searchInput').value.toLowerCase().trim();
+            const dayFilter = document.getElementById('dayFilter').value.trim();
             const statusFilter = document.getElementById('statusFilter').value;
 
             let filtered = namepdData;
@@ -429,6 +431,15 @@
                     m.name.toLowerCase().includes(search) ||
                     m.discordId.toLowerCase().includes(search)
                 );
+            }
+            if (dayFilter) {
+                const dayNum = parseInt(dayFilter, 10);
+                if (!isNaN(dayNum)) {
+                    filtered = filtered.filter(m => {
+                        const days = parseInt(m.days, 10);
+                        return !isNaN(days) && days === dayNum;
+                    });
+                }
             }
             if (statusFilter) {
                 filtered = filtered.filter(m => m.status === statusFilter);
