@@ -22,6 +22,7 @@ function discordLogin(req, res) {
 function getFallbackPage(state) {
     if (state === 'medical') return '/medical.html';
     if (state === 'admin') return '/proctor.html';
+    if (state === 'roster') return '/rostermanage.html';
     return '/register.html';
 }
 
