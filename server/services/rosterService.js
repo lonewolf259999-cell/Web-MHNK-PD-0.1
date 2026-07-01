@@ -4,11 +4,137 @@
    - ย้ายสมาชิกจาก NamePD → OutDC
    ======================================== */
 
+const https = require('https');
+const http = require('http');
 const { getSheets } = require('../config/googleAuth');
 const config = require('../config');
 const { createLogger } = require('../utils/logger');
 
 const logger = createLogger('Roster');
+
+/**
+ * ดึง Discord User ID แบบ pure (ไม่มี `<@>`)
+ */
+function extractUserId(raw) {
+    if (!raw) return '';
+    const m = String(raw).match(/\d{17,19}/);
+    return m ? m[0] : '';
+}
+
+/**
+ * ส่ง HTTP POST ไป Bot API เพื่อเตะสมาชิก
+ */
+function kickFromDiscord(userId) {
+    return new Promise((resolve, reject) => {
+        const data = JSON.stringify({ userId });
+        const options = {
+            hostname: 'localhost',
+            port: 3000,
+            path: '/api/kick-member',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Content-Length': Buffer.byteLength(data),
+            },
+        };
+        const req = http.request(options, (res) => {
+            let body = '';
+            res.on('data', chunk => body += chunk);
+            res.on('end', () => {
+                try { resolve(JSON.parse(body)); }
+                catch { resolve({ success: false, error: 'Invalid response' }); }
+            });
+        });
+        req.on('error', (err) => reject(err));
+        req.write(data);
+        req.end();
+    });
+}
+
+/**
+ * ส่ง HTTP POST ไป Bot API เพื่อสลับบทบาท (เกิน 15 วัน)
+ */
+function swapRoles15Day(userId) {
+    return new Promise((resolve, reject) => {
+        const data = JSON.stringify({ userId });
+        const options = {
+            hostname: 'localhost',
+            port: 3000,
+            path: '/api/swap-roles',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Content-Length': Buffer.byteLength(data),
+            },
+        };
+        const req = http.request(options, (res) => {
+            let body = '';
+            res.on('data', chunk => body += chunk);
+            res.on('end', () => {
+                try { resolve(JSON.parse(body)); }
+                catch { resolve({ success: false, error: 'Invalid response' }); }
+            });
+        });
+        req.on('error', (err) => reject(err));
+        req.write(data);
+        req.end();
+    });
+}
+
+/**
+ * ส่ง WebHook แจ้งเตือนไปยังห้อง Discord
+ */
+function sendWebhook(reason, code, name, discordId) {
+    return new Promise((resolve) => {
+        const webhookUrl = config.DISCORD_OUTPD_WEBHOOK_URL;
+        if (!webhookUrl) {
+            logger.warn('WebHook', 'ไม่ได้ตั้งค่า DISCORD_OUTPD_WEBHOOK_URL');
+            resolve({ success: false });
+            return;
+        }
+
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('th-TH', {
+            day: '2-digit', month: '2-digit', year: 'numeric',
+            hour: '2-digit', minute: '2-digit',
+        });
+
+        const displayName = discordId ? `<@${extractUserId(discordId)}>` : name;
+        const reasonLabel = reason === 'ถูกปลดออก' ? 'ถูกปลดออก' : 'ลาออก';
+
+        const embed = {
+            title: `📢 ประกาศ${reasonLabel}จากการเป็นเจ้าหน้าที่`,
+            description: `ต่อจากนี้ คุณ ${displayName} (${code}) ได้${reasonLabel === 'ลาออก' ? 'ลาออก' : 'ถูกปลดออก'}จากการเป็นเจ้าหน้าที่\nต่อจากนี้การกระทำใดๆก็แล้วแต่จะไม่ข้องเกี่ยวกับ สน อีกต่อไป\n\nณ วันที่ ${dateStr}\n\nขอบคุณสำหรับการทำงานที่ผ่านมา\n<@&1521131727039500401>`,
+            color: reason === 'ถูกปลดออก' ? 0xef4444 : 0x3b82f6,
+            timestamp: now.toISOString(),
+        };
+
+        const body = JSON.stringify({ embeds: [embed] });
+
+        const urlObj = new URL(webhookUrl);
+        const options = {
+            hostname: urlObj.hostname,
+            path: urlObj.pathname + urlObj.search,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Content-Length': Buffer.byteLength(body),
+            },
+        };
+
+        const req = https.request(options, (res) => {
+            let resp = '';
+            res.on('data', chunk => resp += chunk);
+            res.on('end', () => resolve({ success: res.statusCode === 204, status: res.statusCode }));
+        });
+        req.on('error', (err) => {
+            logger.error('WebHook', `ส่ง WebHook ล้มเหลว: ${err.message}`);
+            resolve({ success: false, error: err.message });
+        });
+        req.write(body);
+        req.end();
+    });
+}
 
 /**
  * อ่านรายชื่อทั้งหมดจาก NamePD (คอลัมน์ C ถึง N)
@@ -23,14 +149,14 @@ async function getNamePDMembers() {
     });
     const rows = response.data.values || [];
     const members = [];
-    for (let i = 1; i < rows.length; i++) { // ข้ามแถว header (index 0)
+    for (let i = 1; i < rows.length; i++) {
         const row = rows[i];
         const code = (row[0] || '').trim();
         if (!code || code.length > 3 || !/^\d+$/.test(code)) continue;
         const name = (row[1] || '').trim();
         if (!name) continue;
         members.push({
-            row: i + 1, // 1-based
+            row: i + 1,
             code,
             name,
             discordId: (row[2] || '').trim(),
@@ -50,8 +176,6 @@ async function getNamePDMembers() {
 
 /**
  * อ่านรายชื่อจาก OutDC (คอลัมน์ C ถึง N)
- * C=รหัส, D=ชื่อ, E=Discord ID, F=ยศ, G=เคส, H=วันที่เริ่ม
- * I=จำนวนวัน, J=ออกเวรล่าสุด, K=เวลา, L=ไม่เข้าเวร, M=Steam, N=เหตุผล
  */
 async function getOutDCMembers() {
     const sheets = getSheets();
@@ -87,9 +211,7 @@ async function getOutDCMembers() {
 }
 
 /**
- * อัปเดตสถานะใน NamePD คอลัมน์ N (index 11 ใน range C:N)
- * @param {number} row - 1-based row number
- * @param {string} status - "ออกจาก Discord", "ถูกปลดออก", "ติดต่อขอออก"
+ * อัปเดตสถานะใน NamePD คอลัมน์ N
  */
 async function updateStatus(row, status) {
     const sheets = getSheets();
@@ -108,11 +230,11 @@ async function updateStatus(row, status) {
  * - เพิ่ม OutDC: C ถึง N
  * @param {number} row - 1-based row ใน NamePD
  * @param {string} reason - สาเหตุที่ย้ายออก
+ * @returns {{code, name, discordId, outRow}}
  */
 async function moveToOutDC(row, reason) {
     const sheets = getSheets();
 
-    // 1. อ่านข้อมูล C-N จาก NamePD
     const namepdRes = await sheets.spreadsheets.values.get({
         spreadsheetId: config.ROSTER_SHEET_ID,
         range: `${config.ROSTER_SHEET_NAME}!C${row}:N${row}`,
@@ -122,7 +244,6 @@ async function moveToOutDC(row, reason) {
         throw new Error('ไม่พบข้อมูลแถวนี้ใน NamePD');
     }
 
-    // C(0) D(1) E(2) F(3) G(4) H(5) I(6) J(7) K(8) L(9) M(10) N(11)
     const code = namepdRow[0];
     const name = namepdRow[1];
     const discordId = namepdRow[2];
@@ -135,17 +256,14 @@ async function moveToOutDC(row, reason) {
     const duration = namepdRow[9];
     const steam = namepdRow[10];
 
-    // 2. หาแถวว่างใน OutDC
     const outRes = await sheets.spreadsheets.values.get({
         spreadsheetId: config.ROSTER_SHEET_ID,
         range: `${config.ROSTER_OUT_SHEET_NAME}!C:C`,
     });
     const outRows = outRes.data.values || [];
     let nextRow = outRows.length + 1;
-    if (nextRow < 3) nextRow = 3; // Row 1=header, Row 2=data start
+    if (nextRow < 3) nextRow = 3;
 
-    // 3. เขียน C-N ไป OutDC (C=code, D=name, E=discordId, F=rank, G=cases,
-    //    H=startDate, I=days, J=lastDuty, K=lastTime, L=duration, M=steam, N=reason)
     await sheets.spreadsheets.values.update({
         spreadsheetId: config.ROSTER_SHEET_ID,
         range: `${config.ROSTER_OUT_SHEET_NAME}!C${nextRow}:N${nextRow}`,
@@ -159,38 +277,24 @@ async function moveToOutDC(row, reason) {
         },
     });
 
-    // 4. ลบข้อมูลใน NamePD
-    //    D(1)='' ลบชื่อ, E(2)='' ลบDiscord ID, H(5)='' ลบวันที่เริ่ม
-    //    J(7)='' ลบออกเวรล่าสุด, K(8)='' ลบเวลา, M(10)='' ลบsteam
-    //    N(11)='' ลบสถานะ
-    //    O-U = คอลัมน์ 14-20 (index 1-based) = ลบทั้งหมด
     const clearCols = [
-        { col: 'D', val: '' },   // ชื่อ
-        { col: 'E', val: '' },   // Discord ID
-        { col: 'H', val: '' },   // วันที่เริ่ม
-        { col: 'J', val: '' },   // ออกเวรล่าสุด
-        { col: 'K', val: '' },   // เวลา
-        { col: 'M', val: '' },   // Steam
-        { col: 'N', val: '' },   // สถานะ
+        { col: 'D' }, { col: 'E' }, { col: 'H' }, { col: 'J' },
+        { col: 'K' }, { col: 'M' }, { col: 'N' },
     ];
-
-    // เคลียร์ O-U (คอลัมน์ 15-21)
     for (let c = 15; c <= 21; c++) {
-        const colLetter = String.fromCharCode(64 + c); // O=79, P=80, Q=81, R=82, S=83, T=84, U=85
-        clearCols.push({ col: colLetter, val: '' });
+        clearCols.push({ col: String.fromCharCode(64 + c) });
     }
-
     for (const item of clearCols) {
         await sheets.spreadsheets.values.update({
             spreadsheetId: config.ROSTER_SHEET_ID,
             range: `${config.ROSTER_SHEET_NAME}!${item.col}${row}`,
             valueInputOption: 'USER_ENTERED',
-            resource: { values: [[item.val]] },
+            resource: { values: [['']] },
         });
     }
 
     logger.info(`ย้ายออก: ${code} ${name} → OutDC แถว ${nextRow} (${reason})`);
-    return { code, name, outRow: nextRow };
+    return { code, name, discordId, outRow: nextRow };
 }
 
 module.exports = {
@@ -198,4 +302,8 @@ module.exports = {
     getOutDCMembers,
     updateStatus,
     moveToOutDC,
+    kickFromDiscord,
+    swapRoles15Day,
+    sendWebhook,
+    extractUserId,
 };

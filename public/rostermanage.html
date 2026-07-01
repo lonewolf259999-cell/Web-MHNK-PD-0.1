@@ -217,6 +217,7 @@
                         <option value="ออกจาก Discord">ออกจาก Discord</option>
                         <option value="ถูกปลดออก">ถูกปลดออก</option>
                         <option value="ติดต่อขอออก">ติดต่อขอออก</option>
+                        <option value="เกิน 15 วัน">เกิน 15 วัน</option>
                     </select>
                     <button class="btn-secondary btn-sm" onclick="loadData()">🔄 โหลดใหม่</button>
                 </div>
@@ -456,7 +457,7 @@
 
             tbody.innerHTML = filtered.map(function (m, i) {
                 const status = m.status || '';
-                const statusOptions = ['', 'ออกจาก Discord', 'ถูกปลดออก', 'ติดต่อขอออก'];
+                const statusOptions = ['', 'ออกจาก Discord', 'ถูกปลดออก', 'ติดต่อขอออก', 'เกิน 15 วัน'];
                 const selectHtml = '<select class="status-select" onchange="updateStatus(' + m.row + ', this.value)">' +
                     statusOptions.map(s => '<option value="' + s + '"' + (s === status ? ' selected' : '') + '>' +
                         (s || '✅ ปกติ') + '</option>').join('') +
