@@ -155,9 +155,11 @@ async function updateStatus(row, status) {
 }
 
 /**
- * ย้ายสมาชิกจาก NamePD ไป OutDC
- * - ลบ NamePD: D, E, H, J, K, M, N, O-U (คง C=code, F=ยศ, G=เคส, I=วัน, L=ระยะเวลา)
- * - เพิ่ม OutDC: C ถึง N
+ * ย้ายสมาชิกจาก NamePD ไป OutDC พร้อมส่ง WebHook
+ * - อ่านข้อมูล NamePD แถวนั้น (C ถึง N)
+ * - เขียนไป OutDC (C ถึง N)
+ * - ลบ NamePD: D, E, G, H, J, K, M, N, O-U (คง C=รหัส, F=ยศ, G=เคส, I=วัน, L=ระยะเวลา)
+ * - อ่านสาเหตุจากคอลัมน์ N (สถานะ) ใน NamePD
  */
 async function moveToOutDC(row, reason) {
     const sheets = getSheets();
@@ -182,7 +184,12 @@ async function moveToOutDC(row, reason) {
     const lastTime = namepdRow[8];
     const duration = namepdRow[9];
     const steam = namepdRow[10];
+    const status = namepdRow[11];
 
+    // ใช้สาเหตุจาก status ใน N ก่อน ถ้าไม่มีค่อยใช้ reason ที่ส่งมา
+    const finalReason = status || reason;
+
+    // หาแถวว่างใน OutDC
     const outRes = await sheets.spreadsheets.values.get({
         spreadsheetId: config.ROSTER_SHEET_ID,
         range: `${config.ROSTER_OUT_SHEET_NAME}!C:C`,
@@ -191,6 +198,7 @@ async function moveToOutDC(row, reason) {
     let nextRow = outRows.length + 1;
     if (nextRow < 3) nextRow = 3;
 
+    // เขียนไป OutDC
     await sheets.spreadsheets.values.update({
         spreadsheetId: config.ROSTER_SHEET_ID,
         range: `${config.ROSTER_OUT_SHEET_NAME}!C${nextRow}:N${nextRow}`,
@@ -199,11 +207,12 @@ async function moveToOutDC(row, reason) {
             values: [[
                 code, name, discordId, rank, cases,
                 startDate, days, lastDuty, lastTime,
-                duration, steam, reason
-            ]]
+                duration, steam, finalReason
+            ]],
         },
     });
 
+    // ลบ NamePD: D, E, G, H, J, K, M, N, O-U (15-21)
     const clearCols = ['D', 'E', 'G', 'H', 'J', 'K', 'M', 'N'];
     for (let c = 15; c <= 21; c++) {
         clearCols.push(String.fromCharCode(64 + c));
@@ -217,8 +226,8 @@ async function moveToOutDC(row, reason) {
         });
     }
 
-    logger.info(`ย้ายออก: ${code} ${name} → OutDC แถว ${nextRow} (${reason})`);
-    return { code, name, discordId, outRow: nextRow };
+    logger.info(`ย้ายออก: ${code} ${name} → OutDC แถว ${nextRow} (${finalReason})`);
+    return { code, name, discordId };
 }
 
 module.exports = {
