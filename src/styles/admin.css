@@ -228,6 +228,21 @@
 .editor-toolbar .editor-btn:active {
     transform: scale(0.95);
 }
+.editor-toolbar .editor-btn.active {
+    background: #f77f07;
+    color: #fff;
+    border-color: #f77f07;
+}
+.editor-btn-apply {
+    margin-left: auto;
+    background: #2ecc71 !important;
+    color: #fff !important;
+    border-color: #2ecc71 !important;
+}
+.editor-btn-apply:hover {
+    background: #27ae60 !important;
+    border-color: #27ae60 !important;
+}
 #adminFormText {
     width: 100%;
     min-height: 120px;

@@ -23,6 +23,8 @@ const adminPanelLogger = window.getLogger ? window.getLogger('AdminPanel') : {
     let _adminMode = false;
     let _isEdit = false;
     let _adminPin = null; // Stored PIN for the session
+    let _formatBold = false; // Toggle: bold selected
+    let _formatColor = false; // Toggle: color selected
 
     // ==================== INIT ====================
     function init() {
@@ -51,11 +53,12 @@ const adminPanelLogger = window.getLogger ? window.getLogger('AdminPanel') : {
                 <div class="form-group">
                     <label>เนื้อหา / Text</label>
                     <div class="editor-toolbar">
-                        <button type="button" class="editor-btn" onclick="window.AppAdmin.insertTag('b')" title="ตัวหนา"><b>B</b></button>
-                        <button type="button" class="editor-btn" onclick="window.AppAdmin.insertTag('color')" title="เลือกสี">
+                        <button type="button" id="editorBtnBold" class="editor-btn" onclick="window.AppAdmin.toggleBold()" title="ตัวหนา"><b>B</b></button>
+                        <button type="button" id="editorBtnColor" class="editor-btn" onclick="window.AppAdmin.toggleColor()" title="เลือกสี">
                             <span style="background:linear-gradient(90deg,red,orange,yellow,green,blue,indigo,violet);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">A</span>
                         </button>
                         <input type="color" id="colorPicker" value="#ff0000" style="width:32px;height:32px;padding:0;border:none;cursor:pointer;border-radius:4px;" title="เลือกสี">
+                        <button type="button" class="editor-btn editor-btn-apply" onclick="window.AppAdmin.applyFormat()" title="นำรูปแบบไปใช้">▶ ใช้</button>
                     </div>
                     <textarea id="adminFormText" placeholder="กรอกเนื้อหา..."></textarea>
                 </div>
@@ -174,7 +177,6 @@ const adminPanelLogger = window.getLogger ? window.getLogger('AdminPanel') : {
 
     // ==================== CATEGORY OPTIONS ====================
     function populateCategoryOptions(type) {
-        // ดึง category จากข้อมูลที่มีอยู่แล้ว (ไม่ hardcoded)
         const app = window.App;
         let items = null;
         if (type === 'rules') items = app && app.rulesPage && app.rulesPage.rulesData;
@@ -208,6 +210,7 @@ const adminPanelLogger = window.getLogger ? window.getLogger('AdminPanel') : {
             currentType = type;
             currentItem = null;
             _isEdit = false;
+            resetFormatToggles();
 
             document.getElementById('adminFormTitle').textContent = '+ เพิ่มข้อมูล';
             document.getElementById('adminFormCategory').value = '';
@@ -215,10 +218,8 @@ const adminPanelLogger = window.getLogger ? window.getLogger('AdminPanel') : {
             document.getElementById('adminFormAmount').value = '';
             document.getElementById('adminFormTime').value = '';
 
-            // ทุก type มี Category + Text, เฉพาะ fines มี Amount + Time
             document.getElementById('adminFinesFields').style.display = (type === 'fines') ? 'grid' : 'none';
 
-            // ใส่ category options จากข้อมูลที่มีอยู่แล้ว
             populateCategoryOptions(type);
 
             document.getElementById('adminFormModal').classList.add('active');
@@ -229,6 +230,7 @@ const adminPanelLogger = window.getLogger ? window.getLogger('AdminPanel') : {
             currentType = type;
             currentItem = item;
             _isEdit = true;
+            resetFormatToggles();
 
             document.getElementById('adminFormTitle').textContent = '✏️ แก้ไขข้อมูล';
             document.getElementById('adminFormCategory').value = item.category || '';
@@ -236,10 +238,8 @@ const adminPanelLogger = window.getLogger ? window.getLogger('AdminPanel') : {
             document.getElementById('adminFormAmount').value = item.amount || '';
             document.getElementById('adminFormTime').value = item.time || '';
 
-            // ทุก type มี Category + Text, เฉพาะ fines มี Amount + Time
             document.getElementById('adminFinesFields').style.display = (type === 'fines') ? 'grid' : 'none';
 
-            // ใส่ category options จากข้อมูลที่มีอยู่แล้ว
             populateCategoryOptions(type);
 
             document.getElementById('adminFormModal').classList.add('active');
@@ -253,30 +253,59 @@ const adminPanelLogger = window.getLogger ? window.getLogger('AdminPanel') : {
         },
 
         /**
-         * insertTag - สำหรับปุ่ม toolbar (B, color)
-         * @param {string} tag - 'b' หรือ 'color'
+         * Toggle bold format selection
          */
-        insertTag: function(tag) {
+        toggleBold: function() {
+            _formatBold = !_formatBold;
+            const btn = document.getElementById('editorBtnBold');
+            if (btn) btn.classList.toggle('active', _formatBold);
+        },
+
+        /**
+         * Toggle color format selection
+         */
+        toggleColor: function() {
+            _formatColor = !_formatColor;
+            const btn = document.getElementById('editorBtnColor');
+            if (btn) btn.classList.toggle('active', _formatColor);
+        },
+
+        /**
+         * Apply selected formats (bold, color) to the selected text in textarea
+         */
+        applyFormat: function() {
             const textarea = document.getElementById('adminFormText');
             if (!textarea) return;
+
             const start = textarea.selectionStart;
             const end = textarea.selectionEnd;
             const selectedText = textarea.value.substring(start, end);
-            let replacement = '';
-            if (tag === 'b') {
-                replacement = selectedText ? '<b>' + selectedText + '</b>' : '<b></b>';
-            } else if (tag === 'color') {
+
+            if (!selectedText) {
+                window.Notification.show('⚠️ กรุณาเลือกข้อความก่อนกดใช้', 'warning');
+                return;
+            }
+
+            let replacement = selectedText;
+
+            // Apply color first (inner), then bold (outer) if both selected
+            if (_formatColor) {
                 const colorPicker = document.getElementById('colorPicker');
                 const color = colorPicker ? colorPicker.value : '#ff0000';
-                replacement = selectedText
-                    ? '<span style="color:' + color + '">' + selectedText + '</span>'
-                    : '<span style="color:' + color + '"></span>';
+                replacement = '<span style="color:' + color + '">' + replacement + '</span>';
             }
+            if (_formatBold) {
+                replacement = '<b>' + replacement + '</b>';
+            }
+
             textarea.setRangeText(replacement, start, end, 'end');
             textarea.focus();
         },
 
-        closeFormModal: function() { document.getElementById('adminFormModal').classList.remove('active'); },
+        closeFormModal: function() {
+            document.getElementById('adminFormModal').classList.remove('active');
+            resetFormatToggles();
+        },
         closeDeleteModal: function() { document.getElementById('adminDeleteModal').classList.remove('active'); },
 
         /**
@@ -306,7 +335,6 @@ const adminPanelLogger = window.getLogger ? window.getLogger('AdminPanel') : {
                 id = generateId(type);
             }
 
-            // Server mapping: conduct uses column D as "title", rules/fines as "category"
             const data = { id, text, amount, time };
             if (type === 'conduct') {
                 data.title = category;
@@ -316,8 +344,8 @@ const adminPanelLogger = window.getLogger ? window.getLogger('AdminPanel') : {
 
             adminPanelLogger.info(`Save: type=${type}, id=${id}, isEdit=${_isEdit}`);
 
-            // Close modal immediately
             document.getElementById('adminFormModal').classList.remove('active');
+            resetFormatToggles();
 
             try {
                 if (_isEdit) {
@@ -342,7 +370,6 @@ const adminPanelLogger = window.getLogger ? window.getLogger('AdminPanel') : {
                 return;
             }
 
-            // Close modal immediately
             document.getElementById('adminDeleteModal').classList.remove('active');
 
             try {
@@ -354,6 +381,15 @@ const adminPanelLogger = window.getLogger ? window.getLogger('AdminPanel') : {
             }
         }
     };
+
+    function resetFormatToggles() {
+        _formatBold = false;
+        _formatColor = false;
+        const boldBtn = document.getElementById('editorBtnBold');
+        const colorBtn = document.getElementById('editorBtnColor');
+        if (boldBtn) boldBtn.classList.remove('active');
+        if (colorBtn) colorBtn.classList.remove('active');
+    }
 
     function generateId(type) {
         const prefix = { 'rules': 'r', 'conduct': 'co', 'fines': 'fi' };
