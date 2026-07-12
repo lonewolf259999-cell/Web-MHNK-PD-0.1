@@ -233,7 +233,9 @@ const adminPanelLogger = window.getLogger ? window.getLogger('AdminPanel') : {
             resetFormatToggles();
 
             document.getElementById('adminFormTitle').textContent = '✏️ แก้ไขข้อมูล';
-            document.getElementById('adminFormCategory').value = item.category || '';
+            // conduct uses 'title' field as category, others use 'category'
+            const categoryValue = type === 'conduct' ? (item.title || '') : (item.category || '');
+            document.getElementById('adminFormCategory').value = categoryValue;
             document.getElementById('adminFormText').value = item.text || '';
             document.getElementById('adminFormAmount').value = item.amount || '';
             document.getElementById('adminFormTime').value = item.time || '';
