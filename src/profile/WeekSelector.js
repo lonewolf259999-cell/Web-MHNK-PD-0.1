@@ -169,8 +169,10 @@ class WeekSelector {
         }
 
         // Checkbox for unpaid weeks (only when amount > 0)
+        // Skip checkbox if week name is "test" (case-insensitive)
+        const isTestWeek = weekName.toLowerCase() === 'test';
         let checkbox = btn.querySelector('.week-checkbox');
-        if (hasUnpaidBalance) {
+        if (hasUnpaidBalance && !isTestWeek) {
             if (!checkbox) {
                 checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
