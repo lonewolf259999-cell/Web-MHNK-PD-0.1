@@ -48,11 +48,9 @@ class FinesPage {
 
             if (matchedItems.length === 0) continue;
 
-            const categoryTitle = this.getCategoryTitle(category);
-
             html += `
                 <div class="fine-category" data-category="${HtmlUtils.escape(category)}">
-                    <h3 class="fine-category-title">${HtmlUtils.escape(categoryTitle)}</h3>
+                    <h3 class="fine-category-title">${HtmlUtils.escape(category)}</h3>
                     <div class="fine-list">
                         ${matchedItems.map(item => this.createFineItem(item)).join('')}
                     </div>
@@ -84,16 +82,6 @@ class FinesPage {
             grouped[cat].push(fine);
         }
         return grouped;
-    }
-
-    getCategoryTitle(category) {
-        const titles = {
-            'illegal_items': '📦 สิ่งผิดกฎหมาย',
-            'evasion': '🏃 การหลบหนี',
-            'conduct': '⚖️ พฤติการณ์และกฎระเบียบ',
-            'red_cases': '🔴 คดีแดง (Red Cases)'
-        };
-        return titles[category] || category;
     }
 
     createEmptyState() {

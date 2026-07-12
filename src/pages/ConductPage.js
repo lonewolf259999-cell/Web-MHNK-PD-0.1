@@ -48,11 +48,9 @@ class ConductPage {
 
             if (matchedItems.length === 0) continue;
 
-            const categoryTitle = this.getCategoryTitle(category);
-
             html += `
                 <div class="rule-group" data-category="${HtmlUtils.escape(category)}">
-                    <h3>${HtmlUtils.escape(categoryTitle)}</h3>
+                    <h3>${HtmlUtils.escape(category)}</h3>
                     <div class="rule-list">
                         ${matchedItems.map((item, localIdx) => this.createConductItem(item, localIdx + 1)).join('')}
                     </div>
@@ -83,19 +81,6 @@ class ConductPage {
             grouped[cat].push(item);
         }
         return grouped;
-    }
-
-    getCategoryTitle(category) {
-        const titles = {
-            'conduct': '⚖️ พฤติการณ์และกฎระเบียบ',
-            'arrest': '📌 การจับกุม',
-            'redCase': '🚨 คดีแดง',
-            'curfew': '⚠️ เคอร์ฟิว',
-            'illegal_items': '📦 สิ่งผิดกฎหมาย',
-            'evasion': '🏃 การหลบหนี',
-            'red_cases': '🔴 คดีแดง (Red Cases)'
-        };
-        return titles[category] || category;
     }
 
     createEmptyState() {

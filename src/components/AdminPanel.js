@@ -1,5 +1,6 @@
 /* ========================================
     Admin Panel - Modal & PIN for CRUD
+    - PIN requested once when entering admin mode
     - Uses PinModal from shared components (server-side only PIN check)
     - Uses window.Notification for toast messages
     - CSS moved to src/styles/admin.css
@@ -21,6 +22,7 @@ const adminPanelLogger = window.getLogger ? window.getLogger('AdminPanel') : {
     let currentItem = null;
     let _adminMode = false;
     let _isEdit = false;
+    let _adminPin = null; // Stored PIN for the session
 
     // ==================== INIT ====================
     function init() {
@@ -69,7 +71,7 @@ const adminPanelLogger = window.getLogger ? window.getLogger('AdminPanel') : {
                 </div>
                 <div class="modal-actions">
                     <button class="btn-cancel" onclick="window.AppAdmin.closeFormModal()">ยกเลิก</button>
-                    <button class="btn-confirm" onclick="window.AppAdmin.requestPin('save')">บันทึก</button>
+                    <button class="btn-confirm" onclick="window.AppAdmin.handleSave()">บันทึก</button>
                 </div>
             </div>
         `;
@@ -87,18 +89,13 @@ const adminPanelLogger = window.getLogger ? window.getLogger('AdminPanel') : {
                 <p style="color:#94a3b8;margin-bottom:20px;">คุณต้องการลบรายการนี้หรือไม่? การดำเนินการนี้ไม่สามารถย้อนกลับได้</p>
                 <div class="modal-actions">
                     <button class="btn-cancel" onclick="window.AppAdmin.closeDeleteModal()">ยกเลิก</button>
-                    <button class="btn-confirm-danger" onclick="window.AppAdmin.requestPin('delete')">ลบข้อมูล</button>
+                    <button class="btn-confirm-danger" onclick="window.AppAdmin.handleDelete()">ลบข้อมูล</button>
                 </div>
             </div>
         `;
         document.body.appendChild(deleteModal);
 
-        // Close modals on backdrop click
-        [formModal, deleteModal].forEach(m => {
-            m.addEventListener('click', function(e) {
-                if (e.target === this) this.classList.remove('active');
-            });
-        });
+        // No backdrop click close — user must click ยกเลิก or &times; to close
     }
 
     // ==================== TOGGLE BUTTON ====================
@@ -110,32 +107,66 @@ const adminPanelLogger = window.getLogger ? window.getLogger('AdminPanel') : {
         btn.id = 'adminToggleBtn';
         btn.className = 'btn-toggle-admin';
         btn.textContent = '♛ Admin';
-        btn.onclick = function() {
-            _adminMode = !_adminMode;
-            btn.classList.toggle('active', _adminMode);
+        btn.onclick = async function() {
+            if (!_adminMode) {
+                // Turning ON — request PIN first
+                const pin = await PinModal.request('🔐 กรุณาระบุรหัสผ่านเพื่อเข้าโหมดผู้ดูแล');
+                if (!pin) return; // User cancelled
 
-            adminPanelLogger.info(`Admin mode: ${_adminMode ? 'ON' : 'OFF'}`);
+                _adminPin = pin;
+                _adminMode = true;
+                btn.classList.add('active');
 
-            if (window.App) {
-                if (window.App.rulesPage) window.App.rulesPage.adminMode = _adminMode;
-                if (window.App.conductPage) window.App.conductPage.adminMode = _adminMode;
-                if (window.App.finesPage) window.App.finesPage.adminMode = _adminMode;
-            }
+                adminPanelLogger.info('Admin mode: ON');
 
-            document.querySelectorAll('.admin-bar').forEach(bar => {
-                bar.classList.toggle('show', _adminMode);
-            });
+                if (window.App) {
+                    if (window.App.rulesPage) window.App.rulesPage.adminMode = true;
+                    if (window.App.conductPage) window.App.conductPage.adminMode = true;
+                    if (window.App.finesPage) window.App.finesPage.adminMode = true;
+                }
 
-            if (window.App) {
-                const currentPage = window.App.navigation.getCurrentPage();
-                window.App.handleSearch(window.App.search.getQuery());
-            }
+                document.querySelectorAll('.admin-bar').forEach(bar => {
+                    bar.classList.add('show');
+                });
 
-            // Use window.Notification to avoid conflict with browser's native Notification API
-            try {
-                window.Notification.show(_adminMode ? '🔧 เข้าสู่โหมดผู้ดูแล' : '🔒 ออกจากโหมดผู้ดูแล', 'success');
-            } catch (e) {
-                adminPanelLogger.warn(`Toast failed: ${e.message}`);
+                if (window.App) {
+                    const currentPage = window.App.navigation.getCurrentPage();
+                    window.App.handleSearch(window.App.search.getQuery());
+                }
+
+                try {
+                    window.Notification.show('🔧 เข้าสู่โหมดผู้ดูแล', 'success');
+                } catch (e) {
+                    adminPanelLogger.warn(`Toast failed: ${e.message}`);
+                }
+            } else {
+                // Turning OFF — clear PIN
+                _adminPin = null;
+                _adminMode = false;
+                btn.classList.remove('active');
+
+                adminPanelLogger.info('Admin mode: OFF');
+
+                if (window.App) {
+                    if (window.App.rulesPage) window.App.rulesPage.adminMode = false;
+                    if (window.App.conductPage) window.App.conductPage.adminMode = false;
+                    if (window.App.finesPage) window.App.finesPage.adminMode = false;
+                }
+
+                document.querySelectorAll('.admin-bar').forEach(bar => {
+                    bar.classList.remove('show');
+                });
+
+                if (window.App) {
+                    const currentPage = window.App.navigation.getCurrentPage();
+                    window.App.handleSearch(window.App.search.getQuery());
+                }
+
+                try {
+                    window.Notification.show('🔒 ออกจากโหมดผู้ดูแล', 'success');
+                } catch (e) {
+                    adminPanelLogger.warn(`Toast failed: ${e.message}`);
+                }
             }
         };
         headerBadges.appendChild(btn);
@@ -248,74 +279,81 @@ const adminPanelLogger = window.getLogger ? window.getLogger('AdminPanel') : {
         closeFormModal: function() { document.getElementById('adminFormModal').classList.remove('active'); },
         closeDeleteModal: function() { document.getElementById('adminDeleteModal').classList.remove('active'); },
 
-        requestPin: async function(action) {
-            currentAction = action;
+        /**
+         * Save handler — uses stored PIN from admin session
+         */
+        handleSave: async function() {
+            if (!_adminPin) {
+                window.Notification.show('❌ กรุณาเข้าโหมดผู้ดูแลก่อน (กด ♛ Admin)', 'error');
+                return;
+            }
 
-            // Close current modal first
+            const type = currentType;
+            const category = document.getElementById('adminFormCategory').value;
+            const text = document.getElementById('adminFormText').value;
+            const amount = document.getElementById('adminFormAmount').value;
+            const time = document.getElementById('adminFormTime').value;
+
+            if (!text.trim()) {
+                window.Notification.show('❌ กรุณากรอกเนื้อหา', 'error');
+                return;
+            }
+
+            let id;
+            if (_isEdit && currentItem) {
+                id = currentItem.id;
+            } else {
+                id = generateId(type);
+            }
+
+            // Server mapping: conduct uses column D as "title", rules/fines as "category"
+            const data = { id, text, amount, time };
+            if (type === 'conduct') {
+                data.title = category;
+            } else {
+                data.category = category;
+            }
+
+            adminPanelLogger.info(`Save: type=${type}, id=${id}, isEdit=${_isEdit}`);
+
+            // Close modal immediately
             document.getElementById('adminFormModal').classList.remove('active');
+
+            try {
+                if (_isEdit) {
+                    await ApiService.updateRule(type, id, data, _adminPin);
+                    window.Notification.show('✅ แก้ไขข้อมูลสำเร็จ', 'success');
+                } else {
+                    await ApiService.addRule(type, data, _adminPin);
+                    window.Notification.show('✅ เพิ่มข้อมูลสำเร็จ', 'success');
+                }
+                refreshPage();
+            } catch (err) {
+                window.Notification.show('❌ ' + err.message, 'error');
+            }
+        },
+
+        /**
+         * Delete handler — uses stored PIN from admin session
+         */
+        handleDelete: async function() {
+            if (!_adminPin) {
+                window.Notification.show('❌ กรุณาเข้าโหมดผู้ดูแลก่อน (กด ♛ Admin)', 'error');
+                return;
+            }
+
+            // Close modal immediately
             document.getElementById('adminDeleteModal').classList.remove('active');
 
-            // Use shared PinModal (server-side only PIN check)
-            const pin = await PinModal.request('กรุณาระบุรหัสผ่านเพื่อยืนยันการดำเนินการ');
-            if (!pin) return; // User cancelled
-
-            if (currentAction === 'save') {
-                await handleSave(pin);
-            } else if (currentAction === 'delete') {
-                await handleDelete(pin);
+            try {
+                await ApiService.deleteRule(currentType, currentItem.id, _adminPin);
+                window.Notification.show('🗑️ ลบข้อมูลสำเร็จ', 'success');
+                refreshPage();
+            } catch (err) {
+                window.Notification.show('❌ ' + err.message, 'error');
             }
         }
     };
-
-    // ==================== HANDLERS ====================
-    async function handleSave(pin) {
-        const type = currentType;
-        const category = document.getElementById('adminFormCategory').value;
-        const text = document.getElementById('adminFormText').value;
-        const amount = document.getElementById('adminFormAmount').value;
-        const time = document.getElementById('adminFormTime').value;
-
-        let id;
-        if (_isEdit && currentItem) {
-            id = currentItem.id;
-        } else {
-            id = generateId(type);
-        }
-
-        // Server mapping: conduct uses column D as "title", rules/fines as "category"
-        // Map category value to the correct field for each type
-        const data = { id, text, amount, time };
-        if (type === 'conduct') {
-            data.title = category; // conduct: column D = title
-        } else {
-            data.category = category; // rules/fines: column D = category
-        }
-
-        adminPanelLogger.info(`Save: type=${type}, id=${id}, isEdit=${_isEdit}`);
-
-        try {
-            if (_isEdit) {
-                await ApiService.updateRule(type, id, data, pin);
-                window.Notification.show('✅ แก้ไขข้อมูลสำเร็จ', 'success');
-            } else {
-                await ApiService.addRule(type, data, pin);
-                window.Notification.show('✅ เพิ่มข้อมูลสำเร็จ', 'success');
-            }
-            refreshPage();
-        } catch (err) {
-            window.Notification.show('❌ ' + err.message, 'error');
-        }
-    }
-
-    async function handleDelete(pin) {
-        try {
-            await ApiService.deleteRule(currentType, currentItem.id, pin);
-            window.Notification.show('🗑️ ลบข้อมูลสำเร็จ', 'success');
-            refreshPage();
-        } catch (err) {
-            window.Notification.show('❌ ' + err.message, 'error');
-        }
-    }
 
     function generateId(type) {
         const prefix = { 'rules': 'r', 'conduct': 'co', 'fines': 'fi' };

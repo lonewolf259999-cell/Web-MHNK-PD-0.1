@@ -47,11 +47,9 @@ class RulesPage {
 
             if (matchedRules.length === 0) continue;
 
-            const categoryTitle = this.getCategoryTitle(category);
-
             html += `
                 <div class="rule-group" data-category="${HtmlUtils.escape(category)}">
-                    <h3>${HtmlUtils.escape(categoryTitle)}</h3>
+                    <h3>${HtmlUtils.escape(category)}</h3>
                     <div class="rule-list">
                         ${matchedRules.map((rule, localIdx) => this.createRuleItem(rule, localIdx + 1)).join('')}
                     </div>
@@ -82,15 +80,6 @@ class RulesPage {
             grouped[cat].push(rule);
         }
         return grouped;
-    }
-
-    getCategoryTitle(category) {
-        const titles = {
-            'arrest': '📌 การจับกุมผู้ต้องหา / กฎงานดำ',
-            'redCase': '🚨 คดีแดง (Red Case Rules)',
-            'curfew': '⚠️ เคอร์ฟิว (Curfew Rules)'
-        };
-        return titles[category] || category;
     }
 
     // No attachAdminEvents needed — inline onclick in AdminActions.renderButtons handles it
