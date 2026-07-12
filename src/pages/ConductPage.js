@@ -5,12 +5,7 @@
     - Users can create categories freely
     ======================================== */
 
-const conductLogger = window.getLogger ? window.getLogger('ConductPage') : {
-    error: (...args) => console.error(...args),
-    warn: (...args) => console.warn(...args),
-    info: (...args) => console.log(...args),
-    debug: () => {}
-};
+const conductLogger = window.getLogger('ConductPage');
 
 class ConductPage {
     constructor() {
@@ -74,13 +69,7 @@ class ConductPage {
     }
 
     groupByCategory(items) {
-        const grouped = {};
-        for (const item of items) {
-            const cat = item.title || 'อื่นๆ'; // column D = category/title
-            if (!grouped[cat]) grouped[cat] = [];
-            grouped[cat].push(item);
-        }
-        return grouped;
+        return HtmlUtils.groupByCategory(items, 'title', 'อื่นๆ');
     }
 
     createEmptyState() {

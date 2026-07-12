@@ -5,12 +5,7 @@
     - Uses AdminActions.renderButtons with inline onclick
     ======================================== */
 
-const finesLogger = window.getLogger ? window.getLogger('FinesPage') : {
-    error: (...args) => console.error(...args),
-    warn: (...args) => console.warn(...args),
-    info: (...args) => console.log(...args),
-    debug: () => {}
-};
+const finesLogger = window.getLogger('FinesPage');
 
 class FinesPage {
     constructor() {
@@ -75,13 +70,7 @@ class FinesPage {
     }
 
     groupByCategory(fines) {
-        const grouped = {};
-        for (const fine of fines) {
-            const cat = fine.category || 'อื่นๆ';
-            if (!grouped[cat]) grouped[cat] = [];
-            grouped[cat].push(fine);
-        }
-        return grouped;
+        return HtmlUtils.groupByCategory(fines, 'category', 'อื่นๆ');
     }
 
     createEmptyState() {

@@ -5,12 +5,7 @@
    - Optimized data loading
    ======================================== */
 
-const logger = window.Logger ? window.Logger.createLogger('App') : {
-    error: (...args) => console.error(...args),
-    warn: (...args) => console.warn(...args),
-    info: (...args) => console.log(...args),
-    debug: () => {}
-};
+const logger = window.getLogger('App');
 
 const App = {
     officers: [],

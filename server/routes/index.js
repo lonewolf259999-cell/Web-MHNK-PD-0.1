@@ -15,9 +15,8 @@ const weeksController = require('../controllers/weeksController');
 const adminController = require('../controllers/adminController');
 const staticController = require('../controllers/staticController');
 const rulesController = require('../controllers/rulesController');
-const registerController = require('../controllers/registerController');
+const registrationController = require('../controllers/registrationController');
 const authController = require('../controllers/authController');
-const medicalController = require('../controllers/medicalController');
 const pendingController = require('../controllers/pendingController');
 const rosterController = require('../controllers/rosterController');
 
@@ -43,19 +42,19 @@ router.post('/api/rules-data/:type(conduct|rules|fines)', verifyPin, asyncHandle
 router.put('/api/rules-data/:type(conduct|rules|fines)/:id', verifyPin, asyncHandler(rulesController.updateRule));
 router.delete('/api/rules-data/:type(conduct|rules|fines)/:id', verifyPin, asyncHandler(rulesController.deleteRule));
 
-// ==================== Registration ====================
-router.post('/api/register', asyncHandler(registerController.register));
-router.patch('/api/register/edit', asyncHandler(registerController.editRegistration));
-router.get('/api/register/fetch/:messageId', asyncHandler(registerController.fetchRegistration));
+// ==================== Registration (Police) ====================
+router.post('/api/register', asyncHandler(registrationController.register));
+router.patch('/api/register/edit', asyncHandler(registrationController.editRegistration));
+router.get('/api/register/fetch/:messageId', asyncHandler(registrationController.fetchRegistration));
 
 // ==================== Discord Auth ====================
 router.get('/auth/discord', authController.discordLogin);
 router.get('/auth/discord/callback', asyncHandler(authController.discordCallback));
 
 // ==================== Medical Registration ====================
-router.post('/api/medical', asyncHandler(medicalController.registerMedical));
-router.patch('/api/medical/edit', asyncHandler(medicalController.editMedical));
-router.get('/api/medical/fetch/:messageId', asyncHandler(medicalController.fetchMedical));
+router.post('/api/medical', asyncHandler(registrationController.registerMedical));
+router.patch('/api/medical/edit', asyncHandler(registrationController.editMedical));
+router.get('/api/medical/fetch/:messageId', asyncHandler(registrationController.fetchMedical));
 
 // ==================== Pending Registration (Admin) ====================
 router.post('/api/pending', verifyPin, asyncHandler(pendingController.listPending));

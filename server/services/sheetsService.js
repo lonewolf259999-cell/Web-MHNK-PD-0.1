@@ -185,6 +185,7 @@ async function getFines() {
 /**
  * Fetch cases data from the Cases Google Sheet
  * Uses CASES_DATA_SHEET_ID, sheet name 'Cases'
+ * NOTE: This is DIFFERENT from CASES_SHEET_NAME ('CaseAll') which stores weekly data.
  * Columns: A=id, B=title, C=description (HTML supported), D=video_url (Google Drive link)
  * Data starts at row 2 (skip header row 1)
  */

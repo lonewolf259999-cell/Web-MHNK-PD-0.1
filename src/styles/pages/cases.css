@@ -10,41 +10,41 @@
 }
 
 .case-card {
-    background: #1a1a2e;
-    border: 1px solid #2a2a4a;
-    border-radius: 12px;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
     padding: 20px 24px;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .case-card:hover {
-    border-color: #f0c04044;
+    border-color: rgba(251, 191, 36, 0.27);
     box-shadow: 0 4px 20px rgba(240, 192, 64, 0.06);
 }
 
 .case-header {
     margin-bottom: 12px;
     padding-bottom: 10px;
-    border-bottom: 1px solid #2a2a4a;
+    border-bottom: 1px solid var(--color-border);
 }
 
 .case-title {
     font-size: 20px;
     font-weight: 700;
-    color: #f0c040;
+    color: var(--color-gold);
     margin: 0;
 }
 
 .case-description {
     font-size: 15px;
     line-height: 1.7;
-    color: #d0d0e0;
+    color: var(--color-text-secondary);
     margin-bottom: 16px;
 }
 
 .case-description h3,
 .case-description h4 {
-    color: #f0c040;
+    color: var(--color-gold);
     margin: 16px 0 8px 0;
 }
 
@@ -58,7 +58,7 @@
 
 .case-description b,
 .case-description strong {
-    color: #fff;
+    color: var(--color-text-primary);
 }
 
 .case-description p {
@@ -88,7 +88,7 @@
     margin-top: 16px;
     border-radius: 10px;
     overflow: hidden;
-    background: #0f0f1a;
+    background: var(--color-bg-primary);
     position: relative;
     padding-bottom: 56.25%; /* 16:9 aspect ratio */
     height: 0;
@@ -107,16 +107,16 @@
 .case-video-link {
     display: inline-block;
     padding: 10px 20px;
-    background: #252545;
+    background: var(--color-bg-secondary);
     color: #6af;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     text-decoration: none;
     font-weight: 600;
-    transition: background 0.2s;
+    transition: background var(--transition-fast);
 }
 
 .case-video-link:hover {
-    background: #30305a;
+    background: rgba(37, 37, 69, 0.8);
     color: #8cf;
 }
 

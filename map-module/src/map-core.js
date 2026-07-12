@@ -80,7 +80,6 @@ const MHNK_MAP = {
     });
 
     this._initialized = true;
-    console.log('[MHNK-MAP] Initialized');
     document.dispatchEvent(new CustomEvent('mhnk-map-ready', { detail: { map: this.map } }));
   },
 

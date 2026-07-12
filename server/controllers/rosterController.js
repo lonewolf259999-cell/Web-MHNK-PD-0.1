@@ -32,7 +32,8 @@ async function updateStatus(req, res) {
     if (!row || status === undefined || status === null) {
         return res.status(400).json({ success: false, error: 'Missing row or status' });
     }
-    const validStatuses = ['', 'ออกจาก Discord', 'ถูกปลดออก', 'ติดต่อขอออก', 'เกิน 15 วัน'];
+    const validReasons = ['ออกจาก Discord', 'ถูกปลดออก', 'ติดต่อขอออก', 'เกิน 15 วัน'];
+    const validStatuses = ['', ...validReasons];
     if (!validStatuses.includes(status)) {
         return res.status(400).json({ success: false, error: 'Invalid status' });
     }

@@ -4,12 +4,7 @@
    - Data loading and lifecycle
    ======================================== */
 
-const profileLogger = window.getLogger ? window.getLogger('ProfilePage') : {
-    error: (...args) => console.error(...args),
-    warn: (...args) => console.warn(...args),
-    info: (...args) => console.log(...args),
-    debug: () => {}
-};
+const profileLogger = window.getLogger('ProfilePage');
 
 class ProfilePage {
     constructor() {

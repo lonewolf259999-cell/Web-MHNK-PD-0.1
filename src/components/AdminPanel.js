@@ -6,12 +6,7 @@
     - CSS moved to src/styles/admin.css
     ======================================== */
 
-const adminPanelLogger = window.getLogger ? window.getLogger('AdminPanel') : {
-    error: (...args) => console.error(...args),
-    warn: (...args) => console.warn(...args),
-    info: (...args) => console.log(...args),
-    debug: () => {}
-};
+const adminPanelLogger = window.getLogger('AdminPanel');
 
 (function() {
     'use strict';
@@ -395,7 +390,9 @@ const adminPanelLogger = window.getLogger ? window.getLogger('AdminPanel') : {
 
     function generateId(type) {
         const prefix = { 'rules': 'r', 'conduct': 'co', 'fines': 'fi' };
-        return (prefix[type] || 'x') + '-' + Date.now().toString(36).substr(-4);
+        const suffix = Date.now().toString(36).slice(-6);
+        const random = Math.random().toString(36).slice(2, 4);
+        return (prefix[type] || 'x') + '-' + suffix + random;
     }
 
     function refreshPage() {

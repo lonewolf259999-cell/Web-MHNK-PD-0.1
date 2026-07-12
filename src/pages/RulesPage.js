@@ -4,12 +4,7 @@
     - Admin CRUD operations (Add/Edit/Delete)
     ======================================== */
 
-const rulesLogger = window.getLogger ? window.getLogger('RulesPage') : {
-    error: (...args) => console.error(...args),
-    warn: (...args) => console.warn(...args),
-    info: (...args) => console.log(...args),
-    debug: () => {}
-};
+const rulesLogger = window.getLogger('RulesPage');
 
 class RulesPage {
     constructor() {
@@ -73,13 +68,7 @@ class RulesPage {
     }
 
     groupByCategory(rules) {
-        const grouped = {};
-        for (const rule of rules) {
-            const cat = rule.category || 'อื่นๆ';
-            if (!grouped[cat]) grouped[cat] = [];
-            grouped[cat].push(rule);
-        }
-        return grouped;
+        return HtmlUtils.groupByCategory(rules, 'category', 'อื่นๆ');
     }
 
     // No attachAdminEvents needed — inline onclick in AdminActions.renderButtons handles it

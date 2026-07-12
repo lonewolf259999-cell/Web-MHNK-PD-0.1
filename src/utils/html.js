@@ -107,5 +107,23 @@ const HtmlUtils = {
         if (highRanks.some(r => rankText.includes(r))) return 'high';
         if (lowRanks.some(r => rankText.includes(r))) return 'low';
         return 'medium';
+    },
+
+    /**
+     * Group items by a specified field
+     * Shared utility to prevent code duplication across RulesPage, ConductPage, FinesPage
+     * @param {Array} items - Array of items to group
+     * @param {string} field - Field name to group by (e.g. 'category', 'title')
+     * @param {string} fallback - Default group name if field is empty
+     * @returns {Object} Grouped object { categoryName: [items...] }
+     */
+    groupByCategory(items, field = 'category', fallback = 'อื่นๆ') {
+        const grouped = {};
+        for (const item of items) {
+            const cat = item[field] || fallback;
+            if (!grouped[cat]) grouped[cat] = [];
+            grouped[cat].push(item);
+        }
+        return grouped;
     }
 };

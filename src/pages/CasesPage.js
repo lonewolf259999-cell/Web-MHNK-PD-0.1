@@ -5,12 +5,7 @@
     - Embed Google Drive videos
     ======================================== */
 
-const casesLogger = window.getLogger ? window.getLogger('CasesPage') : {
-    error: (...args) => console.error(...args),
-    warn: (...args) => console.warn(...args),
-    info: (...args) => console.log(...args),
-    debug: () => {}
-};
+const casesLogger = window.getLogger('CasesPage');
 
 class CasesPage {
     constructor() {
@@ -113,15 +108,87 @@ class CasesPage {
 
     /**
      * Sanitize HTML but allow safe tags: b, i, u, h3, h4, br, p, strong, em, span, ul, ol, li
+     * Uses DOMParser to safely strip dangerous content
      */
     sanitizeHtml(html) {
         if (!html) return '';
-        // Strip dangerous tags/attributes
-        return html
-            .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-            .replace(/on\w+="[^"]*"/gi, '')
-            .replace(/on\w+='[^']*'/gi, '')
-            .replace(/javascript:/gi, '');
+        
+        // List of allowed tags
+        const allowedTags = new Set(['b', 'i', 'u', 'h3', 'h4', 'br', 'p', 'strong', 'em', 'span', 'ul', 'ol', 'li', 'div']);
+        // List of allowed attributes
+        const allowedAttrs = new Set(['class', 'style']);
+        
+        try {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(`<div id="xss_sanitize">${html}</div>`, 'text/html');
+            const root = doc.getElementById('xss_sanitize');
+            
+            if (!root) return '';
+            
+            // Recursively clean nodes
+            function cleanNode(node) {
+                if (node.nodeType === Node.TEXT_NODE) {
+                    return node;
+                }
+                
+                if (node.nodeType !== Node.ELEMENT_NODE) {
+                    // Remove comments and other non-element nodes
+                    return null;
+                }
+                
+                const tagName = node.tagName.toLowerCase();
+                
+                // Remove disallowed tags
+                if (!allowedTags.has(tagName)) {
+                    // Return text content only (strip the tag)
+                    const text = document.createTextNode(node.textContent || '');
+                    return text;
+                }
+                
+                // Clean attributes - only keep allowed ones
+                const attrsToRemove = [];
+                for (let i = 0; i < node.attributes.length; i++) {
+                    const attr = node.attributes[i];
+                    const attrName = attr.name.toLowerCase();
+                    
+                    // Block event handlers (onclick, onerror, etc.)
+                    if (attrName.startsWith('on') || attrName === 'href' || attrName === 'src') {
+                        attrsToRemove.push(attr.name);
+                        continue;
+                    }
+                    
+                    // Only keep allowed attributes
+                    if (!allowedAttrs.has(attrName)) {
+                        attrsToRemove.push(attr.name);
+                    }
+                }
+                
+                attrsToRemove.forEach(name => node.removeAttribute(name));
+                
+                // Recursively clean children
+                const children = Array.from(node.childNodes);
+                for (const child of children) {
+                    const cleaned = cleanNode(child);
+                    if (cleaned !== child) {
+                        if (cleaned) {
+                            node.replaceChild(cleaned, child);
+                        } else {
+                            node.removeChild(child);
+                        }
+                    }
+                }
+                
+                return node;
+            }
+            
+            cleanNode(root);
+            return root.innerHTML;
+        } catch (e) {
+            // Fallback: escape everything
+            const div = document.createElement('div');
+            div.textContent = html;
+            return div.innerHTML;
+        }
     }
 
     createEmptyState() {
