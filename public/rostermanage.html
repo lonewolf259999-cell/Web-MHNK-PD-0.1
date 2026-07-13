@@ -229,6 +229,7 @@
                                 <th>รหัส</th>
                                 <th>ชื่อ-นามสกุล</th>
                                 <th>Discord ID</th>
+                                <th>เบอร์</th>
                                 <th>ยศ</th>
                                 <th>เคส</th>
                                 <th>Steam</th>
@@ -467,6 +468,7 @@
                     '<td><strong>' + m.code + '</strong></td>' +
                     '<td>' + m.name.replace(/\[MHNK-PD\]/g, '') + '</td>' +
                     '<td><code style="font-size:11px;color:#aaa">' + m.discordId + '</code></td>' +
+                    '<td>' + (m.phone || '') + '</td>' +
                     '<td>' + m.rank + '</td>' +
                     '<td>' + (m.cases || '0') + '</td>' +
                     '<td style="font-size:11px;color:#888">' + m.steam + '</td>' +

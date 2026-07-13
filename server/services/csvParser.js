@@ -87,6 +87,7 @@ function mapOfficers(rows) {
         officers.push({
             code,
             name,
+            phone: getCell(row, 1),
             rank: getCell(row, 5),
             cases: getCell(row, 6),
             steamId: getCell(row, 12),

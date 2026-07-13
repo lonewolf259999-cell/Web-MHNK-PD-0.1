@@ -132,6 +132,43 @@ class ProfilePage {
         document.getElementById('profileName').textContent = officer.name;
         document.getElementById('profileDept').textContent = officer.rank || 'ไม่ระบุหน่วยงาน';
 
+        // Show phone in separate row with copy button (same style as payment copy)
+        const phoneContainer = document.getElementById('profilePhone');
+        const phoneNumberEl = document.getElementById('phoneNumber');
+        const copyBtn = document.getElementById('copyPhoneBtn');
+        if (officer.phone) {
+            phoneNumberEl.textContent = officer.phone;
+            phoneContainer.style.display = 'block';
+            copyBtn.onclick = () => {
+                navigator.clipboard.writeText(officer.phone).then(() => {
+                    const original = copyBtn.innerHTML;
+                    copyBtn.innerHTML = '✅';
+                    copyBtn.style.color = '#2ecc71';
+                    setTimeout(() => {
+                        copyBtn.innerHTML = original;
+                        copyBtn.style.color = '';
+                    }, 1000);
+                }).catch(() => {
+                    const ta = document.createElement('textarea');
+                    ta.value = officer.phone;
+                    document.body.appendChild(ta);
+                    ta.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(ta);
+                    const original = copyBtn.innerHTML;
+                    copyBtn.innerHTML = '✅';
+                    copyBtn.style.color = '#2ecc71';
+                    setTimeout(() => {
+                        copyBtn.innerHTML = original;
+                        copyBtn.style.color = '';
+                    }, 1000);
+                });
+            };
+        } else {
+            phoneContainer.style.display = 'none';
+            phoneNumberEl.textContent = '';
+        }
+
         // Setup week selector
         this.weekSelector.onWeekSelect((week) => this.selectWeek(week));
         this.weekSelector.setPaymentManager(this.paymentManager);
