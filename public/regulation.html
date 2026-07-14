@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ข้อปฏิบัติ - MHNK Police Department</title>
+
+    <!-- Preconnect -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- Google Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" />
+
+    <!-- Main Styles (reuse from main site) -->
+    <link rel="stylesheet" href="src/styles/variables.css?v=4.0" />
+    <link rel="stylesheet" href="src/styles/base.css?v=4.0" />
+    <link rel="stylesheet" href="src/styles/effects.css?v=4.0" />
+    <link rel="stylesheet" href="src/styles/layout.css?v=4.0" />
+    <link rel="stylesheet" href="src/styles/components/header.css?v=4.0" />
+    <link rel="stylesheet" href="src/styles/components/footer.css?v=4.0" />
+    <link rel="stylesheet" href="src/styles/pages/rules.css?v=4.0" />
+    <link rel="stylesheet" href="src/styles/states.css?v=4.0" />
+    <link rel="stylesheet" href="src/styles/utilities.css?v=4.0" />
+
+    <style>
+        /* ========================================
+           Regulation Page - Standalone Styles
+           ======================================== */
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .regulation-wrapper {
+            flex: 1;
+            max-width: var(--content-max-width, 1500px);
+            margin: 0 auto;
+            padding: 20px;
+            width: 100%;
+        }
+
+        .regulation-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .regulation-header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--color-gold, #fbbf24);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .regulation-header h1 .icon {
+            font-size: 1.6rem;
+        }
+
+        .btn-back-home {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: var(--color-bg-card, rgba(17, 24, 39, 0.8));
+            border: 1px solid var(--color-border, rgba(29, 201, 183, 0.12));
+            border-radius: var(--radius-md, 12px);
+            color: var(--color-text-secondary, #94a3b8);
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all var(--transition-fast, 0.2s ease);
+            text-decoration: none;
+        }
+
+        .btn-back-home:hover {
+            background: var(--color-accent-soft, rgba(29, 201, 183, 0.1));
+            color: var(--color-accent, #1dc9b7);
+            border-color: var(--color-accent, #1dc9b7);
+            transform: translateY(-1px);
+        }
+
+        .regulation-search {
+            margin-bottom: 20px;
+        }
+
+        .regulation-search input {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--color-bg-card, rgba(17, 24, 39, 0.8));
+            border: 1px solid var(--color-border, rgba(29, 201, 183, 0.12));
+            border-radius: var(--radius-md, 12px);
+            color: var(--color-text-primary, #f1f5f9);
+            font-size: 0.95rem;
+            font-family: var(--font-thai, 'Kanit', sans-serif);
+            transition: border-color var(--transition-fast, 0.2s ease);
+        }
+
+        .regulation-search input:focus {
+            border-color: var(--color-accent, #1dc9b7);
+            outline: none;
+        }
+
+        .regulation-search input::placeholder {
+            color: var(--color-text-muted, rgba(148, 163, 184, 0.5));
+        }
+
+        .regulation-stats {
+            text-align: center;
+            color: var(--color-text-muted, rgba(148, 163, 184, 0.5));
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+        }
+
+        .regulation-stats strong {
+            color: var(--color-gold, #fbbf24);
+        }
+
+        .regulation-loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--color-text-muted, rgba(148, 163, 184, 0.5));
+        }
+
+        .regulation-loading .loader {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--color-border, rgba(29, 201, 183, 0.12));
+            border-top-color: var(--color-accent, #1dc9b7);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .regulation-error {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--color-danger, #ef4444);
+        }
+
+        .regulation-error .icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+        }
+
+        .regulation-error h3 {
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+        }
+
+        .regulation-error p {
+            color: var(--color-text-secondary, #94a3b8);
+            font-size: 0.9rem;
+        }
+
+        .regulation-empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--color-text-muted, rgba(148, 163, 184, 0.5));
+        }
+
+        .regulation-empty .icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+        }
+
+        .regulation-empty h3 {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: var(--color-text-secondary, #94a3b8);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .regulation-wrapper {
+                padding: 16px;
+            }
+            .regulation-header h1 {
+                font-size: 1.2rem;
+            }
+            .btn-back-home {
+                padding: 8px 16px;
+                font-size: 0.85rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .regulation-wrapper {
+                padding: 12px;
+            }
+            .regulation-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Effects -->
+    <div class="scanner-line"></div>
+    <div class="bg-glow"></div>
+    <div class="bg-dots"></div>
+
+    <!-- Header -->
+    <header class="site-header">
+        <div class="header-top">
+            <img src="logo.gif" alt="MHNK PD Logo" class="header-logo" onerror="this.src='logo.png'" width="64" height="64" />
+            <div class="header-title">
+                <h1>Mahahorn Diwa Police Department</h1>
+                <div class="header-subtitle">กรมตำรวจ <span>MHNK</span> &mdash; Mahahorn Diwa</div>
+            </div>
+            <div class="header-badges">
+                <span class="header-badge">&#9670; FIVEM</span>
+                <span class="header-badge">&#9878; POLICE</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="regulation-wrapper">
+        <div class="regulation-header">
+            <h1>
+                <span class="icon">&#128218;</span>
+                ข้อปฏิบัติเจ้าหน้าที่
+            </h1>
+            <a href="index.html" class="btn-back-home">
+                &#8592; กลับไปหน้าหลัก
+            </a>
+        </div>
+
+        <div class="regulation-search">
+            <input type="text" id="searchInput" placeholder="&#128269; ค้นหาข้อปฏิบัติ..." oninput="renderConduct()" />
+        </div>
+
+        <div class="regulation-stats">
+            พบ <strong id="resultCount">0</strong> รายการ
+        </div>
+
+        <div class="rules-container" id="conductContainer">
+            <div class="regulation-loading" id="loadingState">
+                <div class="loader"></div>
+                <div class="loading-text">กำลังโหลดข้อมูล...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <p>&copy; 2026 <span>MHNK POLICE DEPARTMENT</span> &mdash; FiveM Server</p>
+    </footer>
+
+    <script>
+        (function() {
+            'use strict';
+
+            let conductData = null;
+
+            /**
+             * Escape HTML special characters
+             */
+            function escapeHtml(str) {
+                if (!str) return '';
+                var div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            }
+
+            /**
+             * Sanitize HTML - allow only safe formatting tags (b, span with color)
+             * The API data already contains HTML from the admin format editor.
+             * Strip script/event handlers for safety but keep formatting.
+             */
+            function sanitizeHtml(str) {
+                if (!str) return '';
+                return str
+                    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+                    .replace(/on\w+\s*=\s*"[^"]*"/gi, '')
+                    .replace(/on\w+\s*=\s*'[^']*'/gi, '')
+                    .replace(/javascript\s*:/gi, '');
+            }
+
+            /**
+             * Group items by category (title field)
+             */
+            function groupByCategory(items) {
+                var grouped = {};
+                items.forEach(function(item) {
+                    var cat = item.title || 'อื่นๆ';
+                    if (!grouped[cat]) grouped[cat] = [];
+                    grouped[cat].push(item);
+                });
+                return grouped;
+            }
+
+            /**
+             * Load conduct data from API
+             */
+            async function loadConduct() {
+                var container = document.getElementById('conductContainer');
+
+                try {
+                    var response = await fetch('/api/rules-data/conduct');
+                    if (!response.ok) {
+                        throw new Error('HTTP ' + response.status);
+                    }
+                    var data = await response.json();
+                    conductData = data;
+                    renderConduct();
+                } catch (err) {
+                    console.error('Failed to load conduct:', err);
+                    container.innerHTML = [
+                        '<div class="regulation-error">',
+                        '  <div class="icon">&#9888;</div>',
+                        '  <h3>ไม่สามารถโหลดข้อมูลได้</h3>',
+                        '  <p>กรุณาลองใหม่อีกครั้ง หรือติดต่อผู้ดูแลระบบ</p>',
+                        '  <p style="margin-top:8px;font-size:0.8rem;color:var(--color-text-muted)">' + escapeHtml(err.message) + '</p>',
+                        '</div>'
+                    ].join('');
+                }
+            }
+
+            /**
+             * Render conduct data with optional search filter
+             */
+            function renderConduct() {
+                var container = document.getElementById('conductContainer');
+                var resultCount = document.getElementById('resultCount');
+                var query = document.getElementById('searchInput').value.trim().toLowerCase();
+
+                if (!conductData || conductData.length === 0) {
+                    container.innerHTML = [
+                        '<div class="regulation-empty">',
+                        '  <div class="icon">&#128218;</div>',
+                        '  <h3>ไม่มีข้อมูลข้อปฏิบัติ</h3>',
+                        '  <p>ยังไม่มีข้อมูลข้อปฏิบัติในขณะนี้</p>',
+                        '</div>'
+                    ].join('');
+                    resultCount.textContent = '0';
+                    return;
+                }
+
+                var grouped = groupByCategory(conductData);
+                var totalCount = 0;
+                var html = '';
+
+                for (var category in grouped) {
+                    if (!grouped.hasOwnProperty(category)) continue;
+                    var items = grouped[category];
+
+                    var matchedItems = query
+                        ? items.filter(function(item) {
+                            var text = (item.text || '').toLowerCase();
+                            var title = (item.title || '').toLowerCase();
+                            return text.indexOf(query) !== -1 || title.indexOf(query) !== -1;
+                        })
+                        : items;
+
+                    if (matchedItems.length === 0) continue;
+
+                    totalCount += matchedItems.length;
+
+                    html += '<div class="rule-group" data-category="' + escapeHtml(category) + '">';
+                    html += '  <h3>' + escapeHtml(category) + '</h3>';
+                    html += '  <div class="rule-list">';
+
+                    for (var i = 0; i < matchedItems.length; i++) {
+                        var item = matchedItems[i];
+                        var text = sanitizeHtml(item.text || '').replace(/\n/g, '<br>');
+                        html += '    <div class="rule-item" data-id="' + escapeHtml(item.id || '') + '">';
+                        html += '      <span class="rule-num">' + (i + 1) + '.</span>';
+                        html += '      <span class="rule-text">' + text + '</span>';
+                        html += '    </div>';
+                    }
+
+                    html += '  </div>';
+                    html += '</div>';
+                }
+
+                if (!html) {
+                    container.innerHTML = [
+                        '<div class="regulation-empty">',
+                        '  <div class="icon">&#128269;</div>',
+                        '  <h3>ไม่พบข้อปฏิบัติที่ค้นหา</h3>',
+                        '  <p>ลองค้นหาด้วยคำอื่น</p>',
+                        '</div>'
+                    ].join('');
+                } else {
+                    container.innerHTML = html;
+                }
+
+                resultCount.textContent = totalCount;
+            }
+
+            // Load data when page is ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', loadConduct);
+            } else {
+                loadConduct();
+            }
+        })();
+    </script>
+</body>
+</html>
