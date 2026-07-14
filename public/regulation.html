@@ -238,7 +238,7 @@
         </div>
 
         <div class="regulation-search">
-            <input type="text" id="searchInput" placeholder="&#128269; ค้นหาข้อปฏิบัติ..." oninput="renderConduct()" />
+            <input type="text" id="searchInput" placeholder="&#128269; ค้นหาข้อปฏิบัติ..." />
         </div>
 
         <div class="regulation-stats">
@@ -401,10 +401,16 @@
             }
 
             // Load data when page is ready
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', loadConduct);
-            } else {
+            function init() {
                 loadConduct();
+                // Bind search input event
+                document.getElementById('searchInput').addEventListener('input', renderConduct);
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
             }
         })();
     </script>
