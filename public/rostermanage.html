@@ -159,11 +159,17 @@
 
         <div id="confirmDialog" class="confirm-dialog">
             <div class="confirm-box">
-                <h3 id="confirmTitle">⚠️ ยืนยัน</h3>
-                <p id="confirmMsg">คุณแน่ใจหรือไม่?</p>
-                <div class="actions">
-                    <button class="btn-secondary" onclick="closeConfirm()">ยกเลิก</button>
-                    <button id="confirmOkBtn" class="btn-danger" onclick="executeConfirm()">ยืนยัน</button>
+                <div id="confirmLoading" class="confirm-loading" style="display:none;text-align:center;padding:20px">
+                    <div style="font-size:32px;margin-bottom:12px">⏳</div>
+                    <div style="color:#f0c040;font-weight:600">กำลังดำเนินการ...</div>
+                </div>
+                <div id="confirmContent">
+                    <h3 id="confirmTitle">⚠️ ยืนยัน</h3>
+                    <p id="confirmMsg">คุณแน่ใจหรือไม่?</p>
+                    <div class="actions">
+                        <button class="btn-secondary" onclick="closeConfirm()">ยกเลิก</button>
+                        <button id="confirmOkBtn" class="btn-danger" onclick="executeConfirm()">ยืนยัน</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -310,10 +316,19 @@
         }
         function closeConfirm() {
             document.getElementById('confirmDialog').style.display = 'none';
+            document.getElementById('confirmContent').style.display = '';
+            document.getElementById('confirmLoading').style.display = 'none';
+            document.getElementById('confirmOkBtn').disabled = false;
             pendingConfirm = null;
         }
-        function executeConfirm() {
-            if (pendingConfirm) pendingConfirm();
+        async function executeConfirm() {
+            if (!pendingConfirm) return;
+            const fn = pendingConfirm;
+            pendingConfirm = null;
+            // ถ้า fn เป็น async, executeConfirm จะรอให้เสร็จ
+            // และ fn จะเป็นคนปิด dialog เอง
+            await fn();
+            // ถ้า fn ปิด dialog ไปแล้ว closeConfirm() จะไม่ทำอะไรซ้ำ
             closeConfirm();
         }
 
@@ -552,6 +567,10 @@
         }
 
         async function executeMoveOut(row, reason) {
+            // แสดง loading
+            document.getElementById('confirmContent').style.display = 'none';
+            document.getElementById('confirmLoading').style.display = 'block';
+            document.getElementById('confirmOkBtn').disabled = true;
             try {
                 const res = await fetch('/api/roster/move-out/' + row, {
                     method: 'POST',
@@ -559,6 +578,7 @@
                     body: JSON.stringify({ pin: PIN, reason: reason }),
                 });
                 const json = await res.json();
+                closeConfirm();
                 if (json.success) {
                     toast(json.message, 'success');
                     log('ย้ายออก: ' + json.message);
@@ -567,6 +587,7 @@
                     toast(json.error || 'เกิดข้อผิดพลาด', 'error');
                 }
             } catch (err) {
+                closeConfirm();
                 toast('เชื่อมต่อไม่สำเร็จ', 'error');
             }
         }
