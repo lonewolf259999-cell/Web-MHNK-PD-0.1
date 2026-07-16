@@ -161,6 +161,28 @@ async function updateStatus(row, status) {
 }
 
 /**
+ * หาแถวว่างแรกใน OutDC ตั้งแต่แถว 3 ขึ้นไป
+ * ใช้คอลัมน์ D (ชื่อ) เป็นตัวตรวจสอบ
+ * รองรับกรณีที่มีแถวว่างแทรกตรงกลาง
+ */
+async function _findEmptyOutDCRow(sheets) {
+    const res = await sheets.spreadsheets.values.get({
+        spreadsheetId: config.ROSTER_SHEET_ID,
+        range: `${config.ROSTER_OUT_SHEET_NAME}!D3:D`,
+        valueRenderOption: 'FORMATTED_VALUE',
+    });
+    const rows = res.data.values || [];
+    // rows[0] = D3, rows[1] = D4, ... index 0 = แถว 3
+    for (let i = 0; i < rows.length; i++) {
+        if (!rows[i][0] || !rows[i][0].trim()) {
+            return 3 + i;
+        }
+    }
+    // ไม่เจอแถวว่าง → ต่อท้าย
+    return 3 + rows.length;
+}
+
+/**
  * ย้ายสมาชิกจาก NamePD ไป OutDC พร้อมส่ง WebHook
  * - อ่านข้อมูล NamePD แถวนั้น (B ถึง N) รวมเบอร์
  * - เขียนไป OutDC (B ถึง N)
@@ -197,14 +219,8 @@ async function moveToOutDC(row, reason) {
     // ใช้สาเหตุจาก status ใน N ก่อน ถ้าไม่มีค่อยใช้ reason ที่ส่งมา
     const finalReason = status || reason;
 
-    // หาแถวว่างใน OutDC (ใช้ B เพื่อนับรวมเบอร์)
-    const outRes = await sheets.spreadsheets.values.get({
-        spreadsheetId: config.ROSTER_SHEET_ID,
-        range: `${config.ROSTER_OUT_SHEET_NAME}!B:B`,
-    });
-    const outRows = outRes.data.values || [];
-    let nextRow = outRows.length + 1;
-    if (nextRow < 3) nextRow = 3;
+    // หาแถวว่างแรกใน OutDC ตั้งแต่แถว 3 โดยใช้คอลัมน์ D (ชื่อ)
+    const nextRow = await _findEmptyOutDCRow(sheets);
 
     // เขียนไป OutDC (B ถึง N)
     await sheets.spreadsheets.values.update({
