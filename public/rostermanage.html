@@ -313,6 +313,9 @@
             document.getElementById('confirmMsg').textContent = msg;
             pendingConfirm = fn;
             document.getElementById('confirmDialog').style.display = 'flex';
+            document.getElementById('confirmContent').style.display = '';
+            document.getElementById('confirmLoading').style.display = 'none';
+            document.getElementById('confirmOkBtn').disabled = false;
         }
         function closeConfirm() {
             document.getElementById('confirmDialog').style.display = 'none';
@@ -325,11 +328,15 @@
             if (!pendingConfirm) return;
             const fn = pendingConfirm;
             pendingConfirm = null;
-            // ถ้า fn เป็น async, executeConfirm จะรอให้เสร็จ
-            // และ fn จะเป็นคนปิด dialog เอง
-            await fn();
-            // ถ้า fn ปิด dialog ไปแล้ว closeConfirm() จะไม่ทำอะไรซ้ำ
-            closeConfirm();
+            // แสดง loading ก่อนรอ
+            document.getElementById('confirmContent').style.display = 'none';
+            document.getElementById('confirmLoading').style.display = 'block';
+            document.getElementById('confirmOkBtn').disabled = true;
+            try {
+                await fn();
+            } finally {
+                closeConfirm();
+            }
         }
 
         function initDiscordAuth() {
@@ -562,15 +569,11 @@
             showConfirm(
                 '⚠️ ยืนยันการย้ายออก',
                 'ต้องการย้าย ' + code + ' ' + name.replace(/\[MHNK-PD\]/g, '').trim() + ' ออกจากระบบ?\nสาเหตุ: ' + reason + '\n\n⚠️ ข้อมูลจะถูกลบจาก NamePD และไปอยู่ OutDC',
-                function () { executeMoveOut(row, reason); }
+                function () { return executeMoveOut(row, reason); }
             );
         }
 
         async function executeMoveOut(row, reason) {
-            // แสดง loading
-            document.getElementById('confirmContent').style.display = 'none';
-            document.getElementById('confirmLoading').style.display = 'block';
-            document.getElementById('confirmOkBtn').disabled = true;
             try {
                 const res = await fetch('/api/roster/move-out/' + row, {
                     method: 'POST',
@@ -578,7 +581,6 @@
                     body: JSON.stringify({ pin: PIN, reason: reason }),
                 });
                 const json = await res.json();
-                closeConfirm();
                 if (json.success) {
                     toast(json.message, 'success');
                     log('ย้ายออก: ' + json.message);
@@ -587,7 +589,6 @@
                     toast(json.error || 'เกิดข้อผิดพลาด', 'error');
                 }
             } catch (err) {
-                closeConfirm();
                 toast('เชื่อมต่อไม่สำเร็จ', 'error');
             }
         }
