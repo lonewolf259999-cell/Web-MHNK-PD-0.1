@@ -252,6 +252,19 @@
             setTimeout(() => el.style.display = 'none', 3000);
         }
 
+        function copyValue(btn) {
+            const text = btn.getAttribute('data-value') || '';
+            navigator.clipboard.writeText(text).then(() => {
+                const original = btn.innerHTML;
+                btn.innerHTML = '✅';
+                btn.style.color = '#2ecc71';
+                setTimeout(() => {
+                    btn.innerHTML = original;
+                    btn.style.color = '';
+                }, 1000);
+            });
+        }
+
         function enablePin(enable) {
             document.getElementById('pinInput').disabled = !enable;
             document.getElementById('loginBtn').disabled = !enable;
@@ -417,7 +430,10 @@
                 return '<tr>' +
                     '<td>' + (i + 1) + '</td>' +
                     '<td>' + (r['Timestamp'] || r['เวลา'] || '—') + '</td>' +
-                    '<td><code style="font-size:11px;color:#aaa">' + (r['Discord ID'] || '—') + '</code></td>' +
+                    '<td><code style="font-size:11px;color:#aaa">' + (r['Discord ID'] || '—') + '</code>' +
+                        '<span data-value="' + (r['Discord ID'] || '') + '" onclick="copyValue(this)" style="cursor:pointer;margin-left:4px;opacity:0.8;display:inline-flex;vertical-align:middle">' +
+                            '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>' +
+                        '</span></td>' +
                     '<td>' + (r['ชื่อ Discord'] || '—') + '</td>' +
                     '<td>' + (r['ชื่อ IC'] || '—') + '</td>' +
                     '<td>' + (r['เบอร์ IC'] || '—') + '</td>' +
