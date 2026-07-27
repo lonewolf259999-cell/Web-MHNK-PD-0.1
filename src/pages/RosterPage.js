@@ -15,7 +15,13 @@ class RosterPage {
         if (filtered.length === 0) {
             this.container.innerHTML = this.createEmptyState();
         } else {
-            this.container.innerHTML = filtered.map(officer => this.createCard(officer)).join('');
+            this.container.innerHTML = '<div class="officer-table-header">' +
+                '<span class="hdr-avatar"></span>' +
+                '<span class="hdr-name">ชื่อ-นามสกุล</span>' +
+                '<span class="hdr-rank">ยศ</span>' +
+                '<span class="hdr-cases">เคส</span>' +
+                '</div>' +
+                filtered.map(officer => this.createRow(officer)).join('');
         }
 
         this.updateBadge(filtered.length, officers.length);
@@ -31,26 +37,18 @@ class RosterPage {
         );
     }
 
-    createCard(officer) {
+    createRow(officer) {
         const rankLevel = HtmlUtils.getRankLevel(officer.rank);
         const initials = HtmlUtils.getInitials(officer.name, officer.code);
         const casesCount = HtmlUtils.parseCases(officer.cases);
-        const steamId = officer.steamId ? HtmlUtils.escape(officer.steamId) : '';
         const profileUrl = 'profile.html?name=' + encodeURIComponent(officer.fullName);
 
         return `
-            <a href="${profileUrl}" class="officer-card" data-code="${HtmlUtils.escape(officer.code)}">
-                <div class="card-top">
-                    <div class="officer-avatar">${initials}</div>
-                    <span class="rank-badge rank-${rankLevel}">${HtmlUtils.escape(officer.rank)}</span>
-                </div>
-                <h3 class="officer-name">${HtmlUtils.escape(officer.name)}</h3>
-                <div class="card-footer">
-                    <span class="cases-count">
-                        <strong>${casesCount.toLocaleString()}</strong> เคส
-                    </span>
-                    ${steamId ? `<span class="steam-id">${steamId}</span>` : '<span class="steam-id"></span>'}
-                </div>
+            <a href="${profileUrl}" class="officer-row" data-code="${HtmlUtils.escape(officer.code)}">
+                <span class="row-avatar">${initials}</span>
+                <span class="row-name">${HtmlUtils.escape(officer.name)}</span>
+                <span class="rank-badge rank-${rankLevel}">${HtmlUtils.escape(officer.rank)}</span>
+                <span class="row-cases"><strong>${casesCount.toLocaleString()}</strong></span>
             </a>
         `;
     }

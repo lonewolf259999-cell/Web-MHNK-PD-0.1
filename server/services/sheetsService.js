@@ -103,6 +103,51 @@ async function getWeekData(weekName) {
     return data;
 }
 
+/**
+ * Get TOP 10 from the latest week (excluding "test" weeks)
+ * Uses CASES_SHEET_ID (1vHEsytsmytswkh9YWdcCyYMtfRcQNoSTFH2v7G19gTg)
+ * Reads week names from CaseAll (col H), then loads latest week data
+ */
+async function getLatestWeekTop10() {
+    const cacheKey = 'week_top10';
+    const cached = cacheService.get(cacheKey);
+    if (cached) return cached;
+
+    // 1. Get all week names
+    const csvText = await fetchGvizCSV(config.CASES_SHEET_ID, config.CASES_SHEET_NAME);
+    const rows = csvParser.parseCSV(csvText);
+    const weeks = csvParser.mapWeekNames(rows);
+
+    // 2. Filter out "test" and find the latest (last in list)
+    const realWeeks = weeks.filter(w => w.toLowerCase() !== 'test');
+    if (realWeeks.length === 0) {
+        return { weekName: '', top10: [] };
+    }
+    const latestWeek = realWeeks[realWeeks.length - 1];
+
+    // 3. Load that week's data
+    const weekCsv = await fetchGvizCSV(config.CASES_SHEET_ID, latestWeek);
+    const weekRows = csvParser.parseCSV(weekCsv);
+    const weekData = csvParser.mapWeekData(weekRows);
+
+    // 4. Convert to array, sort by totalCases desc, take top 10
+    const officers = Object.values(weekData);
+    officers.sort((a, b) => {
+        const casesA = parseFloat(a.totalCases) || 0;
+        const casesB = parseFloat(b.totalCases) || 0;
+        return casesB - casesA;
+    });
+    const top10 = officers.slice(0, 10).map(o => ({
+        name: o.name,
+        rank: o.rank,
+        totalCases: parseFloat(o.totalCases) || 0
+    }));
+
+    const result = { weekName: latestWeek, top10 };
+    cacheService.set(cacheKey, result);
+    return result;
+}
+
 // ==================== Rules/Conduct/Fines (Google Sheets) ====================
 
 /**
@@ -461,6 +506,7 @@ module.exports = {
     getOfficers,
     getWeekNames,
     getWeekData,
+    getLatestWeekTop10,
     markOfficerAsPaid,
     refreshAll,
     preWarmCache,

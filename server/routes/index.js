@@ -29,6 +29,7 @@ router.post('/api/refresh', verifyPin, asyncHandler(officersController.refreshDa
 // ==================== Weeks ====================
 router.get('/api/weeks', setNoCache, asyncHandler(weeksController.getWeeks));
 router.get('/api/week-data', setNoCache, asyncHandler(weeksController.getWeekData));
+router.get('/api/week-top10', setNoCache, asyncHandler(weeksController.getWeekTop10));
 
 // ==================== Admin ====================
 router.post('/api/mark-paid', verifyPin, asyncHandler(adminController.markPaid));

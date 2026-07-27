@@ -83,14 +83,17 @@
 
     <!-- Main Layout -->
     <div class="app-layout">
-        <!-- Sidebar -->
-        <aside class="sidebar">
+        <!-- Sidebar Left -->
+        <aside class="sidebar sidebar-left">
             <div class="sidebar-card">
                 <div class="sidebar-header">
-                    <h3>&#9733; <span>TOP 10</span> เคส</h3>
-                    <span class="sidebar-badge">TOP</span>
+                    <h3 id="weekTop10Title">&#9733; <span>TOP 10</span></h3>
+                    <span class="sidebar-badge">เคส</span>
                 </div>
-                <div class="top-list" id="topList">
+                <select id="weekSelector" class="week-select" onchange="App.sidebar.onWeekChange(this.value)">
+                    <option value="">กำลังโหลด...</option>
+                </select>
+                <div class="top-list" id="topListLeft">
                     <div class="top-empty">กำลังโหลด...</div>
                 </div>
             </div>
@@ -177,6 +180,19 @@
                 </div>
             </div>
         </main>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-card">
+                <div class="sidebar-header">
+                    <h3>&#9733; <span>TOP 10</span> เคส</h3>
+                    <span class="sidebar-badge">TOP</span>
+                </div>
+                <div class="top-list" id="topList">
+                    <div class="top-empty">กำลังโหลด...</div>
+                </div>
+            </div>
+        </aside>
     </div>
 
     <!-- Footer -->

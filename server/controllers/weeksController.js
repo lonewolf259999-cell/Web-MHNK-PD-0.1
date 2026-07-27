@@ -18,4 +18,9 @@ async function getWeekData(req, res) {
     res.json(data);
 }
 
-module.exports = { getWeeks, getWeekData };
+async function getWeekTop10(req, res) {
+    const result = await sheetsService.getLatestWeekTop10();
+    res.json(result);
+}
+
+module.exports = { getWeeks, getWeekData, getWeekTop10 };

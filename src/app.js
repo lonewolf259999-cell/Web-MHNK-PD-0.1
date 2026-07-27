@@ -96,6 +96,26 @@ const App = {
                 logger.warn('No officers loaded');
             }
 
+            // Load week names for selector + week top10 (non-blocking)
+            ApiService.getWeeks().then(weekNames => {
+                if (weekNames && weekNames.length > 0) {
+                    this.sidebar.populateWeekSelector(weekNames);
+                    logger.info(`Loaded ${weekNames.length} week names`);
+                }
+            }).catch(err => {
+                logger.warn(`Failed to load week names: ${err.message}`);
+            });
+
+            // Load week top10 for left sidebar (non-blocking)
+            ApiService.getWeekTop10().then(data => {
+                if (data && data.top10) {
+                    this.sidebar.renderLeft(data);
+                    logger.info(`Loaded week top10: ${data.weekName}`);
+                }
+            }).catch(err => {
+                logger.warn(`Failed to load week top10: ${err.message}`);
+            });
+
         } catch (error) {
             logger.error(`Fatal error loading data: ${error.message}`);
             window.Notification.show('เกิดข้อผิดพลาดในการโหลดข้อมูล', 'error');

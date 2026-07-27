@@ -165,6 +165,13 @@ const ApiService = {
     },
 
     /**
+     * Get TOP 10 from latest week (CaseAll)
+     */
+    async getWeekTop10() {
+        return this.fetch('/api/week-top10', 'week_top10');
+    },
+
+    /**
      * Get schedule configuration
      */
     async getScheduleConfig() {
