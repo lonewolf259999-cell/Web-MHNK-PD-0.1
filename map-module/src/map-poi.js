@@ -1,7 +1,7 @@
 /* ========================================
    MHNK Map Module - POI Manager
    จัดการจุดแจ้ง (CRUD + UI)
-   หมวดหม่อ่านจากไฟล PNG ใน blips/custom/ อัตนมัติ
+   หมวดหมู่อ่านจากไฟล์ PNG ใน blips/custom/ อัตโนมัติ
    ======================================== */
 
 /** Escape HTML เพื่อป้องกัน XSS จากชื่อ/รายละเอียดจุด */
@@ -22,9 +22,10 @@ const MHNK_POI = {
   _searchQuery: '',
   _started: false,
   _suppressClicksUntil: 0,
+  _submitting: false,
 
   async init() {
-    if (this._started) return; // ป้องกัน init ้ำ (จาก event + timeout fallback)
+    if (this._started) return; // ป้องกัน init ซ้ำ (จาก event + timeout fallback)
     this._started = true;
     this._bindEvents();
     if (typeof loadCategories === 'function') {
@@ -65,6 +66,9 @@ const MHNK_POI = {
   },
 
   async loadPois() {
+    // แสดงสถานะกำลังโหลด
+    const container = document.getElementById('mhnk-poi-list');
+    if (container) container.innerHTML = '<div class="mhnk-empty">⏳ กำลังโหลด...</div>';
     try {
       const res = await fetch('/api/poi');
       const data = await res.json();
@@ -74,9 +78,12 @@ const MHNK_POI = {
         this.pois.forEach(poi => MHNK_MAP.addPoi(poi));
         this._renderPoiList();
         this._updateStats();
+      } else {
+        if (container) container.innerHTML = '<div class="mhnk-empty">⚠️ โหลดข้อมูลไม่สำเร็จ</div>';
       }
     } catch (err) {
       console.error('[MHNK-POI] Load failed:', err);
+      if (container) container.innerHTML = '<div class="mhnk-empty">⚠️ เกิดข้อผิดพลาดในการโหลด</div>';
     }
   },
 
@@ -97,7 +104,7 @@ const MHNK_POI = {
       }
     } catch (err) {
       console.error('[MHNK-POI] Add failed:', err);
-      alert('❌ เกิดข้อผิดพลาดในการเชื่อมต่อเิรฟเวอร');
+      alert('❌ เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
       return false;
     }
   },
@@ -160,7 +167,7 @@ const MHNK_POI = {
             <input type="text" id="mhnk-poi-name" placeholder="เช่น ด่านตรวจถนนจ้าว...">
           </div>
           <div class="mhnk-form-group">
-            <label for="mhnk-poi-category">หมวดหม่ <span class="required">*</span></label>
+            <label for="mhnk-poi-category">หมวดหมู่ <span class="required">*</span></label>
             <select id="mhnk-poi-category">${catOptions}</select>
           </div>
           <div class="mhnk-form-group">
@@ -170,7 +177,7 @@ const MHNK_POI = {
         </div>
         <div class="mhnk-modal-footer">
           <button class="mhnk-btn mhnk-btn-secondary" onclick="MHNK_POI._hideModal()">ยกเลิก</button>
-          <button class="mhnk-btn mhnk-btn-primary" onclick="MHNK_POI._submitAddForm()">✅ เพิ่มจุด</button>
+          <button id="mhnk-poi-submit-btn" class="mhnk-btn mhnk-btn-primary" onclick="MHNK_POI._submitAddForm()">✅ เพิ่มจุด</button>
         </div>
       </div>
     `;
@@ -179,28 +186,53 @@ const MHNK_POI = {
   },
 
   async _submitAddForm() {
+    // ป้องกันการกดซ้ำหลายที (จะสร้างจุดซ้ำ)
+    if (this._submitting) return;
+    this._submitting = true;
+
+    const submitBtn = document.getElementById('mhnk-poi-submit-btn');
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '⏳ กำลังบันทึก...';
+    }
+
     const name = document.getElementById('mhnk-poi-name')?.value?.trim();
     const category = document.getElementById('mhnk-poi-category')?.value;
     const description = document.getElementById('mhnk-poi-desc')?.value?.trim();
     const x = parseFloat(document.getElementById('mhnk-poi-x')?.value);
     const y = parseFloat(document.getElementById('mhnk-poi-y')?.value);
 
+    const finish = (valid) => {
+      this._submitting = false;
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '✅ เพิ่มจุด';
+      }
+      return valid;
+    };
+
     if (!name) {
-      alert('⚠️ กรุากรอกชื่อสถานที่');
+      alert('⚠️ กรุณากรอกชื่อสถานที่');
       document.getElementById('mhnk-poi-name')?.focus();
-      return;
+      return finish(false);
     }
     if (!category) {
-      alert('⚠️ กรุาเลือกหมวดหม่');
-      return;
+      alert('⚠️ กรุณาเลือกหมวดหมู่');
+      return finish(false);
     }
     if (isNaN(x) || isNaN(y)) {
-      alert('⚠️ พิกัดไม่ถกต้อง');
-      return;
+      alert('⚠️ พิกัดไม่ถูกต้อง');
+      return finish(false);
     }
 
-    const success = await this.addPoi({ name, category, description, x, y });
-    if (success) this._hideModal();
+    try {
+      const success = await this.addPoi({ name, category, description, x, y });
+      if (success) this._hideModal();
+      return finish(success);
+    } catch (err) {
+      console.error('[MHNK-POI] Add form error:', err);
+      return finish(false);
+    }
   },
 
   _hideModal() {
