@@ -1,16 +1,31 @@
 /* ========================================
    MHNK Map Module - POI Manager
    จัดการจุดแจ้ง (CRUD + UI)
-   หมวดหมู่อ่านจากไฟล์ PNG ใน blips/custom/ อัตโนมัติ
+   หมวดหม่อ่านจากไฟล PNG ใน blips/custom/ อัตนมัติ
    ======================================== */
+
+/** Escape HTML เพื่อป้องกัน XSS จากชื่อ/รายละเอียดจุด */
+function escapeHtml(str) {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
 
 const MHNK_POI = {
   pois: [],
   _modalVisible: false,
   _selectedCoords: null,
   _searchQuery: '',
+  _started: false,
+  _suppressClicksUntil: 0,
 
   async init() {
+    if (this._started) return; // ป้องกัน init ้ำ (จาก event + timeout fallback)
+    this._started = true;
     this._bindEvents();
     if (typeof loadCategories === 'function') {
       await loadCategories();
@@ -23,14 +38,10 @@ const MHNK_POI = {
     document.addEventListener('mhnk-map-click', (e) => {
       console.log('[MHNK-POI] Map click received:', e.detail);
       if (this._modalVisible) return;
+      // ข้ามการเปิด modal ใหม่ทันทีหลังปิด (กันการคลิกนอกกรอบแล้วเด้งกลับ)
+      if (Date.now() < this._suppressClicksUntil) return;
       this._selectedCoords = e.detail;
       this._showAddForm(e.detail.x, e.detail.y);
-    });
-
-    document.addEventListener('click', (e) => {
-      if (e.target.closest('.mhnk-modal-overlay') && !e.target.closest('.mhnk-modal')) {
-        this._hideModal();
-      }
     });
 
     document.addEventListener('keydown', (e) => {
@@ -86,7 +97,7 @@ const MHNK_POI = {
       }
     } catch (err) {
       console.error('[MHNK-POI] Add failed:', err);
-      alert('❌ เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
+      alert('❌ เกิดข้อผิดพลาดในการเชื่อมต่อเิรฟเวอร');
       return false;
     }
   },
@@ -110,11 +121,11 @@ const MHNK_POI = {
   /** Helper: icon สำหรับ sidebar dot */
   _catDotHtml(cat) {
     if (cat && cat.file) {
-      return `<img src="/map-module/blips/custom/${cat.file}" style="width:20px;height:20px;border-radius:50%;border:2px solid rgba(255,255,255,0.3);object-fit:cover">`;
+      const file = encodeURI(cat.file);
+      return `<img src="/map-module/blips/custom/${file}" alt="${escapeHtml(cat.label || '')}" style="width:20px;height:20px;border-radius:50%;border:2px solid rgba(255,255,255,0.3);object-fit:cover">`;
     }
     return '📌';
   },
-
   _showAddForm(x, y) {
     const overlay = document.getElementById('mhnk-modal-overlay');
     const body = document.getElementById('mhnk-modal-body');
@@ -126,7 +137,7 @@ const MHNK_POI = {
     // Dropdown options - browser ไม่ support <img> ใน <option> ใช้ข้อความอย่างเดียว
     const catEntries = Object.values(MAP_CATEGORIES);
     const catOptions = catEntries.length > 0
-      ? catEntries.map(cat => `<option value="${cat.id}">📌 ${cat.label}</option>`).join('')
+      ? catEntries.map(cat => `<option value="${escapeHtml(cat.id)}">📌 ${escapeHtml(cat.label)}</option>`).join('')
       : '<option value="custom">📌 อื่นๆ</option>';
 
     body.innerHTML = `
@@ -149,7 +160,7 @@ const MHNK_POI = {
             <input type="text" id="mhnk-poi-name" placeholder="เช่น ด่านตรวจถนนจ้าว...">
           </div>
           <div class="mhnk-form-group">
-            <label for="mhnk-poi-category">หมวดหมู่ <span class="required">*</span></label>
+            <label for="mhnk-poi-category">หมวดหม่ <span class="required">*</span></label>
             <select id="mhnk-poi-category">${catOptions}</select>
           </div>
           <div class="mhnk-form-group">
@@ -175,16 +186,16 @@ const MHNK_POI = {
     const y = parseFloat(document.getElementById('mhnk-poi-y')?.value);
 
     if (!name) {
-      alert('⚠️ กรุณากรอกชื่อสถานที่');
+      alert('⚠️ กรุากรอกชื่อสถานที่');
       document.getElementById('mhnk-poi-name')?.focus();
       return;
     }
     if (!category) {
-      alert('⚠️ กรุณาเลือกหมวดหมู่');
+      alert('⚠️ กรุาเลือกหมวดหม่');
       return;
     }
     if (isNaN(x) || isNaN(y)) {
-      alert('⚠️ พิกัดไม่ถูกต้อง');
+      alert('⚠️ พิกัดไม่ถกต้อง');
       return;
     }
 
@@ -197,6 +208,8 @@ const MHNK_POI = {
     if (overlay) overlay.classList.remove('show');
     this._modalVisible = false;
     this._selectedCoords = null;
+    // กัน modal เปิดใหม่ทันทีหลังปิด (หลังคลิกนอกกรอบเพื่อปิด)
+    this._suppressClicksUntil = Date.now() + 300;
   },
 
   _renderPoiList() {
@@ -224,14 +237,18 @@ const MHNK_POI = {
 
     container.innerHTML = filtered.map(poi => {
       const cat = MAP_CATEGORIES[poi.category];
+      const name = escapeHtml(poi.name || 'ไม่ระบุชื่อ');
+      const catLabel = escapeHtml(cat?.label || 'อื่นๆ');
+      const x = isFinite(poi.x) ? poi.x.toFixed(1) : '0.0';
+      const y = isFinite(poi.y) ? poi.y.toFixed(1) : '0.0';
       return `
-        <div class="mhnk-poi-item" onclick="MHNK_MAP.map.setView([${poi.y}, ${poi.x}], 4)">
+        <div class="mhnk-poi-item" onclick="MHNK_MAP.map.setView([${y}, ${x}], 4)">
           <div class="mhnk-poi-item-dot" style="background: ${cat?.color || '#888'}">${this._catDotHtml(cat)}</div>
           <div class="mhnk-poi-item-info">
-            <div class="mhnk-poi-item-name">${poi.name || 'ไม่ระบุชื่อ'}</div>
-            <div class="mhnk-poi-item-meta">${cat?.label || 'อื่นๆ'} · X:${poi.x?.toFixed(1)} Y:${poi.y?.toFixed(1)}</div>
+            <div class="mhnk-poi-item-name">${name}</div>
+            <div class="mhnk-poi-item-meta">${catLabel} · X:${x} Y:${y}</div>
           </div>
-          <button class="mhnk-poi-item-del" onclick="event.stopPropagation(); MHNK_POI.deletePoi('${poi.id}')" title="ลบ">🗑️</button>
+          <button class="mhnk-poi-item-del" onclick="event.stopPropagation(); MHNK_POI.deletePoi('${escapeHtml(poi.id)}')" title="ลบ">🗑️</button>
         </div>
       `;
     }).join('');
@@ -249,7 +266,7 @@ const MHNK_POI = {
     const catEntries = Object.values(MAP_CATEGORIES);
     filter.innerHTML = '<option value="all">🏷️ ทั้งหมด</option>' +
       (catEntries.length > 0
-        ? catEntries.map(cat => `<option value="${cat.id}">📌 ${cat.label}</option>`).join('')
+        ? catEntries.map(cat => `<option value="${escapeHtml(cat.id)}">📌 ${escapeHtml(cat.label)}</option>`).join('')
         : '<option value="custom">📌 อื่นๆ</option>'
       );
   }

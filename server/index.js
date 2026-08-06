@@ -37,6 +37,8 @@ const globalLimiter = rateLimit({
     max: 300,            // สูงสุด 300 request/นาที
     standardHeaders: true,
     legacyHeaders: false,
+    // skip map tiles from rate limit
+    skip: (req) => req.path.startsWith('/map-module/map-styles'),
     message: { success: false, error: 'มีการใช้งานมากเกินไป กรุณาลองใหม่ใน 1 นาที' }
 });
 
@@ -110,7 +112,10 @@ const staticOptions = {
 app.use(express.static(path.join(__dirname, '..', 'public'), staticOptions));
 app.use('/src', express.static(path.join(__dirname, '..', 'src'), staticOptions));
 try {
-  app.use('/map-module', express.static(path.join(__dirname, '..', 'map-module'), staticOptions));
+  const mapModuleDir = path.join(__dirname, '..', 'map-module');
+  app.use('/map-module/src', express.static(path.join(mapModuleDir, 'src'), staticOptions));
+  app.use('/map-module/map-styles', express.static(path.join(mapModuleDir, 'map-styles'), staticOptions));
+  app.use('/map-module/blips', express.static(path.join(mapModuleDir, 'blips'), staticOptions));
 } catch (e) {
   // map-module not present
 }
