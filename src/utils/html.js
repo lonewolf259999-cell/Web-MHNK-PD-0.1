@@ -146,5 +146,22 @@ const HtmlUtils = {
         const b = this.normalizeName(officerName);
         if (!a || !b) return false;
         return a === b || a.includes(b) || b.includes(a);
+    },
+
+    /**
+     * ค้นหาข้อมูลเจ้าหน้าที่ใน weekData (object ที่ key เป็นชื่อเจ้าหน้าที่)
+     * รวมลูปค้นหาที่ซ้ำกันหลายจุดไว้ที่เดียว เพื่อดูแลจุดเดียวและลดความผิดพลาด
+     * @param {Object} weekData - ข้อมูลรายสัปดาห์ { officerName: data }
+     * @param {string} officerName - ชื่อเจ้าหน้าที่ที่ต้องการค้นหา
+     * @returns {Object|null} - ข้อมูลของเจ้าหน้าที่ หรือ null ถ้าไม่พบ
+     */
+    findOfficerWeekData(weekData, officerName) {
+        if (!weekData || typeof weekData !== 'object') return null;
+        for (const key of Object.keys(weekData)) {
+            if (this.isOfficerMatch(key, officerName)) {
+                return weekData[key];
+            }
+        }
+        return null;
     }
 };

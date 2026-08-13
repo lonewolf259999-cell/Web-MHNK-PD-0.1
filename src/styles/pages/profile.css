@@ -150,6 +150,58 @@
 .stat-mini.yellow { border-color: #fbbf24; background: rgba(251, 191, 36, 0.05); }
 .stat-mini.yellow .stat-number { color: #fbbf24; }
 
+/* ===== ข้อมูลเจ้าหน้าที่เพิ่มเติม (NamePD: I, L, M) ===== */
+.officer-stats {
+    display: flex;
+    gap: 10px;
+    margin: 20px 0;
+}
+.officer-stats .stat-mini { flex: 1; min-width: 0; }
+.stat-mini.steam .stat-number { font-size: 0.8rem; word-break: break-all; }
+
+/* ===== ตารางเวร (จันทร์-อาทิตย์) ===== */
+.profile-section-title {
+    color: var(--color-accent);
+    font-size: 1.1rem;
+    margin: 0 0 15px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--color-border-subtle);
+}
+.duty-table-wrapper { margin-bottom: 30px; }
+.duty-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+.duty-table th,
+.duty-table td {
+    border: 1px solid var(--color-border-subtle);
+    padding: 8px 4px;
+    text-align: center;
+}
+.duty-table th {
+    color: var(--color-text-secondary);
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: rgba(255,255,255,0.03);
+}
+.duty-table td.duty-total {
+    font-weight: 800;
+    color: var(--color-accent);
+}
+/* ช่อง "รวม" ให้มีกรอบเป็นกล่องแบบเดียวกับช่องวันที่มีค่า (.sched-shift) */
+.duty-total-chip {
+    display: inline-block;
+    padding: 4px 10px;
+    background: var(--color-accent-soft);
+    border: 1px solid var(--color-accent);
+    border-radius: 6px;
+    color: var(--color-accent);
+    font-weight: 800;
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
 .payment-status-card {
     margin-top: 20px;
     padding: 20px;

@@ -64,8 +64,8 @@ function getCell(row, index) {
  * Map officers from CSV rows
  * Columns (0-indexed):
  *   A(0), B(1), C(2)=code, D(3)=name, E(4), F(5)=rank, G(6)=cases
+ *   I(8)=workDays, L(11)=daysAway, M(12)=steamKey/steamId
  *   O(14) to U(20) = schedule Mon-Sun
- *   M(12) = steamId
  */
 function mapOfficers(rows) {
     const officers = [];
@@ -90,7 +90,10 @@ function mapOfficers(rows) {
             phone: getCell(row, 1),
             rank: getCell(row, 5),
             cases: getCell(row, 6),
-            steamId: getCell(row, 12),
+            steamId: getCell(row, 12),          // Column M = SteamKey
+            workDays: getCell(row, 8),          // Column I = จำนวนวันที่ทำงาน
+            daysAway: getCell(row, 11),         // Column L = ระยะเวลาที่ไม่ได้เข้าเวร
+            steamKey: getCell(row, 12),         // Column M = SteamKey (แสดงผล)
             fullName: code + ' ' + name,
             schedule
         });
@@ -119,7 +122,18 @@ function mapWeekData(rows) {
             interrogations: getCell(row, 5), // Column F (raw, not divided)
             totalCases: getCell(row, 9),     // Column J
             totalAmount: parseFloat(salaryRaw) || 0, // Column U
-            paid: getCell(row, 23)
+            paid: getCell(row, 23),
+            // ตารางเวร Mon-Sun (0-based index, A=0): AC(28)..AI(34), รวม = AJ(35)
+            duty: [
+                getCell(row, 28), // AC จันทร์
+                getCell(row, 29), // AD อังคาร
+                getCell(row, 30), // AE พุธ
+                getCell(row, 31), // AF พฤหัส
+                getCell(row, 32), // AG ศุกร์
+                getCell(row, 33), // AH เสาร์
+                getCell(row, 34)  // AI อาทิตย์
+            ],
+            dutyTotal: getCell(row, 35) // AJ รวม
         };
     }
     return data;

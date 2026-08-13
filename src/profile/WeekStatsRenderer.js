@@ -17,16 +17,7 @@ class WeekStatsRenderer {
 
         this._fadeIn();
 
-        let data = null;
-
-        if (weekData) {
-            for (const key of Object.keys(weekData)) {
-                if (HtmlUtils.isOfficerMatch(key, officerName)) {
-                    data = weekData[key];
-                    break;
-                }
-            }
-        }
+        const data = HtmlUtils.findOfficerWeekData(weekData, officerName);
 
         if (!data) {
             this.container.innerHTML = `
@@ -89,7 +80,42 @@ class WeekStatsRenderer {
             </div>
         `;
 
-        return { isPaid, amount: data.totalAmount || 0 };
+        return { isPaid, amount: data.totalAmount || 0, data };
+    }
+
+    /**
+     * Render duty roster table (Mon-Sun) for a week
+     * @param {string[]} duty - 7 values for จันทร์..อาทิตย์
+     * @param {string} dutyTotal - รวม (Column AJ)
+     */
+    renderDuty(duty, dutyTotal) {
+        const el = document.getElementById('dutyTable');
+        if (!el) return;
+
+        if (!duty || !Array.isArray(duty) || duty.length === 0) {
+            el.innerHTML = '<div class="no-data-alert">ไม่มีข้อมูลตารางเวรในสัปดาห์นี้</div>';
+            return;
+        }
+
+        const days = ['จันทร์', 'อังคาร', 'พุธ', 'พฤหัส', 'ศุกร์', 'เสาร์', 'อาทิตย์'];
+
+        el.innerHTML = `
+            <table class="duty-table">
+                <thead>
+                    <tr>
+                        ${days.map(d => `<th>${d}</th>`).join('')}
+                        <th>รวม</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        ${duty.map(v => `<td>${v ? `<span class="sched-shift">${HtmlUtils.escape(v)}</span>` : '<span class="sched-no-shift">-</span>'}</td>`).join('')}
+                        <td class="duty-total">${dutyTotal ? `<span class="duty-total-chip">${HtmlUtils.escape(dutyTotal)}</span>` : '-'}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p class="sched-note">* ชั่วโมงการทำงานประจำวันของสัปดาห์นี้</p>
+        `;
     }
 
     /**

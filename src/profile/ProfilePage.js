@@ -52,11 +52,6 @@ class ProfilePage {
         }
     }
 
-    destroy() {
-        if (this.refreshInterval) clearInterval(this.refreshInterval);
-        this.currentActiveWeek = null;
-    }
-
     async loadProfileData() {
         try {
             const [weeks, officers] = await Promise.all([
@@ -99,14 +94,11 @@ class ProfilePage {
             const weekData = result.value;
 
             // Find this officer in the week data
-            for (const key of Object.keys(weekData)) {
-                if (HtmlUtils.isOfficerMatch(key, this.officerName)) {
-                    const d = weekData[key];
-                    totalCases += parseInt(d.totalCases) || 0;
-                    totalTake2 += parseInt(d.take2) || 0;
-                    totalInter += parseInt(d.interrogations) || 0;
-                    break;
-                }
+            const d = HtmlUtils.findOfficerWeekData(weekData, this.officerName);
+            if (d) {
+                totalCases += parseInt(d.totalCases) || 0;
+                totalTake2 += parseInt(d.take2) || 0;
+                totalInter += parseInt(d.interrogations) || 0;
             }
         }
 
@@ -167,6 +159,17 @@ class ProfilePage {
             phoneNumberEl.textContent = '';
         }
 
+        // Populate officer stats (NamePD sheet: I=workDays, L=daysAway, M=steamKey)
+        const setStat = (id, val, fallback = '-') => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const v = (val === '' || val === undefined || val === null) ? fallback : val;
+            el.textContent = String(v);
+        };
+        setStat('statWorkDays', officer.workDays, '0');
+        setStat('statDaysAway', officer.daysAway, '0');
+        setStat('statSteamKey', officer.steamKey || officer.steamId, '-');
+
         // Setup week selector
         this.weekSelector.onWeekSelect((week) => this.selectWeek(week));
         this.weekSelector.setPaymentManager(this.paymentManager);
@@ -190,12 +193,8 @@ class ProfilePage {
             // Force isPaid to true if this week was already paid in this session.
             // This prevents Google GViz CDN cache from reverting the status.
             if (weekData && this._paidWeeks.has(weekName)) {
-                for (const key of Object.keys(weekData)) {
-                    if (HtmlUtils.isOfficerMatch(key, this.officerName)) {
-                        weekData[key].paid = 'จ่ายแล้ว';
-                        break;
-                    }
-                }
+                const d = HtmlUtils.findOfficerWeekData(weekData, this.officerName);
+                if (d) d.paid = 'จ่ายแล้ว';
             }
 
             const result = this.weekStats.render(weekData, weekName, this.officerName);
@@ -203,6 +202,10 @@ class ProfilePage {
             // Update button style based on payment status from render result
             if (result) {
                 this.weekSelector.updateButtonStyle(weekName, result.isPaid, result.amount);
+                // Render duty roster table (Mon-Sun) for the active week
+                this.weekStats.renderDuty(result.data ? result.data.duty : null, result.data ? result.data.dutyTotal : null);
+            } else {
+                this.weekStats.renderDuty(null, null);
             }
         } catch (error) {
             profileLogger.error(`Error loading week data: ${error.message}`);
@@ -250,17 +253,15 @@ class ProfilePage {
                 // Force paid status for the active week in the data
                 const weekData = await ApiService.getWeekData(this.currentActiveWeek);
                 if (weekData && this._paidWeeks.has(this.currentActiveWeek)) {
-                    for (const key of Object.keys(weekData)) {
-                        if (HtmlUtils.isOfficerMatch(key, this.officerName)) {
-                            weekData[key].paid = 'จ่ายแล้ว';
-                            break;
-                        }
-                    }
+                    const d = HtmlUtils.findOfficerWeekData(weekData, this.officerName);
+                    if (d) d.paid = 'จ่ายแล้ว';
                 }
 
                 const result = this.weekStats.render(weekData, this.currentActiveWeek, this.officerName);
                 if (result) {
-                    this.weekSelector.updateButtonStyle(this.currentActiveWeek, true, result.amount);
+                    // ใช้ result.isPaid (สถานะจริง) แทนการบังคับ true เสมอ
+                    // เพื่อไม่ให้สัปดาห์ที่ไม่ได้จ่ายในรอบนี้ถูกแสดงเป็น "จ่ายแล้ว" ผิด
+                    this.weekSelector.updateButtonStyle(this.currentActiveWeek, result.isPaid, result.amount);
                 }
 
                 // Re-check all weeks' status. Since we pass _paidWeeks as the override set,

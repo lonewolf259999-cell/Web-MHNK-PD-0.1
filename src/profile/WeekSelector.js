@@ -89,12 +89,7 @@ class WeekSelector {
                 let data = null;
 
                 if (weekData) {
-                    for (const key of Object.keys(weekData)) {
-                        if (this._isNameMatch(key, officerName)) {
-                            data = weekData[key];
-                            break;
-                        }
-                    }
+                    data = HtmlUtils.findOfficerWeekData(weekData, officerName);
                 }
 
                 if (data) {
@@ -102,7 +97,7 @@ class WeekSelector {
                     const isPaid = ['yes', 'จ่ายแล้ว', 'true', '1'].includes(paidStatus);
                     const amount = data.totalAmount || 0;
                     this.updateButtonStyle(weekName, isPaid, amount);
-} else {
+                } else {
                     // Data not found for this officer in this week - mark as "unchecked" so user knows it needs attention
                     weekLogger.warn(`No data found for ${officerName} in ${weekName}`);
                     this.updateButtonStyle(weekName, false, 0);
@@ -231,12 +226,5 @@ class WeekSelector {
      */
     getButton(weekName) {
         return this._buttons.find(b => b.dataset.week === weekName);
-    }
-
-    /**
-     * Match officer name helper
-     */
-    _isNameMatch(key, officerName) {
-        return HtmlUtils.isOfficerMatch(key, officerName);
     }
 }

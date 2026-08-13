@@ -47,19 +47,26 @@ async function markPaid(req, res) {
         paymentStore.set(idempotencyKey, { status: 'processing' });
     }
 
-    const result = await sheetsService.markOfficerAsPaid(weekName, officerName);
+    try {
+        const result = await sheetsService.markOfficerAsPaid(weekName, officerName);
 
-    const payload = {
-        success: true,
-        message: `อัปเดตแถวที่ ${result.rowIndex} สำเร็จ`,
-    };
+        const payload = {
+            success: true,
+            message: `อัปเดตแถวที่ ${result.rowIndex} สำเร็จ`,
+        };
 
-    if (idempotencyKey) {
-        setPaymentResult(idempotencyKey, payload);
-        payload.idempotencyKey = idempotencyKey;
+        if (idempotencyKey) {
+            setPaymentResult(idempotencyKey, payload);
+            payload.idempotencyKey = idempotencyKey;
+        }
+
+        res.json(payload);
+    } catch (err) {
+        // การเขียนล้มเหลว -> ลบ idempotency key เพื่อให้ retry ทำใหม่ได้
+        // (ไม่ค้างสถานะ 'processing' ที่จะทำให้ retry ติด "ไม่ทราบผล" ตลอด)
+        if (idempotencyKey) paymentStore.delete(idempotencyKey);
+        throw err; // ปล่อยให้ errorHandler ส่งข้อความจริงกลับ client
     }
-
-    res.json(payload);
 }
 
 /**
