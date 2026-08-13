@@ -117,53 +117,132 @@ class PaymentManager {
             payBtn.innerHTML = '<span class="loader-mini"></span> กำลังประมวลผล...';
         }
 
-        const results = { success: 0, failed: 0, errors: [] };
+        const results = { success: 0, failed: 0, unknown: 0, errors: [] };
         const paidWeeks = []; // Track successfully paid week names
 
         // Process all payments in parallel
         const paymentPromises = checkedWeeks.map(async (weekName) => {
-            try {
-                const response = await fetch('/api/mark-paid', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        weekName: weekName,
-                        officerName: this.officerName,
-                        pin: pin
-                    }),
-                    signal: AbortSignal.timeout(10000)
-                });
+            // idempotency key: กันการเขียนซ้ำ + ใช้สอบถามผลจริงหลัง timeout
+            const idempotencyKey = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 
-                const result = await response.json();
-                if (result.success) {
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), 10000);
+
+            try {
+                let response;
+                try {
+                    response = await fetch('/api/mark-paid', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            weekName: weekName,
+                            officerName: this.officerName,
+                            pin: pin,
+                            idempotencyKey: idempotencyKey
+                        }),
+                        signal: controller.signal
+                    });
+                } finally {
+                    clearTimeout(timer);
+                }
+
+                let result = {};
+                try {
+                    result = await response.json();
+                } catch (_) {
+                    // body ไม่ใช่ JSON (เช่น gateway error) - ใช้จัดการตาม status แทน
+                }
+
+                if (response.ok && result.success) {
                     results.success++;
                     paidWeeks.push(weekName);
                     this.weekSelector.updateButtonStyle(weekName, true, 0);
                     // Immediately patch client cache so clicking the week button
                     // later won't show stale "unpaid" data from cache
                     ApiService.patchCacheWeek(weekName, this.officerName, 'จ่ายแล้ว');
+                    return;
+                }
+
+                // server ยังประมวลผลไม่เสร็จ -> ถามสถานะจริงอีกรอบ
+                if (result.processing) {
+                    await this._resolveUncertainPayment(weekName, idempotencyKey, results, paidWeeks);
+                    return;
+                }
+
+                // HTTP error จริง (PIN ผิด ฯลฯ)
+                results.failed++;
+                let reason = result.error;
+                if (!reason) {
+                    if (response.status === 401) reason = 'PIN ไม่ถูกต้อง';
+                    else if (response.status === 400) reason = 'ข้อมูลไม่ถูกต้อง';
+                    else reason = `เกิดข้อผิดพลาด (HTTP ${response.status})`;
+                }
+                results.errors.push(`${weekName}: ${reason}`);
+            } catch (e) {
+                // timeout/ถูกตัด -> ตัดสินใจไม่ได้ (server อาจเขียนสำเร็จแล้ว) ให้ถามผลจริง
+                if (e.name === 'AbortError') {
+                    await this._resolveUncertainPayment(weekName, idempotencyKey, results, paidWeeks);
                 } else {
                     results.failed++;
-                    results.errors.push(`${weekName}: ${result.error}`);
+                    results.errors.push(`${weekName}: การเชื่อมต่อล้มเหลว`);
                 }
-            } catch (e) {
-                results.failed++;
-                results.errors.push(`${weekName}: การเชื่อมต่อล้มเหลว`);
             }
         });
 
         await Promise.all(paymentPromises);
 
-        if (results.failed > 0) {
-            window.Notification.show(`ล้มเหลว ${results.failed} รายการ: ${results.errors[0]}`, 'error', 5000);
+        const notice = [];
+        if (results.failed > 0) notice.push(`ล้มเหลว ${results.failed} รายการ`);
+        if (results.unknown > 0) notice.push(`ไม่ทราบผล ${results.unknown} รายการ (อาจสำเร็จแล้ว กรุณารีเฟรชเพื่อตรวจสอบ)`);
+
+        if (notice.length > 0) {
+            window.Notification.show(`${notice.join(' • ')}: ${results.errors[0]}`, 'error', 6000);
         } else {
             window.Notification.show(`ยืนยันการจ่ายเงินสำเร็จทั้งหมด ${results.success} รายการ`, 'success');
-            // Refresh UI but skip re-fetching paid weeks from server to avoid
-            // Google Sheets propagation delay reverting our optimistic update
-            if (this.onPaymentComplete) {
-                this.onPaymentComplete(paidWeeks);
-            }
+        }
+
+        // Refresh UI (เฉพาะรายการที่ยืนยันสำเร็จ) แต่ไม่ต้อง re-fetch จาก server
+        // เพื่อเลี่ยง Google Sheets propagation delay ที่จะย้อน optimistic update
+        if (results.success > 0 && this.onPaymentComplete) {
+            this.onPaymentComplete(paidWeeks);
         }
         this.updateSummary();
+    }
+
+    /**
+     * เมื่อผลการจ่าย "ไม่แน่ใจ" (timeout / server ยังประมวลผล) ให้สอบถามผลจริง
+     * จาก server ตาม idempotency key เพื่อไม่ให้แจ้งผลผิดพลาด
+     * @returns {Promise<void>}
+     */
+    async _resolveUncertainPayment(weekName, idempotencyKey, results, paidWeeks) {
+        const status = await this._queryPaymentStatus(idempotencyKey);
+
+        if (status && status.success) {
+            // server ยืนยันแล้วว่าสำเร็จ -> นับเป็นสำเร็จ
+            results.success++;
+            paidWeeks.push(weekName);
+            this.weekSelector.updateButtonStyle(weekName, true, 0);
+            ApiService.patchCacheWeek(weekName, this.officerName, 'จ่ายแล้ว');
+        } else {
+            // ยังไม่แน่ใจจริง ๆ -> นับเป็น "ไม่ทราบผล" (ไม่สรุปว่าล้มเหลว)
+            results.unknown++;
+            results.errors.push(`${weekName}: ไม่ทราบผลการจ่าย (อาจสำเร็จแล้ว) กรุณารีเฟรชเพื่อตรวจสอบ`);
+        }
+    }
+
+    /**
+     * สอบถามผลการจ่ายจริงจาก server ตาม idempotency key
+     * @returns {Promise<Object|null>}
+     */
+    async _queryPaymentStatus(idempotencyKey) {
+        try {
+            const response = await fetch(
+                `/api/mark-paid/status?key=${encodeURIComponent(idempotencyKey)}`,
+                { signal: AbortSignal.timeout(5000) }
+            );
+            return await response.json();
+        } catch (_) {
+            return null;
+        }
     }
 }

@@ -15,6 +15,17 @@ const { createLogger } = require('../utils/logger');
 const logger = createLogger('Sheets');
 
 /**
+ * Normalize an officer name for reliable comparison
+ * (trim, collapse multiple spaces, lowercase)
+ */
+function normalizeOfficerName(name) {
+    return String(name || '')
+        .trim()
+        .replace(/\s+/g, ' ')
+        .toLowerCase();
+}
+
+/**
  * Fetch CSV data from Google Sheets via GViz API
  */
 function fetchGvizCSV(sheetId, sheetName) {
@@ -435,17 +446,41 @@ async function markOfficerAsPaid(weekName, officerName) {
     const rows = response.data.values;
     if (!rows) throw new Error('ไม่พบข้อมูลในชีต');
 
-    let rowIndex = -1;
-    const searchName = officerName.toLowerCase();
+    const searchName = normalizeOfficerName(officerName);
+    if (!searchName) throw new Error('ไม่พบชื่อเจ้าหน้าที่ในชีตสัปดาห์นี้');
 
-    for (let i = 3; i < rows.length; i++) {
-        const cellValue = String(rows[i][0] || '').trim().toLowerCase();
+    // จำนวนแถวแรกที่เป็นหัวตาราง/ชื่อคอลัมน์ (ปรับได้ที่จุดเดียวถ้ารูปแบบชีตเปลี่ยน)
+    const DATA_START_ROW_INDEX = 3;
+
+    const exactMatches = [];
+    const fuzzyMatches = [];
+
+    for (let i = DATA_START_ROW_INDEX; i < rows.length; i++) {
+        const row = rows[i];
+        if (!row) continue; // กัน row ว่าง (เดิมอาจ throw TypeError)
+        const cellValue = normalizeOfficerName(row[0]);
         if (!cellValue) continue;
 
-        if (cellValue.includes(searchName) || searchName.includes(cellValue)) {
-            rowIndex = i + 1;
-            break;
+        if (cellValue === searchName) {
+            exactMatches.push(i + 1);
+        } else if (cellValue.includes(searchName) || searchName.includes(cellValue)) {
+            fuzzyMatches.push(i + 1);
         }
+    }
+
+    let rowIndex = -1;
+
+    // ลำดับ優先: match แบบตรงเป๊ะก่อน ให้ความปลอดภัยสูงสุด
+    if (exactMatches.length === 1) {
+        rowIndex = exactMatches[0];
+    } else if (exactMatches.length > 1) {
+        // เจอชื่อซ้ำหลายแถวทั้งที่ match แบบตรง -> ปฏิเสธเพื่อไม่ให้เขียนผิดคน
+        throw new Error(`พบชื่อเจ้าหน้าที่ซ้ำกัน ${exactMatches.length} แถว กรุณาตรวจสอบข้อมูล`);
+    } else if (fuzzyMatches.length === 1) {
+        // ไม่มีแบบตรงเป๊ะ -> ใช้แบบหลวมได้เฉพาะเมื่อไม่กำกวม (1 แถวเท่านั้น)
+        rowIndex = fuzzyMatches[0];
+    } else if (fuzzyMatches.length > 1) {
+        throw new Error(`พบชื่อเจ้าหน้าที่ซ้ำกัน ${fuzzyMatches.length} แถว กรุณาตรวจสอบข้อมูล`);
     }
 
     if (rowIndex === -1) {

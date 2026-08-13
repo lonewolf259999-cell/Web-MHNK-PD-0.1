@@ -194,10 +194,8 @@ const ApiService = {
         const cacheKey = 'week_' + weekName;
         const entry = this._cache[cacheKey];
         if (entry && entry.data) {
-            const search = (officerName || '').trim().toLowerCase();
             for (const key of Object.keys(entry.data)) {
-                const fullKey = (key || '').toLowerCase();
-                if (fullKey === search || search.includes(fullKey) || fullKey.includes(search)) {
+                if (HtmlUtils.isOfficerMatch(key, officerName)) {
                     entry.data[key].paid = paidStatus;
                     break;
                 }

@@ -94,15 +94,13 @@ class ProfilePage {
         );
         const allWeekData = await Promise.allSettled(weekDataPromises);
 
-        const searchName = this.officerName.toLowerCase();
-
         for (const result of allWeekData) {
             if (result.status !== 'fulfilled' || !result.value) continue;
             const weekData = result.value;
 
             // Find this officer in the week data
             for (const key of Object.keys(weekData)) {
-                if (key.toLowerCase().includes(searchName) || searchName.includes(key.toLowerCase())) {
+                if (HtmlUtils.isOfficerMatch(key, this.officerName)) {
                     const d = weekData[key];
                     totalCases += parseInt(d.totalCases) || 0;
                     totalTake2 += parseInt(d.take2) || 0;
@@ -184,7 +182,7 @@ class ProfilePage {
         this.weekSelector.checkAllStatus(weeks, this.officerName, this._paidWeeks);
     }
 
-    async selectWeek(weekName, isBackgroundRefresh = false) {
+    async selectWeek(weekName) {
         this.currentActiveWeek = weekName;
         try {
             const weekData = await ApiService.getWeekData(weekName);
@@ -192,9 +190,8 @@ class ProfilePage {
             // Force isPaid to true if this week was already paid in this session.
             // This prevents Google GViz CDN cache from reverting the status.
             if (weekData && this._paidWeeks.has(weekName)) {
-                const searchName = this.officerName.toLowerCase();
                 for (const key of Object.keys(weekData)) {
-                    if (key.toLowerCase().includes(searchName) || searchName.includes(key.toLowerCase())) {
+                    if (HtmlUtils.isOfficerMatch(key, this.officerName)) {
                         weekData[key].paid = 'จ่ายแล้ว';
                         break;
                     }
@@ -220,7 +217,7 @@ class ProfilePage {
                 // Clear cache for fresh data
                 ApiService.clearCache('officers');
                 ApiService.clearCache('week_');
-                await this.selectWeek(this.currentActiveWeek, true);
+                await this.selectWeek(this.currentActiveWeek);
             }
         }, 60000);
     }
@@ -253,9 +250,8 @@ class ProfilePage {
                 // Force paid status for the active week in the data
                 const weekData = await ApiService.getWeekData(this.currentActiveWeek);
                 if (weekData && this._paidWeeks.has(this.currentActiveWeek)) {
-                    const searchName = this.officerName.toLowerCase();
                     for (const key of Object.keys(weekData)) {
-                        if (key.toLowerCase().includes(searchName) || searchName.includes(key.toLowerCase())) {
+                        if (HtmlUtils.isOfficerMatch(key, this.officerName)) {
                             weekData[key].paid = 'จ่ายแล้ว';
                             break;
                         }
@@ -279,11 +275,9 @@ class ProfilePage {
 
     _isNameMatch(officerObj) {
         if (!officerObj) return false;
-        const search = (this.officerName || '').trim().toLowerCase();
-        if (!search) return false;
-        const fullName = (officerObj.fullName || '').toLowerCase();
-        const shortName = (officerObj.name || '').toLowerCase();
-        return fullName === search || shortName === search || search.includes(shortName);
+        // ตรวจทั้งชื่อเต็มและชื่อสั้นผ่าน helper กลางจุดเดียว
+        return HtmlUtils.isOfficerMatch(officerObj.fullName, this.officerName)
+            || HtmlUtils.isOfficerMatch(officerObj.name, this.officerName);
     }
 }
 

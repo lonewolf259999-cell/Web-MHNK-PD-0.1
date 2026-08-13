@@ -125,5 +125,26 @@ const HtmlUtils = {
             grouped[cat].push(item);
         }
         return grouped;
+    },
+
+    /**
+     * Normalize a name for comparison (trim, collapse spaces, lowercase)
+     */
+    normalizeName(text) {
+        return String(text || '').trim().replace(/\s+/g, ' ').toLowerCase();
+    },
+
+    /**
+     * ตรวจว่า key (ชื่อในชีต/ข้อมูล) ตรงกับ officerName หรือไม่
+     * ลอจิกเดียวใช้ร่วมทุกจุด เพื่อลดความซ้ำซ้อนและความเสี่ยง match ผิดคน
+     * @param {string} key - ชื่อฝั่งข้อมูล (เช่น key ใน weekData หรือชื่อในชีต)
+     * @param {string} officerName - ชื่อเจ้าหน้าที่ที่ต้องการค้นหา
+     * @returns {boolean}
+     */
+    isOfficerMatch(key, officerName) {
+        const a = this.normalizeName(key);
+        const b = this.normalizeName(officerName);
+        if (!a || !b) return false;
+        return a === b || a.includes(b) || b.includes(a);
     }
 };

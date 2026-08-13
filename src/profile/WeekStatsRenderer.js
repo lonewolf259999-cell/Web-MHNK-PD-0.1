@@ -18,11 +18,10 @@ class WeekStatsRenderer {
         this._fadeIn();
 
         let data = null;
-        const searchName = officerName.toLowerCase();
 
         if (weekData) {
             for (const key of Object.keys(weekData)) {
-                if (key.toLowerCase().includes(searchName) || searchName.includes(key.toLowerCase())) {
+                if (HtmlUtils.isOfficerMatch(key, officerName)) {
                     data = weekData[key];
                     break;
                 }
@@ -60,28 +59,28 @@ class WeekStatsRenderer {
                     </div>
                 </div>
                 <div class="week-stats">
-                    <div class="stat-card-mini" style="flex: 1; min-width: 65px; padding: 10px 5px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); border-radius: 10px;">
-                        <p style="font-size: 0.75rem; margin-bottom: 5px; opacity: 0.7;">Take 2</p>
-                        <div class="stat-number" style="font-size: 1.1rem;">${take2Val}</div>
+                    <div class="stat-mini">
+                        <p>Take 2</p>
+                        <div class="stat-number">${take2Val}</div>
                     </div>
-                    <div class="stat-card-mini" style="flex: 1; min-width: 65px; padding: 10px 5px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); border-radius: 10px;">
-                        <p style="font-size: 0.75rem; margin-bottom: 5px; opacity: 0.7;">คดี</p>
-                        <div class="stat-number" style="font-size: 1.1rem;">${casesVal}</div>
+                    <div class="stat-mini">
+                        <p>คดี</p>
+                        <div class="stat-number">${casesVal}</div>
                     </div>
-                    <div class="stat-card-mini highlight-blue" style="flex: 1; min-width: 65px; padding: 10px 5px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 10px;">
-                        <p style="font-size: 0.75rem; margin-bottom: 5px;">คุมสอบ</p>
-                        <div class="stat-number" style="font-size: 1.1rem;">${interrogationsVal}</div>
+                    <div class="stat-mini blue">
+                        <p>คุมสอบ</p>
+                        <div class="stat-number">${interrogationsVal}</div>
                     </div>
-                    <div class="stat-card-mini highlight-blue" style="flex: 1; min-width: 65px; padding: 10px 5px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 10px;">
-                        <p style="font-size: 0.75rem; margin-bottom: 5px;">รวมคดี</p>
-                        <div class="stat-number" style="font-size: 1.1rem;">${totalCasesVal}</div>
+                    <div class="stat-mini blue">
+                        <p>รวมคดี</p>
+                        <div class="stat-number">${totalCasesVal}</div>
                     </div>
-                    <div class="stat-card-mini highlight-yellow" style="flex: 1; min-width: 65px; padding: 10px 5px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 10px;">
-                        <p style="font-size: 0.75rem; margin-bottom: 5px;">เงินรายอาทิตย์</p>
-                        <div class="stat-number" style="font-size: 1.1rem;">฿${amountVal}</div>
+                    <div class="stat-mini yellow">
+                        <p>เงินรายอาทิตย์</p>
+                        <div class="stat-number">฿${amountVal}</div>
                     </div>
                 </div>
-                <div class="payment-status-card ${paidStatusClass}" style="${!isPaid ? 'border-color: #f77f07; background: rgba(247, 127, 7, 0.1); color: #f77f07;' : ''}">
+                <div class="payment-status-card ${paidStatusClass}">
                     <div class="status-label">สถานะการจ่ายเงิน</div>
                     <div class="status-value" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
                         <span>${paidIcon}</span> <span>${paidStatusText}</span>
@@ -91,14 +90,6 @@ class WeekStatsRenderer {
         `;
 
         return { isPaid, amount: data.totalAmount || 0 };
-    }
-
-    /**
-     * Show loading state
-     */
-    showLoading() {
-        if (!this.container) return;
-        this.container.innerHTML = '<div class="loading-container"><div class="loader"></div><div class="loading-text">กำลังโหลด...</div></div>';
     }
 
     /**

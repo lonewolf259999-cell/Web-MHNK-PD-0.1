@@ -33,6 +33,8 @@ router.get('/api/week-top10', setNoCache, asyncHandler(weeksController.getWeekTo
 
 // ==================== Admin ====================
 router.post('/api/mark-paid', verifyPin, asyncHandler(adminController.markPaid));
+// ให้ client สอบถามผลการจ่ายจริงหลัง timeout (ไม่ต้องใช้ PIN - คืนเฉพาะผลที่เคยบันทึกตาม key)
+router.get('/api/mark-paid/status', asyncHandler(adminController.getPaymentStatus));
 
 // ==================== Static Data (schedule-config only - rules/conduct/fines ใช้ /api/rules-data แทน) ====================
 router.get('/api/schedule-config', asyncHandler(staticController.getStaticData));

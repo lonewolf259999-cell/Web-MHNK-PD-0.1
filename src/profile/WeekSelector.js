@@ -40,6 +40,7 @@ class WeekSelector {
         }
 
         this.container.innerHTML = '';
+        this._buttons = []; // ป้องกันปุ่ม/event ซ้อนเมื่อมีการ render ใหม่
         const btnGroup = document.createElement('div');
         btnGroup.className = 'week-selector';
 
@@ -127,10 +128,11 @@ class WeekSelector {
         btn.dataset.isError = isError;
 
         const isActive = btn.classList.contains('active');
-        const activeColor = '#f77f07';
-        const alertColor = '#ff4d4d';
-        const unpaidZeroColor = '#f77f07'; // orange for unpaid even with 0 amount
-        const errorColor = '#888';
+        // แยก semantic color ให้ผู้ใช้แยกแยะสถานะแต่ละแบบได้ชัดเจน
+        const activeColor = '#3b82f6';        // กำลังดูสัปดาห์นี้อยู่ (blue)
+        const alertColor = '#ff4d4d';         // ค้างจ่าย (ยอด > 0) - red
+        const unpaidZeroColor = '#f77f07';    // ยังไม่จ่าย (ยอด 0) - orange
+        const errorColor = '#888';            // ตรวจสอบสถานะไม่ได้ - grey
         const hasUnpaidBalance = !isPaid && (parseFloat(amount) || 0) > 0;
         const isUnpaidButZero = !isPaid && !hasUnpaidBalance && !isError;
 
@@ -235,9 +237,6 @@ class WeekSelector {
      * Match officer name helper
      */
     _isNameMatch(key, officerName) {
-        const search = (officerName || '').trim().toLowerCase();
-        if (!search) return false;
-        const fullKey = (key || '').toLowerCase();
-        return fullKey === search || search.includes(fullKey) || fullKey.includes(search);
+        return HtmlUtils.isOfficerMatch(key, officerName);
     }
 }
