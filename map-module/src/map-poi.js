@@ -125,6 +125,90 @@ const MHNK_POI = {
     }
   },
 
+  /** เปิด modal แก้ไขชื่อ/รายละเอียดของจุด */
+  _editPoiName(id) {
+    const poi = this.pois.find(p => String(p.id) === String(id));
+    if (!poi) return;
+
+    const overlay = document.getElementById('mhnk-modal-overlay');
+    const body = document.getElementById('mhnk-modal-body');
+    if (!overlay || !body) return;
+
+    this._editingPoiId = id;
+    this._modalVisible = true;
+    overlay.classList.add('show');
+
+    body.innerHTML = `
+      <div class="mhnk-modal">
+        <div class="mhnk-modal-header">
+          <div class="mhnk-modal-header-icon">✎</div>
+          <h3>EDIT NAME <span>// แก้ไขชื่อจุด</span></h3>
+          <button class="mhnk-modal-close" onclick="MHNK_POI._hideModal()">&times;</button>
+        </div>
+        <div class="mhnk-modal-content">
+          <div class="mhnk-form-group">
+            <label for="mhnk-edit-name">ชื่อสถานที่ <span class="required">*</span></label>
+            <input type="text" id="mhnk-edit-name" value="${escapeHtml(poi.name || '')}" placeholder="กรอกชื่อใหม่...">
+          </div>
+          <div class="mhnk-form-group">
+            <label for="mhnk-edit-desc">รายละเอียด</label>
+            <textarea id="mhnk-edit-desc" rows="3" placeholder="รายละเอียดเพิ่มเติม...">${escapeHtml(poi.description || '')}</textarea>
+          </div>
+        </div>
+        <div class="mhnk-modal-footer">
+          <button class="mhnk-btn mhnk-btn-ghost" onclick="MHNK_POI._hideModal()">✕ CANCEL</button>
+          <button id="mhnk-edit-submit-btn" class="mhnk-btn mhnk-btn-primary" onclick="MHNK_POI._savePoiName()">✓ SAVE</button>
+        </div>
+      </div>
+    `;
+
+    setTimeout(() => document.getElementById('mhnk-edit-name')?.focus(), 100);
+  },
+
+  /** บันทึกชื่อ/รายละเอียดที่แก้ไข */
+  async _savePoiName() {
+    if (this._submitting) return;
+    const id = this._editingPoiId;
+    if (!id) return;
+
+    this._submitting = true;
+    const submitBtn = document.getElementById('mhnk-edit-submit-btn');
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.innerHTML = '⏳ กำลังบันทึก...'; }
+
+    const name = document.getElementById('mhnk-edit-name')?.value?.trim();
+    const description = document.getElementById('mhnk-edit-desc')?.value?.trim();
+
+    if (!name) {
+      alert('⚠️ กรุณากรอกชื่อ');
+      document.getElementById('mhnk-edit-name')?.focus();
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = '✓ SAVE'; }
+      this._submitting = false;
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/poi/${encodeURIComponent(id)}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, description })
+      });
+      const data = await res.json();
+      if (data.success) {
+        await this.loadPois();
+        this._hideModal();
+        this._toast('✔ บันทึกชื่อแล้ว');
+      } else {
+        alert('❌ ' + (data.error || 'ไม่สามารถแก้ไขได้'));
+      }
+    } catch (err) {
+      console.error('[MHNK-POI] Edit failed:', err);
+      alert('❌ เกิดข้อผิดพลาด');
+    } finally {
+      this._submitting = false;
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = '✓ SAVE'; }
+    }
+  },
+
   /** Helper: icon สำหรับ sidebar dot */
   _catDotHtml(cat) {
     if (cat && cat.file) {
@@ -281,6 +365,7 @@ const MHNK_POI = {
           <div class="mhnk-poi-item-dot" style="--mc:${mc}">${this._catDotHtml(cat)}</div>
           <div class="mhnk-poi-item-name" title="${name}">${name}</div>
           <span class="mhnk-poi-item-coord">X:${x} Y:${y}</span>
+          <button class="mhnk-poi-item-edit" onclick="event.stopPropagation(); MHNK_POI._editPoiName('${escapeHtml(poi.id)}')" title="แก้ไขชื่อ">✎</button>
           <button class="mhnk-poi-item-del" onclick="event.stopPropagation(); MHNK_POI.deletePoi('${escapeHtml(poi.id)}')" title="ลบ">✕</button>
         </div>
       `;

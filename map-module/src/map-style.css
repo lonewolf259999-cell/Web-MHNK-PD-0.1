@@ -45,8 +45,6 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-.mhnk-mono { font-family: var(--font-tec); }
-
 ::selection { background: rgba(0, 229, 255, 0.3); }
 
 /* ── Scrollbars ────────────────────────────────────── */
@@ -202,6 +200,12 @@ body {
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+.mhnk-hud-brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
 }
 
 .mhnk-hud-logo {
@@ -980,6 +984,7 @@ body {
   flex-shrink: 0;
 }
 
+.mhnk-poi-item-edit,
 .mhnk-poi-item-del {
   background: none;
   border: 1px solid transparent;
@@ -994,7 +999,15 @@ body {
   opacity: 0;
 }
 
+.mhnk-poi-item:hover .mhnk-poi-item-edit,
 .mhnk-poi-item:hover .mhnk-poi-item-del { opacity: 1; }
+
+.mhnk-poi-item-edit:hover {
+  background: rgba(0, 229, 255, 0.12);
+  color: var(--cyan);
+  border-color: rgba(0, 229, 255, 0.35);
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.2);
+}
 
 .mhnk-poi-item-del:hover {
   background: var(--red-soft);
@@ -1241,35 +1254,6 @@ body {
   background: rgba(0, 229, 255, 0.06);
 }
 
-.mhnk-btn-secondary {
-  background: rgba(255, 255, 255, 0.04);
-  color: var(--muted);
-  border-color: rgba(255, 255, 255, 0.12);
-}
-
-.mhnk-btn-secondary:hover {
-  color: var(--text);
-  border-color: var(--line-2);
-  background: rgba(0, 229, 255, 0.06);
-}
-
-.mhnk-btn-danger {
-  background: var(--red-soft);
-  color: var(--red);
-  border-color: rgba(255, 45, 85, 0.3);
-}
-
-.mhnk-btn-danger:hover {
-  background: rgba(255, 45, 85, 0.22);
-  box-shadow: 0 0 14px rgba(255, 45, 85, 0.25);
-}
-
-.mhnk-btn-sm {
-  padding: 6px 12px;
-  font-size: 9px;
-  border-radius: 8px;
-}
-
 /* ═══════════════ RESPONSIVE ═══════════════ */
 @media (max-width: 860px) {
   .mhnk-map-page {
@@ -1328,13 +1312,6 @@ body {
   .mhnk-stat-num { font-size: 18px; }
 }
 /* ═══════════════ EXTRA KEYFRAMES ═══════════════ */
-/* โลโก้ boot เขย่าเบา ๆ */
-@keyframes bootLogoGlitch {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(1px); opacity: 0.9; }
-  50% { transform: translateX(-1px); opacity: 1; }
-  75% { transform: translateX(1px); }
-}
 /* ═══════════════ TOAST ═══════════════ */
 .mhnk-toast {
   position: fixed;

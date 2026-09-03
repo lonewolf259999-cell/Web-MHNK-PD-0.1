@@ -176,16 +176,6 @@ const MHNK_MAP = {
     this.markers = [];
   },
 
-  removePoi(id) {
-    const marker = this.markers.find(m => m._poiData && m._poiData.id === id);
-    if (marker) {
-      this.poiLayer.removeLayer(marker);
-      this.markers = this.markers.filter(m => m._poiData && m._poiData.id !== id);
-      return true;
-    }
-    return false;
-  },
-
   /**
    * สร้าง marker icon — ใช้ชื่อไฟล์จาก MAP_CATEGORIES (โหลดจาก blips/custom/)
    * เป็น divIcon ไอคอนเดี่ยว (ไม่มีวงแหวน)
@@ -194,7 +184,7 @@ const MHNK_MAP = {
     const blipsUrl = this.config.blipsUrl || '/map-module/blips';
 
     // หาชื่อไฟล์ + สีจาก MAP_CATEGORIES
-    let fileName = 'custom.png';
+    let fileName = '2mark.png'; // fallback: ใช้ไฟล์ที่มีใน blips/custom/ จริง (ไม่มี 1mark/custom.png)
     let color = '#00e5ff';
     try {
       const cat = MAP_CATEGORIES[category];
@@ -215,12 +205,5 @@ const MHNK_MAP = {
       iconAnchor: [20, 20],
       popupAnchor: [0, -22]
     });
-  },
-
-  destroy() {
-    if (this.map) { this.map.remove(); this.map = null; }
-    this.tileLayers = {};
-    this.markers = [];
-    this._initialized = false;
   }
 };

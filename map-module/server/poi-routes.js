@@ -26,6 +26,23 @@ function readLocalCache() {
   }
 }
 
+/** เขียนข้อมูล fallback กลับลง data/poi-cache.json (สำหรับแก้ชื่อตอนไม่มี Sheets) */
+function writeLocalCache(data) {
+  try {
+    const cachePath = path.join(__dirname, '..', '..', 'data', 'poi-cache.json');
+    const payload = {
+      success: true,
+      data: data,
+      source: 'fallback-cache',
+      note: 'snapshot from production /api/poi for local/dev fallback when Google Sheets is unavailable'
+    };
+    fs.writeFileSync(cachePath, JSON.stringify(payload, null, 2), 'utf8');
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
 /** สแกนไฟล์ PNG ใน blips/custom/ */
 function scanCustomIcons() {
   const iconsDir = path.join(__dirname, '..', 'blips', 'custom');
@@ -336,6 +353,73 @@ function createPoiRoutes(getSheetsFn) {
       res.json({ success: true });
     } catch (err) {
       console.error('[POI] DELETE error:', err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  // ==================== PUT /api/poi/:id (แก้ไขชื่อ/รายละเอียด) ====================
+  router.put('/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { name, description } = req.body;
+
+      // ต้องมี name หรือ description อย่างน้อยอย่างหนึ่ง
+      if (!name && description === undefined) {
+        return res.status(400).json({ success: false, error: 'กรุณาส่ง name หรือ description ที่ต้องการแก้ไข' });
+      }
+
+      const sheets = getSheetsFn();
+      const config = require('../../server/config');
+      const sid = config.MAP_SHEET_ID || config.SHEET_ID;
+
+      // ── โหมดไม่มี Google Sheets → แก้ใน local cache (dev/offline) ──
+      if (!sid) {
+        const cached = readLocalCache();
+        if (!cached) return res.status(404).json({ success: false, error: 'ไม่พบไฟล์ข้อมูลสำรอง' });
+        const idx = cached.findIndex(p => String(p.id) === String(id));
+        if (idx === -1) return res.status(404).json({ success: false, error: 'ไม่พบจุดที่ต้องการแก้ไข' });
+        if (name !== undefined && name !== null) cached[idx].name = String(name).trim() || cached[idx].name;
+        if (description !== undefined) cached[idx].description = description;
+        if (!writeLocalCache(cached)) return res.status(500).json({ success: false, error: 'บันทึกไฟล์สำรองไม่สำเร็จ' });
+        console.log('[POI] Updated (local cache):', id);
+        return res.json({ success: true, data: cached[idx] });
+      }
+
+      // ── โหมด Google Sheets ──
+      const result = await sheets.spreadsheets.values.get({
+        spreadsheetId: sid,
+        range: `${SHEET_NAME}!A:G`
+      });
+      const rows = result.data.values || [];
+      const rowIndex = rows.findIndex(row => row[0] === id);
+      if (rowIndex === -1) {
+        return res.status(404).json({ success: false, error: 'ไม่พบจุดที่ต้องการแก้ไข' });
+      }
+      if (rowIndex < 1) {
+        return res.status(400).json({ success: false, error: 'ไม่สามารถแก้ไขแถว header ได้' });
+      }
+
+      // คอลัมน์ B=name, D=description (แถวที่ rowIndex+1 เพราะ rowIndex นับจาก 0 และแถว 0 คือ header)
+      const updates = [];
+      if (name !== undefined && name !== null) {
+        updates.push({ range: `${SHEET_NAME}!B${rowIndex + 1}`, value: String(name).trim() });
+      }
+      if (description !== undefined) {
+        updates.push({ range: `${SHEET_NAME}!D${rowIndex + 1}`, value: description });
+      }
+
+      for (const u of updates) {
+        await sheets.spreadsheets.values.update({
+          spreadsheetId: sid,
+          range: u.range,
+          valueInputOption: 'USER_ENTERED',
+          requestBody: { values: [[u.value]] }
+        });
+      }
+
+      res.json({ success: true, data: { id, name: String(name).trim(), description } });
+    } catch (err) {
+      console.error('[POI] PUT error:', err.message);
       res.status(500).json({ success: false, error: err.message });
     }
   });
