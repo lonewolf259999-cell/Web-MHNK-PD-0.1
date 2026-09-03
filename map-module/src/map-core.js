@@ -21,11 +21,11 @@ const MHNK_MAP = {
     blipsUrl: '/map-module/blips',
     maxBounds: [[-6000, -8000], [12000, 10000]],
     maxBoundsViscosity: 0.8,
-    styles: ['atlas'],
-    styleLabels: { atlas: '🗺️ Atlas' },
-    styleFolders: { atlas: 'styleAtlas' },
-    styleExts: { atlas: 'jpg' },
-    styleMaxZooms: { atlas: 5 }
+    styles: ['atlas', 'satelite'],
+    styleLabels: { atlas: 'ATLAS', satelite: 'SATELITE' },
+    styleFolders: { atlas: 'styleAtlas', satelite: 'styleSatelite' },
+    styleExts: { atlas: 'jpg', satelite: 'jpg' },
+    styleMaxZooms: { atlas: 5, satelite: 5 }
   },
 
   /**
@@ -65,19 +65,10 @@ const MHNK_MAP = {
 
     this.map = L.map(container, mapOptions);
     setTimeout(() => this.map.invalidateSize(), 100);
-    this.map.getContainer().style.background = '#1a3a4a';
-    L.control.zoom({ position: 'topright' }).addTo(this.map);
+    this.map.getContainer().style.background = '#07101d';
+    L.control.zoom({ position: 'bottomright' }).addTo(this.map);
     this.poiLayer = L.layerGroup().addTo(this.map);
-    // Crosshair layer - แสดงเป้าเล็งเวลาคลิก
-    this._crosshairLayer = L.layerGroup().addTo(this.map);
     this.map.on('click', (e) => this._onMapClick(e));
-    // อัปเดตพิกัดเป้ากลางจอตามเมาส์
-    this.map.on('mousemove', (e) => {
-      const coordEl = document.getElementById('mhnk-crosshair-coords');
-      if (coordEl) {
-        coordEl.textContent = `X: ${e.latlng.lng.toFixed(1)}, Y: ${e.latlng.lat.toFixed(1)}`;
-      }
-    });
 
     this._initialized = true;
     document.dispatchEvent(new CustomEvent('mhnk-map-ready', { detail: { map: this.map } }));
@@ -119,85 +110,18 @@ const MHNK_MAP = {
     this.map.removeLayer(this.tileLayers[this.currentStyle]);
     this.map.addLayer(this.tileLayers[style]);
     this.currentStyle = style;
+    // อัปเดตปุ่ม active ใน UI
+    document.querySelectorAll('.mhnk-style-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.style === style);
+    });
   },
 
   _onMapClick(e) {
     const x = e.latlng.lng;
     const y = e.latlng.lat;
     const detail = { x, y };
-    
-    // แสดงเป้าเล็งชั่วคราว
-    this._showCrosshair(x, y);
-    
-    document.dispatchEvent(new CustomEvent('mhnk-map-click', { detail }));
-  },
 
-  /**
-   * แสดงเป้าเล็ง + ข้อความพิกัดชั่วคราว
-   */
-  _showCrosshair(x, y) {
-    if (!this._crosshairLayer) return;
-    
-    // ลบอันเก่า
-    this._crosshairLayer.clearLayers();
-    
-    const size = 20;
-    
-    // เป้าเล็ง (กากบาท)
-    const crosshairIcon = L.divIcon({
-      className: '',
-      html: `
-        <div style="
-          width: 40px; height: 40px;
-          position: relative;
-          transform: translate(-50%, -50%);
-        ">
-          <!-- วงกลม -->
-          <div style="
-            position: absolute; top: 50%; left: 50%;
-            width: 32px; height: 32px;
-            border: 2px solid rgba(233,69,96,0.8);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            box-shadow: 0 0 8px rgba(233,69,96,0.3);
-          "></div>
-          <!-- กากบาท -->
-          <div style="
-            position: absolute; top: 50%; left: 50%;
-            width: 14px; height: 2px;
-            background: rgba(233,69,96,0.9);
-            transform: translate(-50%, -50%);
-          "></div>
-          <div style="
-            position: absolute; top: 50%; left: 50%;
-            width: 2px; height: 14px;
-            background: rgba(233,69,96,0.9);
-            transform: translate(-50%, -50%);
-          "></div>
-          <!-- พิกัด -->
-          <div style="
-            position: absolute; top: 24px; left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.7);
-            color: #fff;
-            font-size: 10px;
-            padding: 2px 6px;
-            border-radius: 3px;
-            white-space: nowrap;
-            font-family: monospace;
-          ">${x.toFixed(1)}, ${y.toFixed(1)}</div>
-        </div>
-      `,
-      iconSize: [40, 60],
-      iconAnchor: [0, 0]
-    });
-    
-    const marker = L.marker([y, x], { icon: crosshairIcon, interactive: false }).addTo(this._crosshairLayer);
-    
-    // ลบออกหลังจาก 1.5 วิ
-    setTimeout(() => {
-      try { this._crosshairLayer.clearLayers(); } catch(e) {}
-    }, 1500);
+    document.dispatchEvent(new CustomEvent('mhnk-map-click', { detail }));
   },
 
   async loadPois() {
@@ -215,14 +139,23 @@ const MHNK_MAP = {
 
   addPoi(poi) {
     if (!this.map) return;
+    const xx = Number(poi.x);
+    const yy = Number(poi.y);
+    if (isNaN(xx) || isNaN(yy)) {
+      console.warn('[MHNK-MAP] Invalid coords for POI:', poi);
+      return;
+    }
     const icon = this._createPoiIcon(poi.category);
-    const marker = L.marker([poi.y, poi.x], { icon })
+    const marker = L.marker([yy, xx], { icon })
       .addTo(this.poiLayer);
     marker._poiData = poi;
     this.markers.push(marker);
-    // คลิก → เลื่อนแผนที่ให้จุดอยู่กึ่งกลาง
+    // คลิก → เลื่อนแผนที่ให้จุดอยู่กึ่งกลาง + ไฮไลต์รายการด้านขวา
     marker.on('click', () => {
-      this.map.setView([poi.y, poi.x], this.map.getZoom());
+      this.map.setView([yy, xx], this.map.getZoom());
+      if (typeof MHNK_POI !== 'undefined' && MHNK_POI._selectPoi) {
+        MHNK_POI._selectPoi(String(poi.id));
+      }
     });
     // ชี้ → แสดงชื่อ
     marker.on('mouseover', () => {
@@ -255,27 +188,32 @@ const MHNK_MAP = {
 
   /**
    * สร้าง marker icon — ใช้ชื่อไฟล์จาก MAP_CATEGORIES (โหลดจาก blips/custom/)
+   * เป็น divIcon ไอคอนเดี่ยว (ไม่มีวงแหวน)
    */
   _createPoiIcon(category) {
-    const size = 24;
     const blipsUrl = this.config.blipsUrl || '/map-module/blips';
 
-    // หาชื่อไฟล์จาก MAP_CATEGORIES
+    // หาชื่อไฟล์ + สีจาก MAP_CATEGORIES
     let fileName = 'custom.png';
+    let color = '#00e5ff';
     try {
       const cat = MAP_CATEGORIES[category];
-      if (cat && cat.file) {
-        fileName = cat.file;
-      }
+      if (cat && cat.file) fileName = cat.file;
+      if (cat && cat.color) color = cat.color;
     } catch (e) {
       // fallback
     }
 
-    return L.icon({
-      iconUrl: `${blipsUrl}/custom/${fileName}`,
-      iconSize: [size, size],
-      iconAnchor: [size / 2, size / 2],
-      popupAnchor: [0, -size / 2]
+    const url = `${blipsUrl}/custom/${encodeURI(fileName)}`;
+
+    return L.divIcon({
+      className: 'mhnk-marker',
+      html: `
+        <img class="mhnk-marker-img" src="${url}" alt="" onerror="this.style.display='none'" style="--mc:${color}">
+      `,
+      iconSize: [40, 40],
+      iconAnchor: [20, 20],
+      popupAnchor: [0, -22]
     });
   },
 

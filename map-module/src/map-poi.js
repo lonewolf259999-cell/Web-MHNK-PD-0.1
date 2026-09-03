@@ -129,9 +129,9 @@ const MHNK_POI = {
   _catDotHtml(cat) {
     if (cat && cat.file) {
       const file = encodeURI(cat.file);
-      return `<img src="/map-module/blips/custom/${file}" alt="${escapeHtml(cat.label || '')}" style="width:20px;height:20px;border-radius:50%;border:2px solid rgba(255,255,255,0.3);object-fit:cover">`;
+      return `<img src="/map-module/blips/custom/${file}" alt="" onerror="this.style.display='none';this.parentElement.textContent='📍'">`;
     }
-    return '📌';
+    return '📍';
   },
   _showAddForm(x, y) {
     const overlay = document.getElementById('mhnk-modal-overlay');
@@ -150,17 +150,20 @@ const MHNK_POI = {
     body.innerHTML = `
       <div class="mhnk-modal">
         <div class="mhnk-modal-header">
-          <h3>📍 เพิ่มจุดแจ้ง</h3>
+          <div class="mhnk-modal-header-icon">📍</div>
+          <h3>ADD POI <span>// ลงจุดแจ้ง</span></h3>
           <button class="mhnk-modal-close" onclick="MHNK_POI._hideModal()">&times;</button>
         </div>
         <div class="mhnk-modal-content">
-          <div class="mhnk-form-group">
-            <label>พิกัด X</label>
-            <input type="text" id="mhnk-poi-x" value="${x.toFixed(2)}" readonly class="mhnk-input-readonly">
-          </div>
-          <div class="mhnk-form-group">
-            <label>พิกัด Y</label>
-            <input type="text" id="mhnk-poi-y" value="${y.toFixed(2)}" readonly class="mhnk-input-readonly">
+          <div class="mhnk-coord-box">
+            <div class="mhnk-coord-item">
+              <label>AXIS X</label>
+              <input type="text" id="mhnk-poi-x" value="${x.toFixed(2)}" readonly class="mhnk-input-readonly">
+            </div>
+            <div class="mhnk-coord-item">
+              <label>AXIS Y</label>
+              <input type="text" id="mhnk-poi-y" value="${y.toFixed(2)}" readonly class="mhnk-input-readonly">
+            </div>
           </div>
           <div class="mhnk-form-group">
             <label for="mhnk-poi-name">ชื่อสถานที่ <span class="required">*</span></label>
@@ -176,8 +179,8 @@ const MHNK_POI = {
           </div>
         </div>
         <div class="mhnk-modal-footer">
-          <button class="mhnk-btn mhnk-btn-secondary" onclick="MHNK_POI._hideModal()">ยกเลิก</button>
-          <button id="mhnk-poi-submit-btn" class="mhnk-btn mhnk-btn-primary" onclick="MHNK_POI._submitAddForm()">✅ เพิ่มจุด</button>
+          <button class="mhnk-btn mhnk-btn-ghost" onclick="MHNK_POI._hideModal()">✕ CANCEL</button>
+          <button id="mhnk-poi-submit-btn" class="mhnk-btn mhnk-btn-primary" onclick="MHNK_POI._submitAddForm()">✓ ADD POI</button>
         </div>
       </div>
     `;
@@ -270,25 +273,60 @@ const MHNK_POI = {
     container.innerHTML = filtered.map(poi => {
       const cat = MAP_CATEGORIES[poi.category];
       const name = escapeHtml(poi.name || 'ไม่ระบุชื่อ');
-      const catLabel = escapeHtml(cat?.label || 'อื่นๆ');
-      const x = isFinite(poi.x) ? poi.x.toFixed(1) : '0.0';
-      const y = isFinite(poi.y) ? poi.y.toFixed(1) : '0.0';
+      const mc = cat?.color || '#00e5ff';
+      const x = isFinite(Number(poi.x)) ? Number(poi.x).toFixed(1) : '0.0';
+      const y = isFinite(Number(poi.y)) ? Number(poi.y).toFixed(1) : '0.0';
       return `
-        <div class="mhnk-poi-item" onclick="MHNK_MAP.map.setView([${y}, ${x}], 4)">
-          <div class="mhnk-poi-item-dot" style="background: ${cat?.color || '#888'}">${this._catDotHtml(cat)}</div>
-          <div class="mhnk-poi-item-info">
-            <div class="mhnk-poi-item-name">${name}</div>
-            <div class="mhnk-poi-item-meta">${catLabel} · X:${x} Y:${y}</div>
-          </div>
-          <button class="mhnk-poi-item-del" onclick="event.stopPropagation(); MHNK_POI.deletePoi('${escapeHtml(poi.id)}')" title="ลบ">🗑️</button>
+        <div class="mhnk-poi-item" data-poi-id="${escapeHtml(poi.id)}" style="--mc:${mc}" onclick="MHNK_POI._goToPoi('${escapeHtml(poi.id)}')">
+          <div class="mhnk-poi-item-dot" style="--mc:${mc}">${this._catDotHtml(cat)}</div>
+          <div class="mhnk-poi-item-name" title="${name}">${name}</div>
+          <span class="mhnk-poi-item-coord">X:${x} Y:${y}</span>
+          <button class="mhnk-poi-item-del" onclick="event.stopPropagation(); MHNK_POI.deletePoi('${escapeHtml(poi.id)}')" title="ลบ">✕</button>
         </div>
       `;
     }).join('');
+
+    // ยืนยัน selection เดิมหลัง rerender (ถ้ายังมีจุดนั้นอยู่)
+    if (this._selectedPoiId) this._applySelection(this._selectedPoiId);
+  },
+
+  /** เลือกจุดที่รับมาจากแผนที่ (กด marker) — ไฮไลต์ + เลื่อนรายการด้านขวาไปหาจุดนั้น */
+  _selectPoi(id) {
+    this._selectedPoiId = id;
+    this._applySelection(id);
+  },
+
+  /** ไฮไลต์การ์ดที่เลือก + เลื่อนให้เห็นในรายการ */
+  _applySelection(id) {
+    const items = document.querySelectorAll('.mhnk-poi-item');
+    items.forEach(el => {
+      const on = el.dataset.poiId === id;
+      el.classList.toggle('selected', !!on);
+      if (on) {
+        el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      }
+    });
+  },
+
+  /** กดการ์ดด้านขวา → แผนที่เลื่อนไปยังจุด + ไฮไลต์การ์ด */
+  _goToPoi(id) {
+    const p = this.pois.find(x => String(x.id) === String(id));
+    if (!p) return;
+    if (MHNK_MAP && MHNK_MAP.map) {
+      MHNK_MAP.map.setView([Number(p.y), Number(p.x)], 4);
+    }
+    this._selectPoi(id);
   },
 
   _updateStats() {
     const statEl = document.getElementById('mhnk-poi-stats');
-    if (statEl) statEl.textContent = `📍 ${this.pois.length} จุด`;
+    if (!statEl) return;
+    const count = this.pois.length;
+    statEl.innerHTML = `<span class="mhnk-stat-num">${count}</span><span class="mhnk-stat-unit">BEACONS</span><span class="mhnk-stat-sig">●&nbsp;REC&nbsp;✓</span>`;
+    // แอนิเมชันกระตุกตัวเลขเมื่ออัปเดต
+    statEl.classList.remove('bump');
+    void statEl.offsetWidth;
+    statEl.classList.add('bump');
   },
 
   _renderCategoryFilter() {
@@ -301,5 +339,173 @@ const MHNK_POI = {
         ? catEntries.map(cat => `<option value="${escapeHtml(cat.id)}">📌 ${escapeHtml(cat.label)}</option>`).join('')
         : '<option value="custom">📌 อื่นๆ</option>'
       );
+  },
+
+  /* ══════════ EXPORT ข้อมูลจุด (JSON/CSV) ══════════ */
+
+  /** เปิด modal Export — โหลดข้อมูลล่าสุด + สร้าง JSON/CSV รอไว้ */
+  async _showExportModal() {
+    const overlay = document.getElementById('mhnk-modal-overlay');
+    const body = document.getElementById('mhnk-modal-body');
+    if (!overlay || !body) return;
+
+    // ดึงข้อมูลล่าสุดจาก API (ถ้าสำเร็จจะ sync กับรายการด้วย)
+    try {
+      const res = await fetch('/api/poi');
+      const data = await res.json();
+      if (data.success && Array.isArray(data.data)) this.pois = data.data;
+    } catch (e) {
+      console.error('[MHNK-POI] Export refresh failed (using cached):', e);
+    }
+
+    const rows = this.pois;
+    this._exportJson = JSON.stringify(rows, null, 2);
+    this._exportCsv = this._buildCSV(rows);
+
+    // สรุปจำนวนตามหมวดหมู่
+    const counts = {};
+    rows.forEach(p => {
+      const label = (MAP_CATEGORIES[p.category]?.label) || p.category || 'อื่นๆ';
+      counts[label] = (counts[label] || 0) + 1;
+    });
+    const chips = Object.entries(counts)
+      .map(([label, n]) => {
+        const cat = Object.values(MAP_CATEGORIES).find(c => c.label === label);
+        const color = cat?.color || '#00e5ff';
+        return `<span class="mhnk-export-chip"><i style="--chip-c:${color}"></i>${escapeHtml(label)}<span>${n}</span></span>`;
+      })
+      .join('');
+
+    this._modalVisible = true;
+    overlay.classList.add('show');
+
+    body.innerHTML = `
+      <div class="mhnk-modal">
+        <div class="mhnk-modal-header">
+          <div class="mhnk-modal-header-icon">⬇</div>
+          <h3>EXPORT DATABASE <span>// ดึงข้อมูลไปใช้</span></h3>
+          <button class="mhnk-modal-close" onclick="MHNK_POI._hideModal()">&times;</button>
+        </div>
+        <div class="mhnk-modal-content">
+          <div class="mhnk-export-summary">
+            <span class="mhnk-export-sum-num">${rows.length}</span>
+            <span class="mhnk-export-sum-lbl">BEACONS<br><b>พร้อมส่งออก</b></span>
+          </div>
+          <div class="mhnk-export-breakdown">${chips || '<span class="mhnk-empty">ยังไม่มีข้อมูล</span>'}</div>
+          <div class="mhnk-export-actions">
+            <button class="mhnk-export-action" onclick="MHNK_POI._exportDo('copy','json')">
+              <span class="mhnk-export-act-ico">⧉</span>
+              <span class="mhnk-export-act-txt">
+                <span class="mhnk-export-act-title">COPY JSON</span>
+                <span class="mhnk-export-act-sub">คัดลอกทั้งหมด</span>
+              </span>
+            </button>
+            <button class="mhnk-export-action act-csv" onclick="MHNK_POI._exportDo('copy','csv')">
+              <span class="mhnk-export-act-ico">⧉</span>
+              <span class="mhnk-export-act-txt">
+                <span class="mhnk-export-act-title">COPY CSV</span>
+                <span class="mhnk-export-act-sub">คัดลอกตาราง</span>
+              </span>
+            </button>
+            <button class="mhnk-export-action" onclick="MHNK_POI._exportDo('download','json')">
+              <span class="mhnk-export-act-ico">⬇</span>
+              <span class="mhnk-export-act-txt">
+                <span class="mhnk-export-act-title">DOWNLOAD .JSON</span>
+                <span class="mhnk-export-act-sub">poi-export.json</span>
+              </span>
+            </button>
+            <button class="mhnk-export-action act-csv" onclick="MHNK_POI._exportDo('download','csv')">
+              <span class="mhnk-export-act-ico">⬇</span>
+              <span class="mhnk-export-act-txt">
+                <span class="mhnk-export-act-title">DOWNLOAD .CSV</span>
+                <span class="mhnk-export-act-sub">poi-export.csv</span>
+              </span>
+            </button>
+          </div>
+        </div>
+        <div class="mhnk-modal-footer">
+          <button class="mhnk-btn mhnk-btn-ghost" onclick="MHNK_POI._hideModal()">✕ CLOSE</button>
+        </div>
+      </div>
+    `;
+  },
+
+  /** สร้าง CSV จากรายการ POI */
+  _buildCSV(rows) {
+    const header = ['id', 'name', 'category', 'description', 'x', 'y', 'createdAt'];
+    const esc = (v) => {
+      const s = (v === null || v === undefined) ? '' : String(v);
+      return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+    };
+    const lines = [header.join(',')];
+    rows.forEach(p => {
+      lines.push([p.id, p.name, p.category, p.description, p.x, p.y, p.createdAt].map(esc).join(','));
+    });
+    return lines.join('\r\n');
+  },
+
+  /** กระทำการ copy / download ตามชนิดที่เลือก */
+  async _exportDo(action, kind) {
+    const text = kind === 'json' ? this._exportJson : this._exportCsv;
+    if (action === 'copy') {
+      const ok = await this._copyText(text);
+      this._toast(ok ? `✔ คัดลอก ${kind.toUpperCase()} แล้ว` : '⚠️ คัดลอกไม่สำเร็จ ใช้ปุ่มดาวน์โหลดแทน');
+    } else {
+      const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
+      const name = `poi-export-${stamp}.${kind}`;
+      const mime = kind === 'json' ? 'application/json' : 'text/csv;charset=utf-8';
+      this._downloadFile(name, text, mime);
+      this._toast(`✔ เริ่มดาวน์โหลด ${name}`);
+    }
+  },
+/** คัดลอกข้อความไป clipboard (มี fallback สำหรับ http) */
+  async _copyText(text) {
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+    } catch (e) { /* fallthrough */ }
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      const ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+      return ok;
+    } catch (e) {
+      return false;
+    }
+  },
+
+  /** ดาวน์โหลดไฟล์ (Blob + anchor) */
+  _downloadFile(name, content, mime) {
+    const blob = new Blob([content], { type: mime + ';charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  },
+
+  /** Toast แจ้งเตือนเล็ก ๆ */
+  _toast(msg) {
+    let el = document.getElementById('mhnk-toast');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'mhnk-toast';
+      el.className = 'mhnk-toast';
+      document.body.appendChild(el);
+    }
+    el.innerHTML = msg;
+    el.classList.add('show');
+    clearTimeout(this._toastTimer);
+    this._toastTimer = setTimeout(() => el.classList.remove('show'), 2600);
   }
 };

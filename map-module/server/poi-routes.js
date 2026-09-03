@@ -10,6 +10,22 @@ const path = require('path');
 
 const SHEET_NAME = 'MapPOI';
 
+/** อ่านข้อมูล fallback จาก data/poi-cache.json (ใช้เมื่อไม่มี Google Sheets credentials หรือ Sheets error) */
+function readLocalCache() {
+  try {
+    const cachePath = path.join(__dirname, '..', '..', 'data', 'poi-cache.json');
+    if (!fs.existsSync(cachePath)) return null;
+    const raw = fs.readFileSync(cachePath, 'utf8').replace(/^\uFEFF/, ''); // ตัด BOM
+    const parsed = JSON.parse(raw);
+    if (parsed && Array.isArray(parsed.data) && parsed.data.length > 0) {
+      return parsed.data;
+    }
+    return null;
+  } catch (e) {
+    return null;
+  }
+}
+
 /** สแกนไฟล์ PNG ใน blips/custom/ */
 function scanCustomIcons() {
   const iconsDir = path.join(__dirname, '..', 'blips', 'custom');
@@ -174,6 +190,16 @@ function createPoiRoutes(getSheetsFn) {
       const config = require('../../server/config');
       const sid = config.MAP_SHEET_ID || config.SHEET_ID;
 
+      // ไม่มี Google Sheets config → ใช้ข้อมูลจาก local cache (เพื่อให้ dev/local ยังเห็นข้อมูลเดิม)
+      if (!sid) {
+        const cached = readLocalCache();
+        if (cached) {
+          console.log('[POI] No MAP_SHEET_ID/SHEET_ID, serving local cache (' + cached.length + ' poi)');
+          return res.json({ success: true, data: cached });
+        }
+        return res.json({ success: true, data: [] });
+      }
+
       const spreadsheet = await sheets.spreadsheets.get({ spreadsheetId: sid });
       const sheetExists = spreadsheet.data.sheets.some(s => s.properties.title === SHEET_NAME);
 
@@ -208,7 +234,13 @@ function createPoiRoutes(getSheetsFn) {
 
       res.json({ success: true, data });
     } catch (err) {
-      console.error('[POI] GET error:', err);
+      console.error('[POI] GET error:', err.message);
+      // Sheets ล้มเหลว (เช่น credentials ไม่ถูกต้อง) → ให้ข้อมูลจาก local cache แทน เพื่อให้หน้าไม่ว่าง
+      const cached = readLocalCache();
+      if (cached) {
+        console.log('[POI] Sheets error, falling back to local cache (' + cached.length + ' poi)');
+        return res.json({ success: true, data: cached });
+      }
       res.status(500).json({ success: false, error: err.message });
     }
   });

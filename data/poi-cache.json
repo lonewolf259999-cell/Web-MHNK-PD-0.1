@@ -1,0 +1,1564 @@
+{
+  "success": true,
+  "data": [
+    {
+      "id": "33e43a73-8677-4ed3-81e3-13810d63b8fd",
+      "name": "แลนหลัก",
+      "category": "แลนหลัก",
+      "description": "",
+      "x": -319.14,
+      "y": -1977.74,
+      "createdAt": "2026-06-17T19:44:43.675Z"
+    },
+    {
+      "id": "ca8a0a14-2931-46f7-98f5-8e77af5ac5f3",
+      "name": "แลนเขียว",
+      "category": "แลนเขียว",
+      "description": "",
+      "x": 323.36,
+      "y": -204.88,
+      "createdAt": "2026-06-17T19:04:46.502Z"
+    },
+    {
+      "id": "2bdd4e45-199e-4959-baef-0e7d769b3954",
+      "name": "แลนชมพู",
+      "category": "แลนชมพู",
+      "description": "",
+      "x": 893.46,
+      "y": -43.29,
+      "createdAt": "2026-06-17T19:06:08.098Z"
+    },
+    {
+      "id": "e95930ec-3ff3-4631-96f0-2b469d46bbc0",
+      "name": "แลนม่วง",
+      "category": "แลนม่วง",
+      "description": "",
+      "x": -815.34,
+      "y": -1297.87,
+      "createdAt": "2026-06-17T19:36:19.181Z"
+    },
+    {
+      "id": "a2603e90-c77f-408e-bdbd-bc1e6dd9a374",
+      "name": "แลนเหลืง",
+      "category": "แลนเหลือง",
+      "description": "",
+      "x": -1646.36,
+      "y": -278.05,
+      "createdAt": "2026-06-17T19:36:51.498Z"
+    },
+    {
+      "id": "b4ee2467-2ac4-4c7b-8fc1-09f2a3d80b88",
+      "name": "ขายทานตะวัน",
+      "category": "ทานตะวัน",
+      "description": "",
+      "x": 1092.54,
+      "y": -683.54,
+      "createdAt": "2026-08-06T08:52:08.752Z"
+    },
+    {
+      "id": "d7d0750b-65a4-41af-9c45-756c51e288aa",
+      "name": "จุดเลี้ยงสัตว์",
+      "category": "จุดเลี้ยงสัตว์",
+      "description": "",
+      "x": 1926.58,
+      "y": 343.9,
+      "createdAt": "2026-08-06T09:49:30.671Z"
+    },
+    {
+      "id": "5654c8cb-9ac7-4705-8fb9-36f6f42e0ab6",
+      "name": "สถานีตำรวจ",
+      "category": "สถานีตำรวจ",
+      "description": "",
+      "x": 436.47,
+      "y": -991.46,
+      "createdAt": "2026-08-06T10:07:58.381Z"
+    },
+    {
+      "id": "b07620a4-aa03-4dc9-aff2-0c83a8b2ae10",
+      "name": "สภา",
+      "category": "สภา",
+      "description": "",
+      "x": -408.12,
+      "y": 1180.79,
+      "createdAt": "2026-08-06T10:08:29.246Z"
+    },
+    {
+      "id": "86896f28-afea-4478-a1a7-5e5c5491701b",
+      "name": "โรงพยาบาล",
+      "category": "โรงพยาบาล",
+      "description": "",
+      "x": 1160.41,
+      "y": -1534.15,
+      "createdAt": "2026-08-06T10:09:07.051Z"
+    },
+    {
+      "id": "b82b021c-7f4b-459b-b1b4-0d60d78b93e7",
+      "name": "Pudding",
+      "category": "Pudding",
+      "description": "",
+      "x": 1446.97,
+      "y": 1060.37,
+      "createdAt": "2026-08-06T10:09:44.612Z"
+    },
+    {
+      "id": "6d8a7518-bfee-4768-b2dd-37356692ea98",
+      "name": "PanCake",
+      "category": "PanCake",
+      "description": "",
+      "x": 1637.01,
+      "y": 2206.71,
+      "createdAt": "2026-08-06T10:10:15.051Z"
+    },
+    {
+      "id": "43470d6c-02cb-4014-a9fa-59dccdfd3e52",
+      "name": "WafFle",
+      "category": "WafFle",
+      "description": "",
+      "x": 2795.31,
+      "y": 4778.35,
+      "createdAt": "2026-08-06T10:10:45.916Z"
+    },
+    {
+      "id": "af7b4e45-d5b6-4ca3-afaf-14ae99a227fd",
+      "name": "ร้านค้าทั่วไป",
+      "category": "ร้านค้าทั่วไป",
+      "description": "",
+      "x": 1692.81,
+      "y": 4958.23,
+      "createdAt": "2026-08-06T10:11:09.465Z"
+    },
+    {
+      "id": "4b6c4c54-05b8-425c-8b96-c24bd2629808",
+      "name": "MaGaRong",
+      "category": "MaGaRong",
+      "description": "",
+      "x": 674.77,
+      "y": 6500.91,
+      "createdAt": "2026-08-06T10:11:45.233Z"
+    },
+    {
+      "id": "b86d54ee-ccfa-4b6e-9cae-12924b5b378c",
+      "name": "CooKie",
+      "category": "CooKie",
+      "description": "",
+      "x": -1626.75,
+      "y": 4760.06,
+      "createdAt": "2026-08-06T10:12:24.017Z"
+    },
+    {
+      "id": "b479710d-dd93-4897-bdb7-07a8b13c2280",
+      "name": "EggTart",
+      "category": "EggTart",
+      "description": "",
+      "x": -2970.56,
+      "y": 3490.24,
+      "createdAt": "2026-08-06T10:13:28.793Z"
+    },
+    {
+      "id": "0bb16bac-027e-4cb1-a957-b1c606ee159b",
+      "name": "BakEry",
+      "category": "BakEry",
+      "description": "",
+      "x": -3130.43,
+      "y": 1121.34,
+      "createdAt": "2026-08-06T10:13:47.824Z"
+    },
+    {
+      "id": "fc8d2b9d-3678-486b-b1fc-85b5a63b764c",
+      "name": "ร้านค้าทั่วไป",
+      "category": "ร้านค้าทั่วไป",
+      "description": "",
+      "x": -3023.35,
+      "y": 607.62,
+      "createdAt": "2026-08-06T10:14:22.978Z"
+    },
+    {
+      "id": "fe53a0da-774b-48a4-8e1d-9886202eb24f",
+      "name": "Scrap",
+      "category": "ProCess - Scrap",
+      "description": "",
+      "x": 342.97,
+      "y": 3590.85,
+      "createdAt": "2026-08-06T10:16:52.567Z"
+    },
+    {
+      "id": "8ef5f464-c9d7-44e5-8a78-18e8de644763",
+      "name": "ProCess Scrap",
+      "category": "ProCess - Scrap",
+      "description": "",
+      "x": 392.74,
+      "y": 3604.57,
+      "createdAt": "2026-08-06T10:17:05.297Z"
+    },
+    {
+      "id": "b4209812-5b3a-4bde-8b57-4c090261e320",
+      "name": "จุดทำอาหาร",
+      "category": "จุดทำอาหาร",
+      "description": "",
+      "x": -218.09,
+      "y": -1928.96,
+      "createdAt": "2026-08-06T10:18:56.054Z"
+    },
+    {
+      "id": "05f71498-1c34-4593-a2ad-1e53fee3ec31",
+      "name": "เลเบล ล่าง",
+      "category": "เลเบล",
+      "description": "",
+      "x": 926.64,
+      "y": -3119.51,
+      "createdAt": "2026-08-06T10:21:32.212Z"
+    },
+    {
+      "id": "08a38077-5cb1-4497-a176-c718cf52f589",
+      "name": "เลเบล บน",
+      "category": "เลเบล",
+      "description": "",
+      "x": 2113.6,
+      "y": 3901.83,
+      "createdAt": "2026-08-06T10:22:00.218Z"
+    },
+    {
+      "id": "2933ed3c-1a6a-462f-800f-785785656774",
+      "name": "ผับ",
+      "category": "ผับ",
+      "description": "",
+      "x": -1401.16,
+      "y": -604.33,
+      "createdAt": "2026-08-06T10:50:36.920Z"
+    },
+    {
+      "id": "5d1c6475-8c66-4252-9cad-f5e7aaf7d382",
+      "name": "ผับ",
+      "category": "ผับ",
+      "description": "",
+      "x": 1984.45,
+      "y": 3067.8,
+      "createdAt": "2026-08-06T10:51:12.971Z"
+    },
+    {
+      "id": "f15ea469-0a04-4df1-bc97-cb4420785773",
+      "name": "ร้านสัก",
+      "category": "ร้านสัก",
+      "description": "",
+      "x": 1857.67,
+      "y": 3781.29,
+      "createdAt": "2026-08-06T10:51:49.880Z"
+    },
+    {
+      "id": "7d8e9d60-ed5b-43f3-b35b-0a06742edde9",
+      "name": "ร้านสัก",
+      "category": "ร้านสัก",
+      "description": "",
+      "x": -291.65,
+      "y": 6240.31,
+      "createdAt": "2026-08-06T10:53:09.732Z"
+    },
+    {
+      "id": "90769ea0-e459-49f4-a787-6e3eec94d56a",
+      "name": "ร้านสัก",
+      "category": "ร้านสัก",
+      "description": "",
+      "x": 337.58,
+      "y": 189.26,
+      "createdAt": "2026-08-06T10:54:18.392Z"
+    },
+    {
+      "id": "8447ec6e-4a4a-4c2c-aeb9-a9f259c96b61",
+      "name": "ร้านสัก",
+      "category": "ร้านสัก",
+      "description": "",
+      "x": -1145.95,
+      "y": -1422.4,
+      "createdAt": "2026-08-06T10:54:45.049Z"
+    },
+    {
+      "id": "8174a73f-bce0-4f85-ac6f-878c358a5729",
+      "name": "ร้านสัก",
+      "category": "ร้านสัก",
+      "description": "",
+      "x": 1320.68,
+      "y": -1651.45,
+      "createdAt": "2026-08-06T10:55:03.883Z"
+    },
+    {
+      "id": "cd5a16c5-f369-406e-a826-6c6a18045bcc",
+      "name": "แลนส้ม",
+      "category": "แลนส้ม",
+      "description": "",
+      "x": -322.15,
+      "y": -909.15,
+      "createdAt": "2026-06-17T19:06:50.705Z"
+    },
+    {
+      "id": "fdb10053-3482-432d-b744-a3ada548c15d",
+      "name": "Car Shop",
+      "category": "Car Shop",
+      "description": "",
+      "x": -50.53,
+      "y": -1099.07,
+      "createdAt": "2026-08-06T11:01:20.951Z"
+    },
+    {
+      "id": "0f200fcf-4888-48a0-a823-f0d04d59b684",
+      "name": "3 แยกรางน้ำ",
+      "category": "1mark",
+      "description": "",
+      "x": 679.3,
+      "y": -1582.93,
+      "createdAt": "2026-06-17T19:09:46.984Z"
+    },
+    {
+      "id": "bccec962-ed0d-4076-b068-0c3b0bc70c94",
+      "name": "เหินระเบิด",
+      "category": "1mark",
+      "description": "",
+      "x": 502.84,
+      "y": -621.04,
+      "createdAt": "2026-06-17T19:32:09.666Z"
+    },
+    {
+      "id": "9b933fb6-89da-486e-9328-4c3a6b731690",
+      "name": "สะพานเหล็ก สน.",
+      "category": "1mark",
+      "description": "",
+      "x": 591.82,
+      "y": -848.17,
+      "createdAt": "2026-06-17T19:33:46.665Z"
+    },
+    {
+      "id": "b67e6bf2-5ee8-4228-9c10-bb1076287b61",
+      "name": "สะพานข้าง สน.",
+      "category": "1mark",
+      "description": "",
+      "x": 590.31,
+      "y": -1018.9,
+      "createdAt": "2026-06-17T19:34:20.017Z"
+    },
+    {
+      "id": "a83759af-fb6b-4d46-ab41-34eb3c71f26f",
+      "name": "เหินโอเวอร์",
+      "category": "1mark",
+      "description": "",
+      "x": -595.14,
+      "y": -1320.73,
+      "createdAt": "2026-06-25T06:57:36.936Z"
+    },
+    {
+      "id": "85554fa0-b1ae-4e61-a2db-dd3981612cb6",
+      "name": "4 แยกสุสาน",
+      "category": "1mark",
+      "description": "",
+      "x": -1548.32,
+      "y": -175.91,
+      "createdAt": "2026-06-25T07:01:02.066Z"
+    },
+    {
+      "id": "9ab27154-093d-407b-a3f8-11ed5ed07433",
+      "name": "หน้าสนามกอล์ฟ",
+      "category": "1mark",
+      "description": "",
+      "x": -1317.57,
+      "y": -44.82,
+      "createdAt": "2026-06-25T07:02:12.229Z"
+    },
+    {
+      "id": "1ae02307-94b5-4a91-a008-a4e280b347d4",
+      "name": "หลังสนามกอล์ฟ",
+      "category": "1mark",
+      "description": "",
+      "x": -985.76,
+      "y": 67.99,
+      "createdAt": "2026-06-25T07:02:30.383Z"
+    },
+    {
+      "id": "5b722673-f457-4d12-9b98-f3776dd3455d",
+      "name": "มอนิ่งวูตตึกใน",
+      "category": "1mark",
+      "description": "",
+      "x": -1279.86,
+      "y": -210.98,
+      "createdAt": "2026-06-25T07:03:54.421Z"
+    },
+    {
+      "id": "1df11f12-1d5e-4e85-8016-50b0d2d78779",
+      "name": "โค้งเบซิตี้",
+      "category": "1mark",
+      "description": "",
+      "x": -1726.29,
+      "y": -485.37,
+      "createdAt": "2026-06-25T07:05:23.776Z"
+    },
+    {
+      "id": "568a7b2c-9195-421e-8b88-36411259b7a9",
+      "name": "เบซิตี้",
+      "category": "1mark",
+      "description": "",
+      "x": -1480.45,
+      "y": -697.26,
+      "createdAt": "2026-06-25T07:06:10.855Z"
+    },
+    {
+      "id": "8dab8481-7bb4-4b68-928c-b67ad3a897ad",
+      "name": "สวนสนุุก",
+      "category": "1mark",
+      "description": "",
+      "x": -1632.78,
+      "y": -1060.06,
+      "createdAt": "2026-06-25T07:06:38.814Z"
+    },
+    {
+      "id": "e77407cb-709c-4631-b134-78b003366ce0",
+      "name": "หน้าสวนสนุก",
+      "category": "1mark",
+      "description": "",
+      "x": -1426.16,
+      "y": -756.71,
+      "createdAt": "2026-06-25T07:07:20.544Z"
+    },
+    {
+      "id": "65d39260-d366-4d14-87c3-ab3821681d75",
+      "name": "สี่แยกมอนิ่งวูต",
+      "category": "1mark",
+      "description": "",
+      "x": -1365.83,
+      "y": -386.28,
+      "createdAt": "2026-06-25T07:09:00.570Z"
+    },
+    {
+      "id": "d9c2cc0c-d2dd-4333-a75b-ba26fc4377e8",
+      "name": "มอนิ่งวูตตึกนอก",
+      "category": "1mark",
+      "description": "",
+      "x": -1227.08,
+      "y": -367.99,
+      "createdAt": "2026-06-25T07:10:10.557Z"
+    },
+    {
+      "id": "659215d4-ee6f-4054-9132-756f275c8644",
+      "name": "โรงหนัง",
+      "category": "1mark",
+      "description": "",
+      "x": -1089.83,
+      "y": -492.99,
+      "createdAt": "2026-06-25T07:15:31.047Z"
+    },
+    {
+      "id": "043624f6-398c-4039-ae64-b19bf0a99f25",
+      "name": "ตึกรุ้ง",
+      "category": "1mark",
+      "description": "",
+      "x": -1187.86,
+      "y": -671.34,
+      "createdAt": "2026-06-25T07:15:55.382Z"
+    },
+    {
+      "id": "dc76fb13-1af8-48d5-b984-58cc04edc436",
+      "name": "จกแคปวอท",
+      "category": "1mark",
+      "description": "",
+      "x": -877.17,
+      "y": -195.73,
+      "createdAt": "2026-06-25T07:17:08.309Z"
+    },
+    {
+      "id": "ab1f6c09-91f7-47da-8efd-947bdbcd611e",
+      "name": "ลานกิจกรรม",
+      "category": "1mark",
+      "description": "",
+      "x": -1706.68,
+      "y": 133.54,
+      "createdAt": "2026-07-18T21:15:17.611Z"
+    },
+    {
+      "id": "f392fcea-57d5-43d0-a343-ad96ba0561ee",
+      "name": "ร้านแดง",
+      "category": "1mark",
+      "description": "",
+      "x": -1202.94,
+      "y": -880.18,
+      "createdAt": "2026-07-18T21:28:01.309Z"
+    },
+    {
+      "id": "cdfe0daf-d123-4390-a528-f19c632d19ee",
+      "name": "สี่แยกตึกรุ่ง",
+      "category": "1mark",
+      "description": "",
+      "x": -1068.71,
+      "y": -759.76,
+      "createdAt": "2026-07-18T21:28:25.451Z"
+    },
+    {
+      "id": "41509266-207d-4982-b804-9140fa6eeb21",
+      "name": "ศาลาแดง",
+      "category": "1mark",
+      "description": "",
+      "x": -871.14,
+      "y": -861.89,
+      "createdAt": "2026-07-18T21:29:02.313Z"
+    },
+    {
+      "id": "a3278d9d-e94b-4f7d-8828-d809c06aaf05",
+      "name": "ปั้มพาลามิโน่",
+      "category": "1mark",
+      "description": "",
+      "x": -714.29,
+      "y": -936.59,
+      "createdAt": "2026-07-18T21:29:43.875Z"
+    },
+    {
+      "id": "b1305b80-42a2-4e58-b8d6-91bc836622ae",
+      "name": "ร้านหน้ากาก",
+      "category": "1mark",
+      "description": "",
+      "x": -1291.93,
+      "y": -1377.13,
+      "createdAt": "2026-07-18T21:32:52.372Z"
+    },
+    {
+      "id": "fc62d7c3-f595-421e-80b6-1626f8046402",
+      "name": "หอเตือนภัย",
+      "category": "1mark",
+      "description": "",
+      "x": -1178.81,
+      "y": -1787.2,
+      "createdAt": "2026-07-18T21:33:19.336Z"
+    },
+    {
+      "id": "70ce4864-a169-4afa-8092-4a8f05238eed",
+      "name": "ตึกเตี้ย,ตึกร้อยเสา",
+      "category": "1mark",
+      "description": "",
+      "x": -653.96,
+      "y": -759.76,
+      "createdAt": "2026-07-18T21:35:05.755Z"
+    },
+    {
+      "id": "66eeee91-5fcd-47fb-a398-6bf412b96c86",
+      "name": "ฟรีเวย์ตึกรุ่ง",
+      "category": "1mark",
+      "description": "",
+      "x": -801.76,
+      "y": -514.33,
+      "createdAt": "2026-07-18T21:36:04.187Z"
+    },
+    {
+      "id": "466661c6-534c-476b-b2c0-86df5fd52cf5",
+      "name": "ปูนกองเดียวหลังตึก24",
+      "category": "1mark",
+      "description": "",
+      "x": -432.25,
+      "y": -547.87,
+      "createdAt": "2026-07-18T21:38:19.188Z"
+    },
+    {
+      "id": "b70cbf3b-16dc-416a-b181-c1f0a3c9bec4",
+      "name": "เหินขยะ",
+      "category": "1mark",
+      "description": "",
+      "x": -463.92,
+      "y": -450.3,
+      "createdAt": "2026-07-18T21:39:16.570Z"
+    },
+    {
+      "id": "1d3eeb6e-7e1f-4982-9a99-c5ed35414fe6",
+      "name": "โรงบาลหรู",
+      "category": "1mark",
+      "description": "",
+      "x": -463.92,
+      "y": -322.26,
+      "createdAt": "2026-07-18T21:40:03.613Z"
+    },
+    {
+      "id": "4732436d-b99e-4e89-8a1e-b6d5bca0f70f",
+      "name": "รอยแตกขยะ",
+      "category": "1mark",
+      "description": "",
+      "x": -373.43,
+      "y": -480.79,
+      "createdAt": "2026-07-18T21:40:58.556Z"
+    },
+    {
+      "id": "31635dc4-33ad-4695-b7c4-8ec9c8518ba9",
+      "name": "ร้านเพชร",
+      "category": "1mark",
+      "description": "",
+      "x": -619.27,
+      "y": -220.12,
+      "createdAt": "2026-07-18T21:41:40.386Z"
+    },
+    {
+      "id": "5a8f36f6-a83f-494a-bbed-fad74b1feb52",
+      "name": "อุโมงพารากอน",
+      "category": "1mark",
+      "description": "",
+      "x": -175.86,
+      "y": -178.96,
+      "createdAt": "2026-07-18T21:44:48.280Z"
+    },
+    {
+      "id": "01f585f0-8643-4115-95a1-e0887202fc60",
+      "name": "พารากอน",
+      "category": "1mark",
+      "description": "",
+      "x": -196.97,
+      "y": -261.28,
+      "createdAt": "2026-07-18T21:45:05.447Z"
+    },
+    {
+      "id": "cf608e72-91e8-4ace-b257-f0fdc995154c",
+      "name": "ร้านตักผมแลนเขียว",
+      "category": "1mark",
+      "description": "",
+      "x": -17.5,
+      "y": -145.43,
+      "createdAt": "2026-07-18T21:45:30.627Z"
+    },
+    {
+      "id": "d4a8a11e-f840-4777-a26a-e8fd5895999e",
+      "name": "ร้านเสื้อผ้าแลนเขียว",
+      "category": "1mark",
+      "description": "",
+      "x": 151.42,
+      "y": -203.35,
+      "createdAt": "2026-07-18T21:46:18.173Z"
+    },
+    {
+      "id": "fdc0f9a8-513d-4d6b-af9a-22b52cc23c40",
+      "name": "ตกแมพ",
+      "category": "1mark",
+      "description": "",
+      "x": -156.25,
+      "y": 106.1,
+      "createdAt": "2026-07-18T21:47:56.337Z"
+    },
+    {
+      "id": "a8dda2c9-cf4f-4128-8b01-c45d87225f1f",
+      "name": "ธนาคารใหญ่",
+      "category": "1mark",
+      "description": "",
+      "x": 210.24,
+      "y": 209.76,
+      "createdAt": "2026-07-18T21:49:02.637Z"
+    },
+    {
+      "id": "b703611e-0cf8-4c9d-82f2-a10deefa5791",
+      "name": "ร้านคลินตั้น",
+      "category": "1mark",
+      "description": "",
+      "x": 377.65,
+      "y": 330.18,
+      "createdAt": "2026-07-18T21:50:28.302Z"
+    },
+    {
+      "id": "498ceb75-3b54-477e-8dc2-c4d17c5a353b",
+      "name": "ปั้มคลินตั้น",
+      "category": "1mark",
+      "description": "",
+      "x": 615.95,
+      "y": 269.21,
+      "createdAt": "2026-07-18T21:51:05.572Z"
+    },
+    {
+      "id": "aed663f2-02b4-49b6-9183-2ba9d52a8305",
+      "name": "3 ท่อ เข้า - ออก เมือง",
+      "category": "1mark",
+      "description": "",
+      "x": 1524.22,
+      "y": 847,
+      "createdAt": "2026-08-06T08:36:36.151Z"
+    },
+    {
+      "id": "26696e36-be6f-46dc-95ee-5e510ec7ed33",
+      "name": "ปูนแตก",
+      "category": "1mark",
+      "description": "",
+      "x": -558.94,
+      "y": -1095.12,
+      "createdAt": "2026-08-06T11:03:06.470Z"
+    },
+    {
+      "id": "39a45e24-d7c1-4353-8d17-2c4128b72d7a",
+      "name": "รางน้ำโอยะ",
+      "category": "1mark",
+      "description": "",
+      "x": -506.15,
+      "y": -1544.82,
+      "createdAt": "2026-08-06T11:03:57.999Z"
+    },
+    {
+      "id": "54f2afe1-6e06-4d18-a24c-cda7bb575a1c",
+      "name": "เหินตุ๊กแก",
+      "category": "1mark",
+      "description": "",
+      "x": -257.3,
+      "y": -1816.16,
+      "createdAt": "2026-08-06T11:04:25.638Z"
+    },
+    {
+      "id": "f81b65b4-e94f-46aa-ac65-5e0a04054bcf",
+      "name": "โรงเหล็ก",
+      "category": "1mark",
+      "description": "",
+      "x": -459.4,
+      "y": -1726.22,
+      "createdAt": "2026-08-06T11:05:26.155Z"
+    },
+    {
+      "id": "0e89248c-0707-42ae-825d-59ea6e737a3d",
+      "name": "ปั้มเกรทโอเชี่ยน",
+      "category": "1mark",
+      "description": "",
+      "x": -2110.88,
+      "y": -322.26,
+      "createdAt": "2026-08-06T11:07:26.175Z"
+    },
+    {
+      "id": "ad8ca1ef-0476-40fd-8c70-e57c0d5dac85",
+      "name": "ตึกกระจก",
+      "category": "1mark",
+      "description": "",
+      "x": -1981.18,
+      "y": -334.45,
+      "createdAt": "2026-08-06T11:11:12.972Z"
+    },
+    {
+      "id": "d6bd143e-08e7-48e8-a6d0-41089c8b05cd",
+      "name": "Miner",
+      "category": "Miner",
+      "description": "",
+      "x": 2935.57,
+      "y": 2805.79,
+      "createdAt": "2026-08-09T14:33:11.840Z"
+    },
+    {
+      "id": "5d756b73-713b-49eb-a5ed-2b5533351870",
+      "name": "ร้านค้าทั่วไป",
+      "category": "ร้านค้าทั่วไป",
+      "description": "",
+      "x": 1719.96,
+      "y": 6450.61,
+      "createdAt": "2026-08-09T14:34:00.489Z"
+    },
+    {
+      "id": "a886f17a-23ac-4641-844a-73429ca25fa5",
+      "name": "Fishing +15",
+      "category": "Fishing",
+      "description": "",
+      "x": 1511.82,
+      "y": 6670.12,
+      "createdAt": "2026-08-09T14:34:39.926Z"
+    },
+    {
+      "id": "3d5560c8-1e8c-4166-944a-a57d34f6bc57",
+      "name": "Fishing +20",
+      "category": "Fishing",
+      "description": "",
+      "x": -1592.06,
+      "y": 5273.78,
+      "createdAt": "2026-08-09T14:35:37.972Z"
+    },
+    {
+      "id": "8a26ac8a-c55d-4c20-b5c9-67def3e178e0",
+      "name": "Fishing 1-10",
+      "category": "Fishing",
+      "description": "",
+      "x": 3828.43,
+      "y": 4490.24,
+      "createdAt": "2026-08-09T14:36:21.661Z"
+    },
+    {
+      "id": "e3e36f8a-d50d-4ddd-93df-95db8c323e5c",
+      "name": "ตึกขาว",
+      "category": "1mark",
+      "description": "",
+      "x": -453.37,
+      "y": -781.1,
+      "createdAt": "2026-09-01T18:41:41.255Z"
+    },
+    {
+      "id": "36c88153-0491-4bd1-8daf-9cb1ee6dedcd",
+      "name": "ตึกแดง",
+      "category": "1mark",
+      "description": "",
+      "x": -320.64,
+      "y": -794.82,
+      "createdAt": "2026-09-01T18:41:50.804Z"
+    },
+    {
+      "id": "4cd9c920-c106-4310-8b42-c32798787114",
+      "name": "ขายปลาน้ำตื้นวอท",
+      "category": "1mark",
+      "description": "",
+      "x": -792.71,
+      "y": -598.17,
+      "createdAt": "2026-09-01T18:43:02.991Z"
+    },
+    {
+      "id": "8b8440dc-4170-45ee-9a69-38f2682fcb99",
+      "name": "เขาเขื่อนฝั่งบ้านหัวใจ",
+      "category": "1mark",
+      "description": "",
+      "x": 1541.99,
+      "y": -400,
+      "createdAt": "2026-09-01T18:43:51.604Z"
+    },
+    {
+      "id": "01da7ec2-8043-4fdb-8b3b-aed178b222df",
+      "name": "แลนมาร์ค",
+      "category": "1mark",
+      "description": "",
+      "x": 192.15,
+      "y": -933.54,
+      "createdAt": "2026-09-01T18:45:54.946Z"
+    },
+    {
+      "id": "cbdd4e79-2a71-4512-a7d5-0d6b85b2bcc6",
+      "name": "อุโมงค์โนโตร",
+      "category": "1mark",
+      "description": "",
+      "x": 208.74,
+      "y": -729.27,
+      "createdAt": "2026-09-01T18:46:34.478Z"
+    },
+    {
+      "id": "c20ef44c-b636-493a-95b6-ff17c4b8aca8",
+      "name": "โรงบาลเก่า",
+      "category": "1mark",
+      "description": "",
+      "x": 318.83,
+      "y": -592.07,
+      "createdAt": "2026-09-01T18:46:51.142Z"
+    },
+    {
+      "id": "d4e68879-40d3-4519-a838-a7524817dc59",
+      "name": "ตึกหลงไหล",
+      "category": "1mark",
+      "description": "",
+      "x": 79.03,
+      "y": -374.09,
+      "createdAt": "2026-09-01T18:47:42.564Z"
+    },
+    {
+      "id": "cebc8f5c-f16c-4a89-a731-ea55291c1037",
+      "name": "อู่ฟ้า",
+      "category": "1mark",
+      "description": "",
+      "x": 551.1,
+      "y": -165.24,
+      "createdAt": "2026-09-01T18:48:03.683Z"
+    },
+    {
+      "id": "04caaad3-9272-4f8f-993a-5fcb607bd7c5",
+      "name": "สะพานแลนชมพู",
+      "category": "1mark",
+      "description": "",
+      "x": 759.23,
+      "y": -26.52,
+      "createdAt": "2026-09-01T18:48:46.268Z"
+    },
+    {
+      "id": "f60e0dc4-8080-4b10-8760-2d259d7b9713",
+      "name": "สนามม้า",
+      "category": "1mark",
+      "description": "",
+      "x": 1121.2,
+      "y": 90.85,
+      "createdAt": "2026-09-01T18:48:53.428Z"
+    },
+    {
+      "id": "178972b0-9695-4b53-98b0-17759dc5972a",
+      "name": "สนามบบอลแลนชมพู",
+      "category": "1mark",
+      "description": "",
+      "x": 784.87,
+      "y": -215.55,
+      "createdAt": "2026-09-01T18:49:26.722Z"
+    },
+    {
+      "id": "4871cf8c-250c-40ef-8f33-5ad19943902a",
+      "name": "ห้องน้ำยายพร",
+      "category": "1mark",
+      "description": "",
+      "x": 713.98,
+      "y": -293.29,
+      "createdAt": "2026-09-01T18:49:34.916Z"
+    },
+    {
+      "id": "acd0a76e-37a2-43f7-9ec1-84430e15a1d6",
+      "name": "โกดังฟามิงโก้",
+      "category": "1mark",
+      "description": "",
+      "x": 528.47,
+      "y": -3043.29,
+      "createdAt": "2026-09-03T18:37:18.182Z"
+    },
+    {
+      "id": "8cd33d15-d140-432b-aec0-4f22e335f329",
+      "name": "โกดังวูดู",
+      "category": "1mark",
+      "description": "",
+      "x": 223.82,
+      "y": -3192.68,
+      "createdAt": "2026-09-03T18:37:46.858Z"
+    },
+    {
+      "id": "2194bb65-b587-4554-9c6b-87ba05109a48",
+      "name": "จกปูนCHUM",
+      "category": "1mark",
+      "description": "",
+      "x": 269.06,
+      "y": -2494.51,
+      "createdAt": "2026-09-03T18:38:22.090Z"
+    },
+    {
+      "id": "40ba6113-4926-4f5f-9737-2b0530706a91",
+      "name": "สะพานCHUM",
+      "category": "1mark",
+      "description": "",
+      "x": 421.39,
+      "y": -2506.71,
+      "createdAt": "2026-09-03T18:38:55.608Z"
+    },
+    {
+      "id": "cf5e03bf-f329-4a7a-8170-36f368f95f4a",
+      "name": "ลางรถไฟCHUM",
+      "category": "1mark",
+      "description": "",
+      "x": 222.31,
+      "y": -2320.73,
+      "createdAt": "2026-09-03T18:39:26.501Z"
+    },
+    {
+      "id": "81a44e93-8dd1-4530-9177-330f2dd9ad88",
+      "name": "ขายปลาน้ำลึกเก่า",
+      "category": "1mark",
+      "description": "",
+      "x": -291.99,
+      "y": -2474.7,
+      "createdAt": "2026-09-03T18:39:52.305Z"
+    },
+    {
+      "id": "eec84657-20e9-45a6-a290-0500d9f86d74",
+      "name": "สะพานเขียว",
+      "category": "1mark",
+      "description": "",
+      "x": 359.56,
+      "y": -2334.45,
+      "createdAt": "2026-09-03T18:40:23.963Z"
+    },
+    {
+      "id": "37ea1e4e-1e46-4c83-94da-93e1fba3772c",
+      "name": "พระราม8",
+      "category": "1mark",
+      "description": "",
+      "x": -460.91,
+      "y": -2290.24,
+      "createdAt": "2026-09-03T18:40:48.624Z"
+    },
+    {
+      "id": "ae60cc4b-2b45-4ee0-84f9-01e40ea31c51",
+      "name": "พระราม9",
+      "category": "1mark",
+      "description": "",
+      "x": 781.85,
+      "y": -2633.23,
+      "createdAt": "2026-09-03T18:41:08.099Z"
+    },
+    {
+      "id": "5bac7cc1-b118-43a1-a4e7-0913d4bbacbd",
+      "name": "ตึกNEW EMPIRE ฝั่งขวา",
+      "category": "1mark",
+      "description": "",
+      "x": -929.96,
+      "y": -2645.43,
+      "createdAt": "2026-09-03T18:41:56.209Z"
+    },
+    {
+      "id": "91ea1213-0ee1-45be-9e8a-6836f751b707",
+      "name": "ตึกNEW EMPIRE ฝั่งซ้าย",
+      "category": "1mark",
+      "description": "",
+      "x": -1009.89,
+      "y": -2596.65,
+      "createdAt": "2026-09-03T18:42:12.935Z"
+    },
+    {
+      "id": "99a37685-ba15-48cc-bb7f-9454998b5f44",
+      "name": "โกดังสนามบินล่าง",
+      "category": "1mark",
+      "description": "",
+      "x": -946.55,
+      "y": -3000.61,
+      "createdAt": "2026-09-03T18:42:57.807Z"
+    },
+    {
+      "id": "31000dbf-eb8c-4633-a2ed-a48386b4a6c2",
+      "name": "ตึกโซล่าเซลล์",
+      "category": "1mark",
+      "description": "",
+      "x": -1130.55,
+      "y": -2485.37,
+      "createdAt": "2026-09-03T18:43:27.199Z"
+    },
+    {
+      "id": "38d162db-efd4-4d78-b117-4225ed053f96",
+      "name": "ตึกครีม",
+      "category": "1mark",
+      "description": "",
+      "x": -717.3,
+      "y": -2259.76,
+      "createdAt": "2026-09-03T18:44:02.829Z"
+    },
+    {
+      "id": "301a5e97-c291-46f1-a751-df756bca5b60",
+      "name": "ตึกลุงแม็ค",
+      "category": "1mark",
+      "description": "",
+      "x": -834.94,
+      "y": -2153.05,
+      "createdAt": "2026-09-03T18:44:16.256Z"
+    },
+    {
+      "id": "93e39b68-c4df-41e2-bb7a-9c1c6acb71e2",
+      "name": "ตึกZero",
+      "category": "1mark",
+      "description": "",
+      "x": -1009.89,
+      "y": -1991.46,
+      "createdAt": "2026-09-03T18:44:33.178Z"
+    },
+    {
+      "id": "6a10976f-4011-46fc-b835-513a96a19e2e",
+      "name": "ปั้มล้าง",
+      "category": "1mark",
+      "description": "",
+      "x": -1132.06,
+      "y": -2018.9,
+      "createdAt": "2026-09-03T18:44:44.299Z"
+    },
+    {
+      "id": "62015d5b-798e-427b-8083-69dec270eae2",
+      "name": "เหินลุงแม็ค",
+      "category": "1mark",
+      "description": "",
+      "x": -794.22,
+      "y": -2017.38,
+      "createdAt": "2026-09-03T18:45:06.307Z"
+    },
+    {
+      "id": "c56a1e45-9d7c-48a8-94f9-5ba3e106a7b1",
+      "name": "สนามหญ้าลุงแม็ค",
+      "category": "1mark",
+      "description": "",
+      "x": -815.34,
+      "y": -1901.52,
+      "createdAt": "2026-09-03T18:45:33.548Z"
+    },
+    {
+      "id": "6335e97a-9db2-42f7-8a89-8298f7a7f5b8",
+      "name": "บูทเทรนนิ่ง",
+      "category": "1mark",
+      "description": "",
+      "x": -733.89,
+      "y": -2034.15,
+      "createdAt": "2026-09-03T18:45:49.322Z"
+    },
+    {
+      "id": "0a7ba96c-efee-4e89-9438-678d8e45cf56",
+      "name": "แพ็ครวมเก่าวอท",
+      "category": "1mark",
+      "description": "",
+      "x": -580.06,
+      "y": -2154.57,
+      "createdAt": "2026-09-03T18:46:07.942Z"
+    },
+    {
+      "id": "362154c2-cf40-44e5-8f59-5798d73bb414",
+      "name": "เหินดินส���ตเดี่ยม",
+      "category": "1mark",
+      "description": "",
+      "x": -301.04,
+      "y": -2143.9,
+      "createdAt": "2026-09-03T18:46:26.046Z"
+    },
+    {
+      "id": "35b254fa-701e-48f2-a232-d7c0ebb37378",
+      "name": "อุสาหกรรมสเตเดี่ยม",
+      "category": "1mark",
+      "description": "",
+      "x": -53.69,
+      "y": -2204.88,
+      "createdAt": "2026-09-03T18:47:21.298Z"
+    },
+    {
+      "id": "cb0a1053-ddd4-48d8-bbab-bbc93827782f",
+      "name": "ปั้มDavid",
+      "category": "1mark",
+      "description": "",
+      "x": -47.66,
+      "y": -1759.76,
+      "createdAt": "2026-09-03T18:48:06.571Z"
+    },
+    {
+      "id": "8f08ddf2-6d83-4dc4-9a2f-74169c183c34",
+      "name": "ตะกร้าแดง",
+      "category": "1mark",
+      "description": "",
+      "x": -103.46,
+      "y": -1848.17,
+      "createdAt": "2026-09-03T18:48:55.186Z"
+    },
+    {
+      "id": "d36a0fc2-a814-4d3e-a3e9-5f8e8eddcf35",
+      "name": "MEGA MALL",
+      "category": "1mark",
+      "description": "",
+      "x": 76.01,
+      "y": -1771.95,
+      "createdAt": "2026-09-03T18:51:03.273Z"
+    },
+    {
+      "id": "ba2a55f6-5267-432a-95c7-5e1db3fe7197",
+      "name": "โค้งDUST",
+      "category": "1mark",
+      "description": "",
+      "x": 370.11,
+      "y": -2180.49,
+      "createdAt": "2026-09-03T18:51:25.424Z"
+    },
+    {
+      "id": "7f2ac93c-f000-40f1-89f1-9ca3bccd1991",
+      "name": "4แทงค์",
+      "category": "1mark",
+      "description": "",
+      "x": 561.66,
+      "y": -2151.52,
+      "createdAt": "2026-09-03T18:51:37.982Z"
+    },
+    {
+      "id": "665ecc7e-b3cb-4d7c-a2c3-2a875888f22a",
+      "name": "BLACK MARKET",
+      "category": "1mark",
+      "description": "",
+      "x": 836.15,
+      "y": -2343.6,
+      "createdAt": "2026-09-03T18:52:02.579Z"
+    },
+    {
+      "id": "80f9ab30-2a1a-4e9e-ba6e-fc956c895d94",
+      "name": "หลอมทองเก่าวอท",
+      "category": "1mark",
+      "description": "",
+      "x": 988.48,
+      "y": -2523.48,
+      "createdAt": "2026-09-03T18:52:15.562Z"
+    },
+    {
+      "id": "285a8307-ebf6-4251-b934-d76fac4d5456",
+      "name": "หลอมแร่เก่า",
+      "category": "1mark",
+      "description": "",
+      "x": 1074.44,
+      "y": -1992.99,
+      "createdAt": "2026-09-03T18:52:42.575Z"
+    },
+    {
+      "id": "dec3ddd4-c951-4970-baba-a20efef0a85a",
+      "name": "เขานัม3",
+      "category": "1mark",
+      "description": "",
+      "x": 2012.55,
+      "y": -1988.41,
+      "createdAt": "2026-09-03T18:53:21.313Z"
+    },
+    {
+      "id": "6eeddc25-4570-461b-9487-2aedf85c0fb9",
+      "name": "อุตสาหกรรมนัม3",
+      "category": "1mark",
+      "description": "",
+      "x": 1566.12,
+      "y": -1960.98,
+      "createdAt": "2026-09-03T18:53:35.612Z"
+    },
+    {
+      "id": "50b6329e-cab8-4cc5-8a37-5c44e35cb496",
+      "name": "แร่ฟ้าแดงวอท",
+      "category": "1mark",
+      "description": "",
+      "x": 2790.78,
+      "y": -1491.46,
+      "createdAt": "2026-09-03T18:54:26.090Z"
+    },
+    {
+      "id": "a8a296e2-bd60-4095-bfdb-4def27feab6f",
+      "name": "เขาซัทเทนเซียร์",
+      "category": "1mark",
+      "description": "",
+      "x": 1698.84,
+      "y": -1052.44,
+      "createdAt": "2026-09-03T18:54:49.054Z"
+    },
+    {
+      "id": "9cb8a1ed-40d5-4b2e-a4fa-532ca559796e",
+      "name": "แลปดอกไม้แดง-ขาว / โรงบาลบ้า",
+      "category": "1mark",
+      "description": "",
+      "x": 2486.12,
+      "y": -375.61,
+      "createdAt": "2026-09-03T18:56:17.327Z"
+    },
+    {
+      "id": "5e9bca22-36c7-4e65-a52d-94073524a7f4",
+      "name": "ตึกพาวหน่วยงาน",
+      "category": "1mark",
+      "description": "",
+      "x": 386.7,
+      "y": -1669.82,
+      "createdAt": "2026-09-03T19:11:02.594Z"
+    },
+    {
+      "id": "10f85ad0-bd80-4c59-afa9-d5c3fae84318",
+      "name": "สะพานพาวหน่วยงาน",
+      "category": "1mark",
+      "description": "",
+      "x": 674.77,
+      "y": -1733.84,
+      "createdAt": "2026-09-03T19:11:18.200Z"
+    },
+    {
+      "id": "46cef953-3e27-442b-8999-2818cc49303a",
+      "name": "โรงบางวอท",
+      "category": "1mark",
+      "description": "",
+      "x": 352.01,
+      "y": -1419.82,
+      "createdAt": "2026-09-03T19:21:21.199Z"
+    },
+    {
+      "id": "65867fe2-094b-4d53-808a-9cd6078f0640",
+      "name": "ตึกมิ้นท์",
+      "category": "1mark",
+      "description": "",
+      "x": 441,
+      "y": -1346.65,
+      "createdAt": "2026-09-03T19:21:37.729Z"
+    },
+    {
+      "id": "67372728-eefc-4f2d-a6ca-f3cc2c5a37f5",
+      "name": "ปั้มโรงบาลวอท",
+      "category": "1mark",
+      "description": "",
+      "x": 261.52,
+      "y": -1268.9,
+      "createdAt": "2026-09-03T19:21:49.361Z"
+    },
+    {
+      "id": "7c4d6c2f-13b1-4c79-9f2e-c92faef29512",
+      "name": "ร้านโดนัท",
+      "category": "1mark",
+      "description": "",
+      "x": 172.54,
+      "y": -1447.26,
+      "createdAt": "2026-09-03T19:22:01.393Z"
+    },
+    {
+      "id": "b7df672b-9b61-433d-9633-d39e255edb9c",
+      "name": "งัดร้าน INNOCENCE",
+      "category": "1mark",
+      "description": "",
+      "x": 18.7,
+      "y": -1343.6,
+      "createdAt": "2026-09-03T19:22:21.237Z"
+    },
+    {
+      "id": "c13552b2-aa33-4b6d-9d7e-af1abb8b2022",
+      "name": "อู่เบนนี่",
+      "category": "1mark",
+      "description": "",
+      "x": -184.91,
+      "y": -1317.68,
+      "createdAt": "2026-09-03T19:22:44.392Z"
+    },
+    {
+      "id": "3359a5ee-1bf6-44bd-8d36-93b435986eb6",
+      "name": "บ้าน Rank",
+      "category": "1mark",
+      "description": "",
+      "x": -302.55,
+      "y": -1307.01,
+      "createdAt": "2026-09-03T19:22:58.528Z"
+    },
+    {
+      "id": "247f324a-0326-47b1-ac6f-2690e0154107",
+      "name": "ปั้มบ้าน RANK",
+      "category": "1mark",
+      "description": "",
+      "x": -310.09,
+      "y": -1476.22,
+      "createdAt": "2026-09-03T19:23:34.310Z"
+    },
+    {
+      "id": "ad18344c-cd5e-480b-a786-1a9eebf4d680",
+      "name": "โรงงานกระดาษ",
+      "category": "1mark",
+      "description": "",
+      "x": -337.23,
+      "y": -1558.54,
+      "createdAt": "2026-09-03T19:23:50.260Z"
+    },
+    {
+      "id": "adc15533-41dc-4c8a-ac14-9548999f628e",
+      "name": "เหินใหญ่",
+      "category": "1mark",
+      "description": "",
+      "x": -420.19,
+      "y": -1195.73,
+      "createdAt": "2026-09-03T19:24:09.362Z"
+    },
+    {
+      "id": "00a763f9-d661-4229-8955-b1ce7077caa2",
+      "name": "เหินสไปร์ท",
+      "category": "1mark",
+      "description": "",
+      "x": 353.52,
+      "y": -1166.77,
+      "createdAt": "2026-09-03T19:24:23.499Z"
+    },
+    {
+      "id": "e9685348-3103-4599-b6e4-3d1e57c31d58",
+      "name": "ตึกปืน",
+      "category": "1mark",
+      "description": "",
+      "x": 32.28,
+      "y": -1072.26,
+      "createdAt": "2026-09-03T19:24:53.883Z"
+    },
+    {
+      "id": "7d1f0bc0-03e3-4210-bc6d-9625f5c78293",
+      "name": "กสิกร",
+      "category": "1mark",
+      "description": "",
+      "x": 148.41,
+      "y": -1040.24,
+      "createdAt": "2026-09-03T19:25:02.152Z"
+    },
+    {
+      "id": "7d2aa4a2-4419-4eb7-941f-38e98f4e9e7f",
+      "name": "เครนเหลือง",
+      "category": "1mark",
+      "description": "",
+      "x": -138.15,
+      "y": -1000.61,
+      "createdAt": "2026-09-03T19:25:25.446Z"
+    },
+    {
+      "id": "bc02a886-13f8-41a7-afa6-c58d11923b0c",
+      "name": "จ็อบเซนเตอร์",
+      "category": "1mark",
+      "description": "",
+      "x": -293.5,
+      "y": -1049.39,
+      "createdAt": "2026-09-03T19:25:50.909Z"
+    },
+    {
+      "id": "b0c123a0-33ce-4fc9-a8de-d355d318ff2d",
+      "name": "บ้านน้ำ",
+      "category": "1mark",
+      "description": "",
+      "x": -1031.01,
+      "y": -1055.49,
+      "createdAt": "2026-09-03T20:02:03.656Z"
+    },
+    {
+      "id": "6e3d9af7-18e6-416f-b3d8-5abc9efc834d",
+      "name": "วอทแคร์",
+      "category": "1mark",
+      "description": "",
+      "x": -540.84,
+      "y": -197.26,
+      "createdAt": "2026-09-03T20:20:49.325Z"
+    },
+    {
+      "id": "38161af9-66c5-4f4a-989e-c530cd0b358a",
+      "name": "เขื่อน",
+      "category": "1mark",
+      "description": "",
+      "x": 1671.69,
+      "y": -6.71,
+      "createdAt": "2026-09-03T20:26:04.487Z"
+    },
+    {
+      "id": "13a65e00-d685-4dee-b3e7-95f04bf26041",
+      "name": "ปั้มเขื่อน",
+      "category": "1mark",
+      "description": "",
+      "x": 2564.55,
+      "y": 371.34,
+      "createdAt": "2026-09-03T20:26:21.386Z"
+    },
+    {
+      "id": "43a90671-c45c-49f9-88f2-a646b09c86cb",
+      "name": "ผับเหลือง",
+      "category": "1mark",
+      "description": "",
+      "x": -571.01,
+      "y": 301.22,
+      "createdAt": "2026-09-03T20:34:59.392Z"
+    },
+    {
+      "id": "f1c66bc7-a2b1-43e2-97ab-ab1d859b1c3d",
+      "name": "เวทีเล็ก",
+      "category": "1mark",
+      "description": "",
+      "x": 172.54,
+      "y": 1170.12,
+      "createdAt": "2026-09-03T20:35:06.716Z"
+    },
+    {
+      "id": "24783b3a-6e07-477a-98c6-68dd6937633b",
+      "name": "เวทีใหญ่",
+      "category": "1mark",
+      "description": "",
+      "x": 667.23,
+      "y": 529.88,
+      "createdAt": "2026-09-03T20:35:12.121Z"
+    },
+    {
+      "id": "e0adaca0-4494-4e27-a553-b4575826a710",
+      "name": "เริ่มต้นอากินะ",
+      "category": "1mark",
+      "description": "",
+      "x": 1128.74,
+      "y": 843.9,
+      "createdAt": "2026-09-03T20:35:29.575Z"
+    },
+    {
+      "id": "e8c804de-8cd2-49d0-a4bb-1d0892bec255",
+      "name": "สน. 24",
+      "category": "1mark",
+      "description": "",
+      "x": 840.67,
+      "y": -1300.91,
+      "createdAt": "2026-09-03T20:36:26.316Z"
+    },
+    {
+      "id": "d1f6937f-2e5d-4d5c-b875-4c6d34f212cc",
+      "name": "ตึก 24",
+      "category": "1mark",
+      "description": "",
+      "x": 938.71,
+      "y": -1273.48,
+      "createdAt": "2026-09-03T20:36:33.122Z"
+    },
+    {
+      "id": "ca48cfe6-0135-496c-85f7-74288403ad20",
+      "name": "อู่เจ๊ง",
+      "category": "1mark",
+      "description": "",
+      "x": 822.57,
+      "y": -962.5,
+      "createdAt": "2026-09-03T20:36:55.549Z"
+    },
+    {
+      "id": "9850c1f1-62b6-4c6d-8d68-df00ac17ef9b",
+      "name": "ปูนเดี่ยวบ้านหัวใจ",
+      "category": "1mark",
+      "description": "",
+      "x": 1389.66,
+      "y": -735.37,
+      "createdAt": "2026-09-03T20:37:13.977Z"
+    },
+    {
+      "id": "62f59190-6886-4f48-86ae-4a875ba5e8ed",
+      "name": "อุโมงเขาเขื่อน",
+      "category": "1mark",
+      "description": "",
+      "x": 1305.2,
+      "y": -889.33,
+      "createdAt": "2026-09-03T20:37:56.753Z"
+    },
+    {
+      "id": "e7a7a61c-4e9a-4454-b2f2-d7a9cab2bd14",
+      "name": "ร้านบ้านหัวใจ",
+      "category": "1mark",
+      "description": "",
+      "x": 1169.46,
+      "y": -317.68,
+      "createdAt": "2026-09-03T20:38:22.916Z"
+    },
+    {
+      "id": "88d1141d-76a4-43e9-b179-b6137c7b4897",
+      "name": "3ท่อ ฝั่งเลี้ยงหมู",
+      "category": "1mark",
+      "description": "",
+      "x": 1905.47,
+      "y": 598.48,
+      "createdAt": "2026-09-03T20:39:03.984Z"
+    },
+    {
+      "id": "e8c9cbfd-a7e3-4afe-ab9c-708ce703bafe",
+      "name": "โรงไฟฟ้า",
+      "category": "1mark",
+      "description": "",
+      "x": 2742.52,
+      "y": 1542.07,
+      "createdAt": "2026-09-03T20:39:12.281Z"
+    },
+    {
+      "id": "d82bd090-5015-4a29-8a96-98a3f13dd726",
+      "name": "เขากังหัน",
+      "category": "1mark",
+      "description": "",
+      "x": 2217.66,
+      "y": 2112.2,
+      "createdAt": "2026-09-03T20:39:22.211Z"
+    },
+    {
+      "id": "a132cfcc-e58c-4fd8-a9d1-c92a9d52fc8c",
+      "name": "เส้นโรงไฟฟ้า",
+      "category": "1mark",
+      "description": "",
+      "x": 2528.35,
+      "y": 1856.1,
+      "createdAt": "2026-09-03T20:39:45.835Z"
+    },
+    {
+      "id": "8ef90e7d-4523-4b92-981e-e79729559cdf",
+      "name": "เขาโรงไฟฟ้า",
+      "category": "1mark",
+      "description": "",
+      "x": 2908.42,
+      "y": 2328.66,
+      "createdAt": "2026-09-03T20:40:27.929Z"
+    },
+    {
+      "id": "e13fe41f-74a4-49f1-a528-602907629531",
+      "name": "สนามกอล์ฟ",
+      "category": "1mark",
+      "description": "",
+      "x": -1139.6,
+      "y": 14.63,
+      "createdAt": "2026-09-03T20:40:58.512Z"
+    },
+    {
+      "id": "dee05a86-a3b4-4788-aa51-99e1864da72b",
+      "name": "ขาย ECO",
+      "category": "1mark",
+      "description": "",
+      "x": -1266.29,
+      "y": 313.41,
+      "createdAt": "2026-09-03T20:41:21.548Z"
+    },
+    {
+      "id": "4ad79a93-81a7-4e33-8541-92d7d8cc959a",
+      "name": "ที่ทำการแอดมินวอท (เก่า)",
+      "category": "1mark",
+      "description": "",
+      "x": 373.13,
+      "y": 22.26,
+      "createdAt": "2026-09-03T20:44:22.703Z"
+    }
+  ],
+  "source": "fallback-cache",
+  "note": "snapshot from production /api/poi for local/dev fallback when Google Sheets is unavailable"
+}

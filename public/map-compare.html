@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MHNK Map Compare // Old vs New</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0b1020; color: #e6f1ff; }
+  header { padding: 10px 14px; background: #111a30; border-bottom: 1px solid #2a3a60; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  header h1 { font-size: 15px; letter-spacing: 1px; }
+  header h1 span { color: #00e5ff; }
+  header label { font-size: 12px; color: #8fa3c8; }
+  select { padding: 6px 10px; border-radius: 6px; border: 1px solid #2a3a60; background: #0d1528; color: #fff; }
+  button { padding: 6px 12px; border-radius: 6px; border: 1px solid #00e5ff55; background: #00e5ff18; color: #00e5ff; cursor: pointer; font-weight: 600; }
+  button:hover { background: #00e5ff30; }
+  .info { font-size: 11.5px; color: #9db2d6; background: #0d1528; border: 1px dashed #2a3a60; border-radius: 8px; padding: 8px 12px; margin: 8px 12px; line-height: 1.7; }
+  .info b { color: #ffd36b; font-family: Consolas, monospace; }
+  .panes { display: flex; gap: 0; height: calc(100vh - 58px); }
+  .pane { flex: 1; position: relative; }
+  .pane:first-child { border-right: 3px solid #ff2d55; }
+  .pane-label { position: absolute; top: 10px; left: 10px; z-index: 5000; font-size: 11px; font-weight: 700; letter-spacing: 1px; padding: 4px 10px; border-radius: 99px; background: rgba(4,8,16,0.85); border: 1px solid #ff2d55; color: #ff6d85; }
+  .pane-label.green { border-color: #00e5ff; color: #00e5ff; }
+  .map-el { width: 100%; height: 100%; }
+  .extra { display: flex; gap: 16px; align-items: center; font-size: 12px; color: #ffd36b; font-family: Consolas, monospace; }
+  .note { font-size: 11px; color: #8fa3c8; }
+  .extra .key { color: #8fa3c8; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🚔 MHNK MAP <span>COMPARE</span> // UI เก่า(L.icon 24px) vs UI ใหม่(divIcon+ring)</h1>
+  <label>เลือกจุด</label>
+  <select id="poi-select"></select>
+  <button onclick="syncView()">ซิงก์มุมกล้องไปยังจุด</button>
+  <div class="extra">
+    <span><span class="key">XYZ:</span> <span id="cur-xyz">-</span></span>
+    <span><span class="key">Tile(z/x/y):</span> <span id="cur-tile">-</span></span>
+  </div>
+  <div class="note">ใช้ข้อมูล /api/poi เดียวกัน · วางจุดสูตรเดียวกับ UI จริง · เลือกจุดแล้วซูมดูว่าซ้าย-ขวาตรงกันไหม</div>
+</header>
+
+<div class="info">
+  💡 <b>วิธีเทียบกับ UI เก่าจริง:</b> เปิด <b>https://mhnk-pd-0-1.onrender.com/MapMhnkPD</b> (UI เก่ารอบก่อน) ในอีกแท็บ เลือกจุดชื่อเดียวกัน แล้วเทียบตำแหน่งกับแผนที่ซ้ายของหน้านี้
+  — แผนที่ทั้งสองใช้ชุด tile + สูตรพิกัดชุดเดียวกันทุกประการ
+</div>
+
+<div class="panes">
+  <div class="pane">
+    <div class="pane-label">⬅ UI เก่า (L.icon 24px)</div>
+    <div id="map-old" class="map-el"></div>
+  </div>
+  <div class="pane">
+    <div class="pane-label green">UI ใหม่ (divIcon + ring) ➡</div>
+    <div id="map-new" class="map-el"></div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script>
+// CRS เดียวกับ map-core.js (ทั้ง UI เก่าและใหม่ใช้ตัวเดียวกัน)
+  function gtaCRS() {
+    return Object.assign({}, L.CRS.Simple, {
+      projection: L.Projection.LonLat,
+      scale: (z) => Math.pow(2, z),
+      zoom: (sc) => Math.log(sc) / Math.LN2,
+      transformation: new L.Transformation(0.02072, 117.3, -0.0205, 172.8),
+      infinite: true
+    });
+  }
+
+  const CRS = gtaCRS();
+  const pois = [];
+  const maps = { old: null, new: null };
+
+  function initMap(id) {
+    const m = L.map(id, {
+      crs: CRS,
+      minZoom: 0,
+      maxZoom: 5,
+      preferCanvas: true,
+      center: [0, 0],
+      zoom: 3,
+      zoomControl: true,
+      maxBounds: L.latLngBounds(L.latLng(-8000, -6000), L.latLng(10000, 12000)),
+      maxBoundsViscosity: 0.8
+    });
+    L.tileLayer('/map-module/map-styles/styleAtlas/{z}/{x}/{y}.jpg', {
+      minZoom: 0, maxZoom: 5, noWrap: true,
+      errorTileUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGOQsvICAAEQAJ+lYp46AAAAAElFTkSuQmCC'
+    }).addTo(m);
+    return m;
+  }
+
+  function svgIcon(color, radius, stroke) {
+    return 'data:image/svg+xml;base64,' + btoa(
+      '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"><circle cx="12" cy="12" r="' + radius + '" fill="' + color + '" stroke="' + stroke + '" stroke-width="2"/></svg>'
+    );
+  }
+
+  // marker แบบ UI เก่า: L.icon 24px anchor ตรงกลาง
+  function oldIcon() {
+    return L.icon({
+      iconUrl: svgIcon('#ffdd33', 10, '#1a1a2e'),
+      iconSize: [24, 24],
+      iconAnchor: [12, 12]
+    });
+  }
+
+  // marker แบบ UI ใหม่: divIcon + วงแหวน (anchor ตรงกลางเหมือนกัน)
+  function newDivIcon(color) {
+    const img = svgIcon('#00bfff', 14, '#ffffff');
+    return L.divIcon({
+      className: '',
+      html: '<div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:38px;height:38px;border-radius:50%;border:1.5px solid ' + color + ';opacity:.75"></div>' +
+            '<img src="' + img + '" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:32px;height:32px;border-radius:50%;object-fit:cover">',
+      iconSize: [40, 40],
+      iconAnchor: [20, 20]
+    });
+  }
+
+  const catColors = ['#00e5ff', '#ff2d55', '#ffb020', '#2aff9b', '#3d7bff', '#ff5e57', '#0be881', '#ffd32a'];
+  const idx = {};
+  function catColor(cat) {
+    if (idx[cat] === undefined) idx[cat] = Object.keys(idx).length;
+    return catColors[idx[cat] % catColors.length];
+  }
+
+  async function load() {
+    const sel = document.getElementById('poi-select');
+    maps.old = initMap('map-old');
+    maps.new = initMap('map-new');
+    try {
+      const r = await fetch('/api/poi');
+      const d = await r.json();
+      if (d.success) pois.push(...d.data);
+    } catch (e) { console.error(e); }
+
+    pois.forEach((p, i) => {
+      const color = catColor(p.category);
+      const latlng = L.latLng(Number(p.y), Number(p.x));
+      L.marker(latlng, { icon: oldIcon() }).addTo(maps.old)
+        .bindTooltip(p.name + ' (' + Number(p.x).toFixed(1) + ',' + Number(p.y).toFixed(1) + ')');
+      L.marker(latlng, { icon: newDivIcon(color) }).addTo(maps.new)
+        .bindTooltip(p.name + ' (' + Number(p.x).toFixed(1) + ',' + Number(p.y).toFixed(1) + ')');
+      const opt = document.createElement('option');
+      opt.value = String(i);
+      opt.textContent = p.name + '  [' + Number(p.x).toFixed(0) + ', ' + Number(p.y).toFixed(0) + ']';
+      sel.appendChild(opt);
+    });
+
+    document.getElementById('cur-xyz').textContent = pois.length + ' จุดโหลดแล้ว';
+    if (pois.length) syncView();
+  }
+
+  function tileAt(latlng, z) {
+    const scale = Math.pow(2, z);
+    const px = scale * (0.02072 * latlng.lng + 117.3);
+    const py = scale * (-0.0205 * latlng.lat + 172.8);
+    const tx = Math.floor(px / 256);
+    const ty = Math.floor(py / 256);
+    return { z: z, tx: tx, ty: ty, subx: (px % 256).toFixed(1), suby: (py % 256).toFixed(1) };
+  }
+
+  function syncView() {
+    const i = parseInt(document.getElementById('poi-select').value || '0', 10);
+    const p = pois[i];
+    if (!p) return;
+    const latlng = L.latLng(Number(p.y), Number(p.x));
+    maps.old.setView(latlng, 4);
+    maps.new.setView(latlng, 4);
+    document.getElementById('cur-xyz').textContent = 'X:' + Number(p.x).toFixed(2) + ' Y:' + Number(p.y).toFixed(2);
+    const t = tileAt(latlng, 4);
+    document.getElementById('cur-tile').textContent = t.z + '/' + t.tx + '/' + t.ty + '  (subpx ' + t.subx + ',' + t.suby + ')';
+  }
+
+  document.getElementById('poi-select').addEventListener('change', syncView);
+  load();
+</script>
+</body>
+</html>
