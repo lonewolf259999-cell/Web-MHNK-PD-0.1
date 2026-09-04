@@ -238,6 +238,8 @@ function createPoiRoutes(getSheetsFn) {
       const data = rows.slice(1).map(row => {
         const item = {};
         headers.forEach((h, i) => { item[h] = row[i] || ''; });
+        // รองรับทั้ง header "dcId" และ "ID DC"
+        const dcId = item.dcId || item['ID DC'] || '';
         return {
           id: item.id,
           name: item.name || '',
@@ -246,7 +248,7 @@ function createPoiRoutes(getSheetsFn) {
           x: parseFloat(item.x) || 0,
           y: parseFloat(item.y) || 0,
           createdAt: item.createdAt || new Date().toISOString(),
-          dcId: item.dcId || ''
+          dcId: dcId
         };
       }).filter(item => item.id);
 

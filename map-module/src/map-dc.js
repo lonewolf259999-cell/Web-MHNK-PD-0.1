@@ -25,6 +25,7 @@ const MHNK_DC = {
         var discordId = params.get('discord_userId') || params.get('discord_id');
         var discordAvatar = params.get('discord_avatar');
 
+        // Clear URL params after reading values
         if (window.location.search) {
             window.history.replaceState({}, document.title, window.location.pathname);
         }
@@ -39,6 +40,7 @@ const MHNK_DC = {
             return;
         }
 
+        // Check localStorage for saved session
         var saved = localStorage.getItem('mhnk_dc_session');
         if (saved) {
             try {
