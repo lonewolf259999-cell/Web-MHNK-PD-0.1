@@ -1,0 +1,51 @@
+/* MHNK GEO-CHALLENGE - Game Styles */
+.game-page { height: 100vh; display: flex; flex-direction: column; background: #02040a; }
+.game-topbar { position: absolute; top: 20px; right: 20px; display: flex; align-items: center; padding: 12px 20px; background: rgba(8,14,28,0.92); border: 1px solid rgba(0,229,255,0.2); border-radius: 10px; gap: 20px; z-index: 100; backdrop-filter: blur(10px); }
+.game-brand { display: flex; align-items: center; gap: 10px; }
+.game-logo { font-size: 24px; filter: drop-shadow(0 0 10px rgba(0,229,255,0.5)); }
+.game-brand-text .game-title { font-family: 'Orbitron', monospace; font-weight: 800; font-size: 14px; color: #eaf4ff; }
+.game-brand-text .game-title span { color: #00e5ff; }
+.game-brand-text .game-sub { font-family: 'Orbitron', monospace; font-size: 8px; letter-spacing: 2px; color: #7d8fb3; }
+.game-stats { display: flex; gap: 20px; }
+.game-stat { display: flex; flex-direction: column; align-items: center; }
+.game-stat-label { font-family: 'Orbitron', monospace; font-size: 8px; letter-spacing: 1px; color: #7d8fb3; }
+.game-stat-value { font-family: 'Orbitron', monospace; font-size: 18px; font-weight: 700; color: #00e5ff; text-shadow: 0 0 10px rgba(0,229,255,0.4); }
+.game-exit-btn { padding: 6px 14px; background: rgba(255,45,85,0.1); border: 1px solid rgba(255,45,85,0.3); color: #ff2d55; font-family: 'Orbitron', monospace; font-size: 10px; letter-spacing: 1px; cursor: pointer; border-radius: 4px; transition: all 0.2s; }
+.game-exit-btn:hover { background: rgba(255,45,85,0.2); border-color: #ff2d55; }
+.game-main { flex: 1; position: relative; }
+#game-map { position: absolute; inset: 0; z-index: 1; background: #07101d; }
+.game-question-panel { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); z-index: 10; text-align: center; padding: 16px 32px; background: rgba(8,14,28,0.9); border: 1px solid rgba(0,229,255,0.3); border-radius: 8px; backdrop-filter: blur(10px); min-width: 300px; }
+.game-question-tag { font-family: 'Orbitron', monospace; font-size: 9px; letter-spacing: 2px; color: #00e5ff; margin-bottom: 8px; }
+.game-question-name { font-family: 'Prompt', sans-serif; font-size: 24px; font-weight: 700; color: #eaf4ff; text-shadow: 0 0 20px rgba(0,229,255,0.3); }
+.game-question-desc { font-family: 'Prompt', sans-serif; font-size: 13px; color: #7d8fb3; margin-top: 4px; }
+.game-result-overlay { position: absolute; top: 80px; right: 20px; z-index: 20; display: flex; align-items: flex-start; justify-content: flex-end; }
+.game-result-box { background: rgba(8,14,28,0.95); border: 1px solid rgba(255,45,85,0.4); border-radius: 12px; padding: 20px 24px; min-width: 260px; text-align: left; }
+.game-result-tag { font-family: 'Orbitron', monospace; font-size: 9px; letter-spacing: 2px; color: #00e5ff; margin-bottom: 8px; }
+.game-result-target { font-family: 'Prompt', sans-serif; font-size: 20px; font-weight: 700; color: #eaf4ff; margin-bottom: 16px; }
+.game-result-info { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+.game-result-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.game-result-label { font-family: 'Orbitron', monospace; font-size: 9px; letter-spacing: 1px; color: #7d8fb3; }
+.game-result-value { font-family: 'Orbitron', monospace; font-size: 12px; color: #eaf4ff; }
+.game-result-score-row { border-bottom: none; margin-top: 4px; padding-top: 8px; border-top: 1px solid rgba(0,229,255,0.2); }
+.game-result-score { font-size: 24px !important; font-weight: 800; }
+.game-next-btn { width: 100%; padding: 12px; background: rgba(0,229,255,0.1); border: 1px solid rgba(0,229,255,0.4); color: #00e5ff; font-family: 'Orbitron', monospace; font-size: 11px; letter-spacing: 2px; cursor: pointer; border-radius: 6px; transition: all 0.2s; }
+.game-next-btn:hover { background: rgba(0,229,255,0.2); border-color: #00e5ff; box-shadow: 0 0 15px rgba(0,229,255,0.3); }
+.game-final-overlay { position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; background: rgba(2,4,10,0.95); }
+.game-final-box { text-align: center; padding: 40px 60px; background: rgba(8,14,28,0.9); border: 1px solid rgba(0,229,255,0.3); border-radius: 16px; }
+.game-final-badge { font-size: 60px; margin-bottom: 12px; }
+.game-final-title { font-family: 'Orbitron', monospace; font-size: 18px; letter-spacing: 3px; color: #00e5ff; margin-bottom: 16px; }
+.game-final-score { font-family: 'Orbitron', monospace; font-size: 48px; font-weight: 900; color: #eaf4ff; text-shadow: 0 0 30px rgba(0,229,255,0.5); margin-bottom: 8px; }
+.game-final-grade { font-family: 'Orbitron', monospace; font-size: 72px; font-weight: 900; margin-bottom: 16px; }
+.game-final-details { font-family: 'Orbitron', monospace; font-size: 10px; color: #7d8fb3; line-height: 1.8; margin-bottom: 24px; }
+.game-final-actions { display: flex; gap: 12px; justify-content: center; }
+.game-final-btn { padding: 12px 24px; background: rgba(0,229,255,0.1); border: 1px solid rgba(0,229,255,0.4); color: #00e5ff; font-family: 'Orbitron', monospace; font-size: 11px; letter-spacing: 1px; cursor: pointer; border-radius: 6px; transition: all 0.2s; }
+.game-final-btn:hover { background: rgba(0,229,255,0.2); box-shadow: 0 0 15px rgba(0,229,255,0.3); }
+.game-final-btn-ghost { background: transparent; border-color: rgba(255,255,255,0.2); color: #7d8fb3; }
+.game-final-btn-ghost:hover { border-color: #7d8fb3; box-shadow: none; }
+.game-player-marker, .game-target-marker { background: transparent; border: none; }
+.game-player-dot { width: 20px; height: 20px; background: #00e5ff; border-radius: 50%; box-shadow: 0 0 15px #00e5ff, 0 0 30px rgba(0,229,255,0.5); animation: gamePulse 1.5s ease-in-out infinite; }
+.game-target-dot { width: 24px; height: 24px; background: #2aff9b; border-radius: 50%; box-shadow: 0 0 15px #2aff9b, 0 0 30px rgba(42,255,155,0.5); }
+@keyframes gamePulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
+#game-map .leaflet-container, #game-map .leaflet-tile-pane, #game-map .leaflet-layer, #game-map .leaflet-tile { background: #07101d !important; }
+#game-map .leaflet-tile-loaded { opacity: 1; }
+#game-map .leaflet-fade-anim .leaflet-tile, #game-map .leaflet-fade-anim .leaflet-popup { opacity: 1 !important; }

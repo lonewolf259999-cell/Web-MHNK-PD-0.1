@@ -116,6 +116,7 @@ try {
   app.use('/map-module/src', express.static(path.join(mapModuleDir, 'src'), staticOptions));
   app.use('/map-module/map-styles', express.static(path.join(mapModuleDir, 'map-styles'), staticOptions));
   app.use('/map-module/blips', express.static(path.join(mapModuleDir, 'blips'), staticOptions));
+  app.use('/map-module/Challenge/src', express.static(path.join(mapModuleDir, 'Challenge', 'src'), staticOptions));
 } catch (e) {
   // map-module not present
 }
@@ -141,6 +142,16 @@ try {
   logger.info('[MapModule] /MapMhnkPD route registered');
 } catch (e) {
   // map-module not present
+}
+
+// ==================== CHALLENGE GAME ROUTE ====================
+try {
+  app.get('/Challenge', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'map-module', 'Challenge', 'game.html'));
+  });
+  logger.info('[MapModule] /Challenge route registered');
+} catch (e) {
+  // challenge module not present
 }
 
 // ==================== ERROR HANDLER (must be last) ====================

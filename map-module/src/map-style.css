@@ -1519,3 +1519,6 @@ body {
   font-size: 9.5px;
   color: var(--muted);
 }
+
+#mhnk-map-container .leaflet-container, #mhnk-map-container .leaflet-tile-pane, #mhnk-map-container .leaflet-layer, #mhnk-map-container .leaflet-tile { background: #07101d !important; }
+#mhnk-map-container .leaflet-tile-loaded { opacity: 1; }
