@@ -126,7 +126,8 @@ async function repairSheet(sheets, sid) {
         (row[3] || '').toString(),
         (row[4] || '').toString(),
         (row[5] || '').toString(),
-        (row[6] || '').toString()
+        (row[6] || '').toString(),
+        (row[9] || '').toString()  // ← column J (dcId) รักษาไว้
       ]);
       continue;
     }
@@ -141,7 +142,8 @@ async function repairSheet(sheets, sid) {
         (row[6] || '').toString(), // description← G
         (row[7] || '').toString(), // x          ← H
         (row[8] || '').toString(), // y          ← I
-        (row[9] || '').toString()  // createdAt  ← J
+        (row[9] || '').toString(), // createdAt  ← J
+        ''                         // dcId ว่าง (ไม่มีในแถวเพี้ยน)
       ]);
       continue;
     }
@@ -149,15 +151,15 @@ async function repairSheet(sheets, sid) {
     // แถวว่าง/ขยะ (ไม่มี id ทั้ง col A และ col D) → ข้าม
   }
 
-  // ล้างทั้งคอลัมน์ A-K (รวมข้อมูลเพี้ยน H-K และแถวว่าง)
+  // ล้างเฉพาะคอลัมน์ A-H (ไม่ล้าง I-J ที่เป็น createdAt และ dcId)
   await sheets.spreadsheets.values.clear({
     spreadsheetId: sid,
-    range: `${SHEET_NAME}!A:K`
+    range: `${SHEET_NAME}!A:H`
   });
 
-  // เขียน header + ข้อมูลที่กู้ได้ กลับเป็น A-G ติดกัน
+  // เขียน header + ข้อมูลที่กู้ได้ กลับเป็น A-H ติดกัน (รวม dcId)
   const values = [
-    ['id', 'name', 'category', 'description', 'x', 'y', 'createdAt'],
+    ['id', 'name', 'category', 'description', 'x', 'y', 'createdAt', 'dcId'],
     ...normalized
   ];
 
