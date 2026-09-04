@@ -12,8 +12,16 @@ const logger = createLogger('AuthController');
  */
 function discordLogin(req, res) {
     const state = req.query.state || '';
-    const authUrl = discordAuth.getAuthUrl(state);
-    res.redirect(authUrl);
+    const redirectTo = req.query.redirect || getFallbackPage(state);
+    
+    try {
+        const authUrl = discordAuth.getAuthUrl(state);
+        res.redirect(authUrl);
+    } catch (err) {
+        // ถ้า Discord OAuth ไม่ได้ configure ให้ redirect กลับพร้อม error message
+        logger.error(`Discord login error: ${err.message}`);
+        res.redirect(`${redirectTo}?auth=failed&error=discord_not_configured`);
+    }
 }
 
 /**
@@ -23,6 +31,7 @@ function getFallbackPage(state) {
     if (state === 'medical') return '/medical.html';
     if (state === 'admin') return '/proctor.html';
     if (state === 'roster') return '/rostermanage.html';
+    if (state && state.startsWith('map')) return '/MapMhnkPD';
     return '/register.html';
 }
 

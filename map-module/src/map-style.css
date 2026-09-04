@@ -1,6 +1,6 @@
-/* ======================================================
+﻿/* ======================================================
 
-   MHNK PD · GEO-INTEL MAP TERMINAL
+   MHNK PD Â· GEO-INTEL MAP TERMINAL
 
    Cyberpunk Police HUD Theme
 
@@ -8,7 +8,7 @@
 
 
 
-/* ── Design Tokens ─────────────────────────────────── */
+/* â”€â”€ Design Tokens â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 :root {
 
@@ -96,7 +96,7 @@ body {
 
 
 
-/* ── Scrollbars ────────────────────────────────────── */
+/* â”€â”€ Scrollbars â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 *::-webkit-scrollbar { width: 8px; height: 8px; }
 
@@ -118,7 +118,7 @@ body {
 
 
 
-/* ═══════════════ BOOT SCREEN ═══════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• BOOT SCREEN â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 .mhnk-boot {
 
@@ -346,7 +346,7 @@ body {
 
 }
 
-/* ═══════════════ PAGE LAYOUT ═══════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• PAGE LAYOUT â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 .mhnk-map-page {
 
@@ -362,7 +362,7 @@ body {
 
 
 
-/* ═══════════════ HUD TOP BAR ═══════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• HUD TOP BAR â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 .mhnk-hud-top {
 
@@ -494,7 +494,7 @@ body {
 
 
 
-/* ═══════════════ MAP AREA ═══════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• MAP AREA â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 .mhnk-map-main {
 
@@ -574,7 +574,7 @@ body {
 
 
 
-/* ═══════════════ RADAR ═══════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• RADAR â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 .mhnk-radar {
 
@@ -728,7 +728,7 @@ body {
 
 
 
-/* ═══════════════ HINT BAR ═══════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• HINT BAR â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 .mhnk-hint {
 
@@ -780,7 +780,7 @@ body {
 
 }
 
-/* ═══════════════ CROSSHAIR ═══════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• CROSSHAIR â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 .mhnk-crosshair {
 
@@ -890,7 +890,7 @@ body {
 
 
 
-/* ═══════════════ STYLE PANEL / MAP CONTROLS ═══════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• STYLE PANEL / MAP CONTROLS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 .mhnk-map-controls {
 
@@ -1018,7 +1018,7 @@ body {
 
 
 
-/* ═══════════════ LEAFLET OVERRIDES ═══════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• LEAFLET OVERRIDES â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 .leaflet-container {
 
@@ -1234,13 +1234,13 @@ body {
 
 }
 
-/* ═══════════════ POI MARKERS ═══════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• POI MARKERS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
-/* หมายเหตุ: ห้ามตั้ง position บน .mhnk-marker —
+/* à¸«à¸¡à¸²à¸¢à¹€à¸«à¸•à¸¸: à¸«à¹‰à¸²à¸¡à¸•à¸±à¹‰à¸‡ position à¸šà¸™ .mhnk-marker â€”
 
-   Leaflet ใช้ .leaflet-marker-icon { position:absolute } ควบคุมตำแหน่ง
+   Leaflet à¹ƒà¸Šà¹‰ .leaflet-marker-icon { position:absolute } à¸„à¸§à¸šà¸„à¸¸à¸¡à¸•à¸³à¹à¸«à¸™à¹ˆà¸‡
 
-   ถ้า override เป็น relative จะทำให้ marker เรียงซ้อนกันผิดตำแหน่ง */
+   à¸–à¹‰à¸² override à¹€à¸›à¹‡à¸™ relative à¸ˆà¸°à¸—à¸³à¹ƒà¸«à¹‰ marker à¹€à¸£à¸µà¸¢à¸‡à¸‹à¹‰à¸­à¸™à¸à¸±à¸™à¸œà¸´à¸”à¸•à¸³à¹à¸«à¸™à¹ˆà¸‡ */
 
 
 
@@ -1270,7 +1270,7 @@ body {
 
 }
 
-/* ═══════════════ SIDEBAR ═══════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• SIDEBAR â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 .mhnk-map-sidebar {
 
@@ -1320,7 +1320,7 @@ body {
 
 
 
-/* ── Header ── */
+/* â”€â”€ Header â”€â”€ */
 
 .mhnk-sidebar-header {
 
@@ -1442,6 +1442,115 @@ body {
 
 }
 
+/* DC Connection Styles - Cyberpunk Theme */
+.mhnk-dc-connect {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+/* Discord Button - matches register.html style */
+.mhnk-dc-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #5865F2 0%, #4752C4 100%);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 15px rgba(88, 101, 242, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.mhnk-dc-btn::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.mhnk-dc-btn:hover::before { left: 100%; }
+
+.mhnk-dc-btn:hover {
+  background: linear-gradient(135deg, #4752C4 0%, #3C45A5 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(88, 101, 242, 0.5);
+}
+
+/* Connected User Info */
+.mhnk-dc-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: linear-gradient(135deg, rgba(34,197,94,0.1), rgba(34,197,94,0.05));
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  border-radius: 8px;
+  animation: dcFadeIn 0.3s ease;
+}
+
+@keyframes dcFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.mhnk-dc-avatar {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: 2px solid rgba(34, 197, 94, 0.5);
+  flex-shrink: 0;
+}
+
+.mhnk-dc-details { flex: 1; min-width: 0; }
+
+.mhnk-dc-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mhnk-dc-id {
+  font-family: var(--font-tec);
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 0.5px;
+}
+
+/* Disconnect Button */
+.mhnk-dc-disconnect {
+  width: 28px; height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 50%;
+  color: #ef4444;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.mhnk-dc-disconnect:hover {
+  background: rgba(239, 68, 68, 0.3);
+  transform: scale(1.1);
+}
 
 
 /* ── Controls ── */
@@ -1558,7 +1667,7 @@ body {
 
 .mhnk-filter-wrap::after {
 
-  content: '▾';
+  content: 'â–¾';
 
   position: absolute;
 
@@ -1632,7 +1741,7 @@ body {
 
 
 
-/* ── Stats bar ── */
+/* â”€â”€ Stats bar â”€â”€ */
 
 .mhnk-poi-stats {
 
@@ -1720,7 +1829,7 @@ body {
 
 }
 
-/* ── POI List ── */
+/* â”€â”€ POI List â”€â”€ */
 
 .mhnk-poi-list {
 
@@ -1788,7 +1897,7 @@ body {
 
 
 
-/* ── POI Card (หนึ่งบรรทัด: ไอคอน · ชื่อ · พิกัด · ลบ) ── */
+/* â”€â”€ POI Card (à¸«à¸™à¸¶à¹ˆà¸‡à¸šà¸£à¸£à¸—à¸±à¸”: à¹„à¸­à¸„à¸­à¸™ Â· à¸Šà¸·à¹ˆà¸­ Â· à¸žà¸´à¸à¸±à¸” Â· à¸¥à¸š) â”€â”€ */
 
 .mhnk-poi-item {
 
@@ -1814,7 +1923,7 @@ body {
 
   overflow: hidden;
 
-  /* สำคัญ: ห้ามให้ flex shrink การ์ด — list ต้อง scroll ไม่ใช่ย่อการ์ด */
+  /* à¸ªà¸³à¸„à¸±à¸: à¸«à¹‰à¸²à¸¡à¹ƒà¸«à¹‰ flex shrink à¸à¸²à¸£à¹Œà¸” â€” list à¸•à¹‰à¸­à¸‡ scroll à¹„à¸¡à¹ˆà¹ƒà¸Šà¹ˆà¸¢à¹ˆà¸­à¸à¸²à¸£à¹Œà¸” */
 
   flex-shrink: 0;
 
@@ -1854,7 +1963,7 @@ body {
 
 
 
-/* การ์ดที่กำลังเลือก (จากคลิกแผนที่ หรือคลิกการ์ด) */
+/* à¸à¸²à¸£à¹Œà¸”à¸—à¸µà¹ˆà¸à¸³à¸¥à¸±à¸‡à¹€à¸¥à¸·à¸­à¸ (à¸ˆà¸²à¸à¸„à¸¥à¸´à¸à¹à¸œà¸™à¸—à¸µà¹ˆ à¸«à¸£à¸·à¸­à¸„à¸¥à¸´à¸à¸à¸²à¸£à¹Œà¸”) */
 
 .mhnk-poi-item.selected {
 
@@ -2034,7 +2143,7 @@ body {
 
 
 
-/* ═══════════════ MODAL ═══════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• MODAL â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 .mhnk-modal-overlay {
 
@@ -2260,7 +2369,7 @@ body {
 
 
 
-/* ── Coord boxes ── */
+/* â”€â”€ Coord boxes â”€â”€ */
 
 .mhnk-coord-box {
 
@@ -2328,7 +2437,7 @@ body {
 
 
 
-/* ── Form ── */
+/* â”€â”€ Form â”€â”€ */
 
 .mhnk-form-group { margin-bottom: 15px; }
 
@@ -2424,7 +2533,7 @@ body {
 
 .mhnk-input-readonly { opacity: 0.75; cursor: default !important; }
 
-/* ═══════════════ BUTTONS ═══════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• BUTTONS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 .mhnk-btn {
 
@@ -2510,7 +2619,7 @@ body {
 
 
 
-/* ═══════════════ RESPONSIVE ═══════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• RESPONSIVE â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 @media (max-width: 860px) {
 
@@ -2624,9 +2733,9 @@ body {
 
 }
 
-/* ═══════════════ EXTRA KEYFRAMES ═══════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• EXTRA KEYFRAMES â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
-/* ═══════════════ TOAST ═══════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• TOAST â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 .mhnk-toast {
 
@@ -2690,7 +2799,7 @@ body {
 
 
 
-/* ═══════════════ EXPORT BUTTON (SIDEBAR) ═══════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• EXPORT BUTTON (SIDEBAR) â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 .mhnk-export-btn {
 

@@ -17,6 +17,12 @@ logger.info(`Config loaded - APP_URL: ${config.APP_URL}, REDIRECT_URI: ${REDIREC
  * @param {string} state - ระบุหน้าที่เรียก (เช่น 'register' หรือ 'council')
  */
 function getAuthUrl(state = '') {
+    // ตรวจสอบว่ามี Discord credentials หรือไม่
+    if (!config.DISCORD_CLIENT_ID || !config.DISCORD_CLIENT_SECRET) {
+        logger.error('Discord OAuth not configured: DISCORD_CLIENT_ID or DISDIRECT_CLIENT_SECRET is missing');
+        throw new Error('Discord OAuth is not configured. Please set DISCORD_CLIENT_ID and DISCORD_CLIENT_SECRET environment variables.');
+    }
+
     const params = new URLSearchParams({
         client_id: config.DISCORD_CLIENT_ID,
         redirect_uri: REDIRECT_URI,

@@ -226,7 +226,7 @@ function createPoiRoutes(getSheetsFn) {
 
       const result = await sheets.spreadsheets.values.get({
         spreadsheetId: sid,
-        range: `${SHEET_NAME}!A:G`
+        range: `${SHEET_NAME}!A:J`
       });
 
       const rows = result.data.values || [];
@@ -245,7 +245,8 @@ function createPoiRoutes(getSheetsFn) {
           description: item.description || '',
           x: parseFloat(item.x) || 0,
           y: parseFloat(item.y) || 0,
-          createdAt: item.createdAt || new Date().toISOString()
+          createdAt: item.createdAt || new Date().toISOString(),
+          dcId: item.dcId || ''
         };
       }).filter(item => item.id);
 

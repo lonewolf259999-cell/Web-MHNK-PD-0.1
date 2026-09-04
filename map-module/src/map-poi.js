@@ -360,13 +360,19 @@ const MHNK_POI = {
       const mc = cat?.color || '#00e5ff';
       const x = isFinite(Number(poi.x)) ? Number(poi.x).toFixed(1) : '0.0';
       const y = isFinite(Number(poi.y)) ? Number(poi.y).toFixed(1) : '0.0';
+
+      // Check edit permission based on DC ID (column J)
+      const canEdit = (typeof MHNK_DC !== 'undefined') ? MHNK_DC.canEdit(poi.dcId) : true;
+      const editBtn = canEdit ? `<button class="mhnk-poi-item-edit" onclick="event.stopPropagation(); MHNK_POI._editPoiName('${escapeHtml(poi.id)}')" title="แก้ไขชื่อ">✎</button>` : '';
+      const delBtn = canEdit ? `<button class="mhnk-poi-item-del" onclick="event.stopPropagation(); MHNK_POI.deletePoi('${escapeHtml(poi.id)}')" title="ลบ">✕</button>` : '';
+
       return `
         <div class="mhnk-poi-item" data-poi-id="${escapeHtml(poi.id)}" style="--mc:${mc}" onclick="MHNK_POI._goToPoi('${escapeHtml(poi.id)}')">
           <div class="mhnk-poi-item-dot" style="--mc:${mc}">${this._catDotHtml(cat)}</div>
           <div class="mhnk-poi-item-name" title="${name}">${name}</div>
           <span class="mhnk-poi-item-coord">X:${x} Y:${y}</span>
-          <button class="mhnk-poi-item-edit" onclick="event.stopPropagation(); MHNK_POI._editPoiName('${escapeHtml(poi.id)}')" title="แก้ไขชื่อ">✎</button>
-          <button class="mhnk-poi-item-del" onclick="event.stopPropagation(); MHNK_POI.deletePoi('${escapeHtml(poi.id)}')" title="ลบ">✕</button>
+          ${editBtn}
+          ${delBtn}
         </div>
       `;
     }).join('');
