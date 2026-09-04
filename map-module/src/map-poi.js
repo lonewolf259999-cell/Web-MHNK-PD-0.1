@@ -88,7 +88,11 @@ const MHNK_POI = {
           var authorizedIds = this.pois
             .map(function(poi) { return poi.dcId; })
             .filter(function(id) { return id && String(id).trim() !== ''; });
+          console.log('[MHNK-POI] Authorized IDs from column J:', authorizedIds);
+          console.log('[MHNK-POI] Current user DC ID:', MHNK_DC.getDcId());
           MHNK_DC.setAuthorizedIds(authorizedIds);
+          console.log('[MHNK-POI] canAdd:', MHNK_DC.canAdd());
+          console.log('[MHNK-POI] canEdit:', MHNK_DC.canEdit());
         }
 
         this._renderPoiList();
