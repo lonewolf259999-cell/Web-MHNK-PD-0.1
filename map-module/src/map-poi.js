@@ -38,6 +38,12 @@ const MHNK_POI = {
   _bindEvents() {
     document.addEventListener('mhnk-map-click', (e) => {
       console.log('[MHNK-POI] Map click received:', e.detail);
+
+      // ตรวจสอบว่า login DC ก่อนถึงจะเพิ่มจุดได้
+      if (typeof MHNK_DC !== 'undefined' && !MHNK_DC.isConnected()) {
+        return;
+      }
+
       if (this._modalVisible) return;
       // ข้ามการเปิด modal ใหม่ทันทีหลังปิด (กันการคลิกนอกกรอบแล้วเด้งกลับ)
       if (Date.now() < this._suppressClicksUntil) return;
