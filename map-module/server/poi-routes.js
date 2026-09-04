@@ -268,7 +268,7 @@ function createPoiRoutes(getSheetsFn) {
   // ==================== POST /api/poi ====================
   router.post('/', async (req, res) => {
     try {
-      const { name, category, description, x, y } = req.body;
+      const { name, category, description, x, y, dcId } = req.body;
 
       if (!name || !category || x === undefined || y === undefined) {
         return res.status(400).json({
@@ -285,7 +285,7 @@ function createPoiRoutes(getSheetsFn) {
       // ตรวจสอบ/สร้าง sheet ถ้ายังไม่มี
       await ensureSheetExists(sheets, sid);
 
-      // เพิ่มข้อมูล (INSERT_ROWS แทรกเป็นแถวใหม่ท้ายตารางเสมอ ป้องกันข้อมูลหลงคอลัมน์)
+      // เพิ่มข้อมูล (A:G + dcId ที่ column J)
       await sheets.spreadsheets.values.append({
         spreadsheetId: sid,
         range: `${SHEET_NAME}!A:G`,
@@ -296,7 +296,22 @@ function createPoiRoutes(getSheetsFn) {
         }
       });
 
-      res.json({ success: true, data: { id, name, category, description, x, y } });
+      // ถ้ามี dcId ให้เขียนลง column J
+      if (dcId) {
+        const result = await sheets.spreadsheets.values.get({
+          spreadsheetId: sid,
+          range: `${SHEET_NAME}!A:A`
+        });
+        const rowCount = (result.data.values || []).length;
+        await sheets.spreadsheets.values.update({
+          spreadsheetId: sid,
+          range: `${SHEET_NAME}!J${rowCount}`,
+          valueInputOption: 'USER_ENTERED',
+          requestBody: { values: [[dcId]] }
+        });
+      }
+
+      res.json({ success: true, data: { id, name, category, description, x, y, dcId: dcId || '' } });
     } catch (err) {
       console.error('[POI] POST error:', err);
       res.status(500).json({ success: false, error: err.message });

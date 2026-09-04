@@ -328,7 +328,12 @@ const MHNK_POI = {
     }
 
     try {
-      const success = await this.addPoi({ name, category, description, x, y });
+      // เพิ่ม dcId ของผู้สร้างเข้าไปในข้อมูล POI
+      var poiData = { name: name, category: category, description: description, x: x, y: y };
+      if (typeof MHNK_DC !== 'undefined' && MHNK_DC.isConnected()) {
+        poiData.dcId = MHNK_DC.getDcId();
+      }
+      const success = await this.addPoi(poiData);
       if (success) this._hideModal();
       return finish(success);
     } catch (err) {
