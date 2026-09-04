@@ -47,4 +47,4 @@ function resetAuth() {
     _sheets = null;
 }
 
-module.exports = { getSheets, initAuth, resetAuth };
+module.exports = { getSheets };

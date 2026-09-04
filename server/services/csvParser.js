@@ -160,8 +160,6 @@ function mapWeekNames(rows) {
 
 module.exports = {
     parseCSV,
-    parseCSVLine,
-    getCell,
     mapOfficers,
     mapWeekData,
     mapWeekNames

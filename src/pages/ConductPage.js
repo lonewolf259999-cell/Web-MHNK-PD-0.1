@@ -33,12 +33,11 @@ class ConductPage {
 
         // Group conduct by category (column D = title/category) — same as rules
         const grouped = this.groupByCategory(this.data);
-        const q = query.toLowerCase();
         let html = '';
 
         for (const [category, items] of Object.entries(grouped)) {
-            const matchedItems = q
-                ? items.filter(r => r.text.toLowerCase().includes(q) || (r.title || '').toLowerCase().includes(q))
+            const matchedItems = query
+                ? HtmlUtils.filterByQuery(items, query, ['text', 'title'])
                 : items;
 
             if (matchedItems.length === 0) continue;
@@ -53,7 +52,7 @@ class ConductPage {
             `;
         }
 
-        this.container.innerHTML = html || this.createEmptyState();
+        this.container.innerHTML = html || HtmlUtils.createEmptyState('📭', 'ไม่พบข้อปฏิบัติที่ค้นหา', 'ลองค้นหาด้วยคำอื่น');
     }
 
     createConductItem(item, localIndex) {
@@ -70,15 +69,5 @@ class ConductPage {
 
     groupByCategory(items) {
         return HtmlUtils.groupByCategory(items, 'title', 'อื่นๆ');
-    }
-
-    createEmptyState() {
-        return `
-            <div class="no-results">
-                <div class="icon">📭</div>
-                <h3>ไม่พบข้อปฏิบัติที่ค้นหา</h3>
-                <p>ลองค้นหาด้วยคำอื่น</p>
-            </div>
-        `;
     }
 }

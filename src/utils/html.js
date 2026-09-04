@@ -149,11 +149,11 @@ const HtmlUtils = {
     },
 
     /**
-     * ค้นหาข้อมูลเจ้าหน้าที่ใน weekData (object ที่ key เป็นชื่อเจ้าหน้าที่)
+     * ค้นหาข้อมูลเจ้าหน้าทีใน weekData (object ที่ key เป็นชื่อเจ้าหน้าที)
      * รวมลูปค้นหาที่ซ้ำกันหลายจุดไว้ที่เดียว เพื่อดูแลจุดเดียวและลดความผิดพลาด
      * @param {Object} weekData - ข้อมูลรายสัปดาห์ { officerName: data }
      * @param {string} officerName - ชื่อเจ้าหน้าที่ที่ต้องการค้นหา
-     * @returns {Object|null} - ข้อมูลของเจ้าหน้าที่ หรือ null ถ้าไม่พบ
+     * @returns {Object|null} - ข้อมูลเจ้าหน้าที่ หรือ null ถ้าไม่พบ
      */
     findOfficerWeekData(weekData, officerName) {
         if (!weekData || typeof weekData !== 'object') return null;
@@ -163,5 +163,41 @@ const HtmlUtils = {
             }
         }
         return null;
+    },
+
+    /**
+     * Create empty state HTML (shared across all pages)
+     * @param {string} icon - Emoji icon
+     * @param {string} title - Title text
+     * @param {string} message - Message text
+     * @returns {string} HTML string
+     */
+    createEmptyState(icon = '📭', title = 'ไม่พบข้อมูล', message = 'ลองค้นหาด้วยคำอื่น') {
+        return `
+            <div class="no-results">
+                <div class="icon">${this.escape(icon)}</div>
+                <h3>${this.escape(title)}</h3>
+                <p>${this.escape(message)}</p>
+            </div>
+        `;
+    },
+
+    /**
+     * Filter array by search query across specified fields
+     * @param {Array} items - Array of objects to filter
+     * @param {string} query - Search query
+     * @param {string[]} fields - Field names to search in
+     * @returns {Array} Filtered array
+     */
+    filterByQuery(items, query, fields = []) {
+        if (!query || !query.trim()) return items;
+        const q = query.toLowerCase().trim();
+        return items.filter(item => 
+            fields.some(field => {
+                const value = item[field];
+                return value && String(value).toLowerCase().includes(q);
+            })
+        );
     }
 };
+

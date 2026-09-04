@@ -546,7 +546,6 @@ module.exports = {
     refreshAll,
     preWarmCache,
     getStaticJSON,
-    fetchGvizCSV,
     getConduct,
     getRules,
     getFines,

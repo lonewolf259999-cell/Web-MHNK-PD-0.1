@@ -32,12 +32,11 @@ class RulesPage {
 
         // Group rules by category
         const grouped = this.groupByCategory(this.rulesData);
-        const q = query.toLowerCase();
         let html = '';
 
         for (const [category, rules] of Object.entries(grouped)) {
-            const matchedRules = q
-                ? rules.filter(r => r.text.toLowerCase().includes(q) || r.category.toLowerCase().includes(q))
+            const matchedRules = query
+                ? HtmlUtils.filterByQuery(rules, query, ['text', 'category'])
                 : rules;
 
             if (matchedRules.length === 0) continue;
@@ -52,7 +51,7 @@ class RulesPage {
             `;
         }
 
-        this.container.innerHTML = html || this.createEmptyState();
+        this.container.innerHTML = html || HtmlUtils.createEmptyState('📭', 'ไม่พบกฎที่ค้นหา', 'ลองค้นหาด้วยคำอื่น');
     }
 
     createRuleItem(rule, localIndex) {
@@ -72,14 +71,4 @@ class RulesPage {
     }
 
     // No attachAdminEvents needed — inline onclick in AdminActions.renderButtons handles it
-
-    createEmptyState() {
-        return `
-            <div class="no-results">
-                <div class="icon">📭</div>
-                <h3>ไม่พบกฎที่ค้นหา</h3>
-                <p>ลองค้นหาด้วยคำอื่น</p>
-            </div>
-        `;
-    }
 }
