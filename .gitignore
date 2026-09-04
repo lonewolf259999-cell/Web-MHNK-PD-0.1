@@ -14,3 +14,7 @@ data/.officers-cache.json
 
 # Old build artifacts (unused - no build step needed)
 dist/
+
+# Background test-run artifacts (logs + PID files)
+*.log
+*.pid
