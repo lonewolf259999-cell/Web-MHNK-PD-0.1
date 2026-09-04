@@ -108,7 +108,7 @@ const MHNK_DC = {
 
     canEdit(poiDcId) {
         if (!this._isConnected || !this._dcId) return false;
-        if (!poiDcId) return true;
+        if (!poiDcId) return false; // คอลัมน์ J ว่าง → แก้ไม่ได้เลย
         return String(this._dcId).trim() === String(poiDcId).trim();
     }
 };
