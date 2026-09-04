@@ -1,8 +1,9 @@
 /* MHNK GEO-CHALLENGE - Game Styles */
 .game-page { height: 100vh; display: flex; flex-direction: column; background: #02040a; }
 .game-topbar { position: absolute; top: 20px; right: 20px; display: flex; align-items: center; padding: 12px 20px; background: rgba(8,14,28,0.92); border: 1px solid rgba(0,229,255,0.2); border-radius: 10px; gap: 20px; z-index: 100; backdrop-filter: blur(10px); }
-.game-brand { display: flex; align-items: center; gap: 10px; }
+.game-brand { display: flex; align-items: center; gap: 10px; background: transparent; }
 .game-logo { font-size: 24px; filter: drop-shadow(0 0 10px rgba(0,229,255,0.5)); }
+.game-logo-img { width: 45px; height: 45px; filter: drop-shadow(0 0 10px rgba(0,229,255,0.5)); object-fit: contain; }
 .game-brand-text .game-title { font-family: 'Orbitron', monospace; font-weight: 800; font-size: 14px; color: #eaf4ff; }
 .game-brand-text .game-title span { color: #00e5ff; }
 .game-brand-text .game-sub { font-family: 'Orbitron', monospace; font-size: 8px; letter-spacing: 2px; color: #7d8fb3; }
@@ -18,7 +19,7 @@
 .game-question-tag { font-family: 'Orbitron', monospace; font-size: 9px; letter-spacing: 2px; color: #00e5ff; margin-bottom: 8px; }
 .game-question-name { font-family: 'Prompt', sans-serif; font-size: 24px; font-weight: 700; color: #eaf4ff; text-shadow: 0 0 20px rgba(0,229,255,0.3); }
 .game-question-desc { font-family: 'Prompt', sans-serif; font-size: 13px; color: #7d8fb3; margin-top: 4px; }
-.game-result-overlay { position: absolute; top: 80px; right: 20px; z-index: 20; display: flex; align-items: flex-start; justify-content: flex-end; }
+.game-result-overlay { position: absolute; top: 120px; right: 20px; z-index: 20; display: flex; align-items: flex-start; justify-content: flex-end; }
 .game-result-box { background: rgba(8,14,28,0.95); border: 1px solid rgba(255,45,85,0.4); border-radius: 12px; padding: 20px 24px; min-width: 260px; text-align: left; }
 .game-result-tag { font-family: 'Orbitron', monospace; font-size: 9px; letter-spacing: 2px; color: #00e5ff; margin-bottom: 8px; }
 .game-result-target { font-family: 'Prompt', sans-serif; font-size: 20px; font-weight: 700; color: #eaf4ff; margin-bottom: 16px; }
@@ -49,3 +50,4 @@
 #game-map .leaflet-container, #game-map .leaflet-tile-pane, #game-map .leaflet-layer, #game-map .leaflet-tile { background: #07101d !important; }
 #game-map .leaflet-tile-loaded { opacity: 1; }
 #game-map .leaflet-fade-anim .leaflet-tile, #game-map .leaflet-fade-anim .leaflet-popup { opacity: 1 !important; }
+.mhnk-boot-logo { width: 200px; height: 200px; filter: drop-shadow(0 0 18px rgba(0,229,255,0.6)); }

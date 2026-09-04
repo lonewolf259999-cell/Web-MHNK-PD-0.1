@@ -12,7 +12,7 @@ const GAME = {
       zoom: (s) => Math.log(s) / Math.LN2,
       transformation: new L.Transformation(0.02072, 117.3, -0.0205, 172.8), infinite: true
     });
-    this.map = L.map('game-map', { crs: CRS, minZoom: 0, maxZoom: 5, zoom: 3, center: [0, 0], zoomControl: false, maxBounds: L.latLngBounds(L.latLng(-6000, -8000), L.latLng(12000, 10000)), maxBoundsViscosity: 0.8 });
+    this.map = L.map('game-map', { crs: CRS, minZoom: 2, maxZoom: 5, zoom: 4, center: [0, 0], zoomControl: false, maxBounds: L.latLngBounds(L.latLng(-6000, -8000), L.latLng(12000, 10000)), maxBoundsViscosity: 0.8 });
     this.map.getContainer().style.background = '#07101d';
     L.control.zoom({ position: 'bottomright' }).addTo(this.map);
     L.tileLayer('/map-module/map-styles/styleAtlas/{z}/{x}/{y}.jpg', { minZoom: 0, maxZoom: 5, noWrap: true, errorTileUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGOQsvICAAEQAJ+lYp46AAAAAElFTkSuQmCC' }).addTo(this.map);

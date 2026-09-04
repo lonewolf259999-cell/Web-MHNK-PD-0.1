@@ -14,7 +14,7 @@ const MHNK_MAP = {
   // ค่าเริ่มต้น
   config: {
     zoom: 3,
-    minZoom: 0,
+    minZoom: 2,
     maxZoom: 5,
     center: [0, 0],
     tileBaseUrl: '/map-module/map-styles',
@@ -92,7 +92,7 @@ const MHNK_MAP = {
       const url = `${tileBaseUrl}/${folder}/{z}/{x}/{y}.${ext}`;
       const styleMaxZoom = (this.config.styleMaxZooms && this.config.styleMaxZooms[style]) || 5;
       const layer = L.tileLayer(url, {
-        minZoom: 0,
+        minZoom: 2,
         maxZoom: styleMaxZoom,
         noWrap: true,
         attribution: 'MHNK PD Map',
