@@ -5,6 +5,7 @@ const MHNK_DC = {
     _dcAvatar: null,
     _isConnected: false,
     _onStatusChange: null,
+    _authorizedIds: [], // เก็บรายการ ID ที่มีในคอลัมน์ J
 
     init(onStatusChange) {
         this._onStatusChange = onStatusChange;
@@ -21,28 +22,23 @@ const MHNK_DC = {
         var params = new URLSearchParams(window.location.search);
         var authStatus = params.get('auth');
         var discordName = params.get('discord_name');
-        // Server may send discord_userId (snowflake) or discord_id (username#discriminator)
         var discordId = params.get('discord_userId') || params.get('discord_id');
         var discordAvatar = params.get('discord_avatar');
 
-        // Clear URL params
         if (window.location.search) {
             window.history.replaceState({}, document.title, window.location.pathname);
         }
 
-        // If auth failed
         if (authStatus === 'failed') {
             this._setDisconnected();
             return;
         }
 
-        // If auth success
         if (authStatus === 'success' && discordId) {
             this._setConnected(discordId, discordName || '', discordAvatar || '');
             return;
         }
 
-        // Check localStorage for saved session
         var saved = localStorage.getItem('mhnk_dc_session');
         if (saved) {
             try {
@@ -97,6 +93,26 @@ const MHNK_DC = {
         }
     },
 
+    /** อัปเดตรายการ ID ที่มีในคอลัมน์ J */
+    setAuthorizedIds(ids) {
+        this._authorizedIds = ids || [];
+    },
+
+    /** ตรวจสอบว่าสามารถเพิ่มจุดได้ (login + มี ID ในคอลัมน์ J) */
+    canAdd() {
+        if (!this._isConnected || !this._dcId) return false;
+        return this._authorizedIds.some(function(id) {
+            return String(id).trim() === String(this._dcId).trim();
+        }, this);
+    },
+
+    /** ตรวจสอบว่าสามารถแก้ไข/ลบจุดได้ (login + ID ตรงกับคอลัมน์ J ของจุดนั้น) */
+    canEdit(poiDcId) {
+        if (!this._isConnected || !this._dcId) return false;
+        if (!poiDcId) return false;
+        return String(this._dcId).trim() === String(poiDcId).trim();
+    },
+
     disconnect() {
         localStorage.removeItem('mhnk_dc_session');
         this._setDisconnected();
@@ -104,13 +120,7 @@ const MHNK_DC = {
 
     getDcId() { return this._dcId; },
     getDcName() { return this._dcName; },
-    isConnected() { return this._isConnected; },
-
-    canEdit(poiDcId) {
-        if (!this._isConnected || !this._dcId) return false;
-        if (!poiDcId) return false; // คอลัมน์ J ว่าง → แก้ไม่ได้เลย
-        return String(this._dcId).trim() === String(poiDcId).trim();
-    }
+    isConnected() { return this._isConnected; }
 };
 
 if (typeof window !== 'undefined') { window.MHNK_DC = MHNK_DC; }

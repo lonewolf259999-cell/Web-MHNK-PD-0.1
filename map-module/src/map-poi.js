@@ -39,8 +39,8 @@ const MHNK_POI = {
     document.addEventListener('mhnk-map-click', (e) => {
       console.log('[MHNK-POI] Map click received:', e.detail);
 
-      // ตรวจสอบว่า login DC ก่อนถึงจะเพิ่มจุดได้
-      if (typeof MHNK_DC !== 'undefined' && !MHNK_DC.isConnected()) {
+      // ตรวจสอบว่าสามารถเพิ่มจุดได้ (login + มี ID ในคอลัมน์ J)
+      if (typeof MHNK_DC !== 'undefined' && !MHNK_DC.canAdd()) {
         return;
       }
 
@@ -82,6 +82,15 @@ const MHNK_POI = {
         this.pois = data.data;
         MHNK_MAP.clearPois();
         this.pois.forEach(poi => MHNK_MAP.addPoi(poi));
+
+        // อัปเดตรายการ ID ที่มีในคอลัมน์ J สำหรับตรวจสอบสิทธิ์
+        if (typeof MHNK_DC !== 'undefined') {
+          var authorizedIds = this.pois
+            .map(function(poi) { return poi.dcId; })
+            .filter(function(id) { return id && String(id).trim() !== ''; });
+          MHNK_DC.setAuthorizedIds(authorizedIds);
+        }
+
         this._renderPoiList();
         this._updateStats();
       } else {
