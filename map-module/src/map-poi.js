@@ -381,8 +381,8 @@ const MHNK_POI = {
       const x = isFinite(Number(poi.x)) ? Number(poi.x).toFixed(1) : '0.0';
       const y = isFinite(Number(poi.y)) ? Number(poi.y).toFixed(1) : '0.0';
 
-      // Check edit permission based on DC ID (column J)
-      const canEdit = (typeof MHNK_DC !== 'undefined') ? MHNK_DC.canEdit(poi.dcId) : true;
+      // Check edit permission (login + มี ID ในคอลัมน์ J)
+      const canEdit = (typeof MHNK_DC !== 'undefined') ? MHNK_DC.canEdit() : true;
       const editBtn = canEdit ? `<button class="mhnk-poi-item-edit" onclick="event.stopPropagation(); MHNK_POI._editPoiName('${escapeHtml(poi.id)}')" title="แก้ไขชื่อ">✎</button>` : '';
       const delBtn = canEdit ? `<button class="mhnk-poi-item-del" onclick="event.stopPropagation(); MHNK_POI.deletePoi('${escapeHtml(poi.id)}')" title="ลบ">✕</button>` : '';
 

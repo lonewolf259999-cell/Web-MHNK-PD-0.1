@@ -151,16 +151,16 @@ async function repairSheet(sheets, sid) {
     // แถวว่าง/ขยะ (ไม่มี id ทั้ง col A และ col D) → ข้าม
   }
 
-  // ล้างเฉพาะคอลัมน์ A-H (ไม่ล้าง I-J ที่เป็น createdAt และ dcId)
+  // ล้างเฉพาะคอลัมน์ A-G (ไม่ล้าง H-J)
   await sheets.spreadsheets.values.clear({
     spreadsheetId: sid,
-    range: `${SHEET_NAME}!A:H`
+    range: `${SHEET_NAME}!A:G`
   });
 
-  // เขียน header + ข้อมูลที่กู้ได้ กลับเป็น A-H ติดกัน (รวม dcId)
+  // เขียน header + ข้อมูลที่กู้ได้ กลับเป็น A-G ติดกัน (ไม่รวม dcId)
   const values = [
-    ['id', 'name', 'category', 'description', 'x', 'y', 'createdAt', 'dcId'],
-    ...normalized
+    ['id', 'name', 'category', 'description', 'x', 'y', 'createdAt'],
+    ...normalized.map(row => row.slice(0, 7)) // ตัดเหลือ 7 columns
   ];
 
   if (values.length > 1) {
@@ -169,6 +169,17 @@ async function repairSheet(sheets, sid) {
       range: `${SHEET_NAME}!A1`,
       valueInputOption: 'USER_ENTERED',
       requestBody: { values }
+    });
+  }
+
+  // เขียน dcId ลง column J (index 9)
+  if (normalized.length > 0) {
+    const dcIdValues = normalized.map(row => [row[7] || '']); // column H ใน array คือ dcId
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: sid,
+      range: `${SHEET_NAME}!J2`,
+      valueInputOption: 'USER_ENTERED',
+      requestBody: { values: dcIdValues }
     });
   }
 

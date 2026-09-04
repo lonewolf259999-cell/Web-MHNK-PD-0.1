@@ -100,7 +100,7 @@ const MHNK_DC = {
         this._authorizedIds = ids || [];
     },
 
-    /** ตรวจสอบว่าสามารถเพิ่มจุดได้ (login + มี ID ในคอลัมน์ J) */
+    /** ตรวจสอบว่าเพิ่มจุดได้ (login + มี ID ในคอลัมน์ J) */
     canAdd() {
         if (!this._isConnected || !this._dcId) return false;
         return this._authorizedIds.some(function(id) {
@@ -108,11 +108,12 @@ const MHNK_DC = {
         }, this);
     },
 
-    /** ตรวจสอบว่าสามารถแก้ไข/ลบจุดได้ (login + ID ตรงกับคอลัมน์ J ของจุดนั้น) */
-    canEdit(poiDcId) {
+    /** ตรวจสอบว่าแก้ไข/ลบจุดได้ (login + มี ID ในคอลัมน์ J) */
+    canEdit() {
         if (!this._isConnected || !this._dcId) return false;
-        if (!poiDcId) return false;
-        return String(this._dcId).trim() === String(poiDcId).trim();
+        return this._authorizedIds.some(function(id) {
+            return String(id).trim() === String(this._dcId).trim();
+        }, this);
     },
 
     disconnect() {
