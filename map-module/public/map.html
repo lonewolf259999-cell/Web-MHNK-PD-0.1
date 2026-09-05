@@ -205,9 +205,9 @@
       if (typeof MHNK_DC !== 'undefined') {
         MHNK_DC.init(function(isConnected, dcId, dcName) {
           console.log('[MHNK] DC status:', isConnected ? 'connected (' + dcId + ')' : 'disconnected');
-          // Re-render POI list to update edit button visibility
+          // Re-load POIs to update authorized IDs and re-render
           if (typeof MHNK_POI !== 'undefined' && MHNK_POI.pois) {
-            MHNK_POI._renderPoiList();
+            MHNK_POI.loadPois();
           }
         });
       }

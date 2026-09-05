@@ -58,6 +58,7 @@ const MHNK_DC = {
         this._dcAvatar = dcAvatar;
         this._isConnected = true;
         localStorage.setItem('mhnk_dc_session', JSON.stringify({dcId:dcId, dcName:dcName, dcAvatar:dcAvatar}));
+        console.log('[MHNK-DC] Connected - dcId:', dcId, 'name:', dcName);
         this._render();
         if (this._onStatusChange) this._onStatusChange(true, dcId, dcName);
     },
