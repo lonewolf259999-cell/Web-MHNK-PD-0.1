@@ -3,8 +3,24 @@ const GAME = {
   map: null, allPois: [], roundPois: [], currentRound: 0, totalRounds: 50,
   totalScore: 0, currentTarget: null, playerMarker: null, targetMarker: null,
   resultLine: null, timerInterval: null, timeLeft: 30, isAnswered: false,
+  tileLayer: null, currentStyle: 'atlas',
 
-  async start() { this._initMap(); await this._loadPois(); this._startRound(); },
+  showStartup() {
+    this._initMap();
+    this._loadPois();
+    var popup = document.getElementById('game-startup');
+    if (popup) popup.style.display = 'flex';
+  },
+
+  startGame() {
+    var popup = document.getElementById('game-startup');
+    if (popup) popup.classList.add('hidden');
+    var self = this;
+    setTimeout(function() {
+      if (popup) popup.style.display = 'none';
+      self._startRound();
+    }, 300);
+  },
 
   _initMap() {
     const CRS = Object.assign({}, L.CRS.Simple, {
@@ -15,9 +31,22 @@ const GAME = {
     this.map = L.map('game-map', { crs: CRS, minZoom: 2, maxZoom: 5, zoom: 4, center: [0, 0], zoomControl: false, maxBounds: L.latLngBounds(L.latLng(-6000, -8000), L.latLng(12000, 10000)), maxBoundsViscosity: 0.8 });
     this.map.getContainer().style.background = '#07101d';
     L.control.zoom({ position: 'bottomright' }).addTo(this.map);
-    L.tileLayer('/map-module/map-styles/styleAtlas/{z}/{x}/{y}.jpg', { minZoom: 0, maxZoom: 5, noWrap: true, errorTileUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGOQsvICAAEQAJ+lYp46AAAAAElFTkSuQmCC' }).addTo(this.map);
+    this.tileLayer = L.tileLayer('/map-module/map-styles/styleAtlas/{z}/{x}/{y}.jpg', { minZoom: 0, maxZoom: 5, noWrap: true, errorTileUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGOQsvICAAEQAJ+lYp46AAAAAElFTkSuQmCC' }).addTo(this.map);
     this.map.on('click', (e) => this._onMapClick(e));
     setTimeout(() => this.map.invalidateSize(), 100);
+  },
+
+  toggleMapStyle() {
+    if (this.tileLayer) {
+      this.map.removeLayer(this.tileLayer);
+    }
+    this.currentStyle = this.currentStyle === 'atlas' ? 'satelite' : 'atlas';
+    var styleDir = this.currentStyle === 'atlas' ? 'styleAtlas' : 'styleSatelite';
+    this.tileLayer = L.tileLayer('/map-module/map-styles/' + styleDir + '/{z}/{x}/{y}.jpg', { minZoom: 0, maxZoom: 5, noWrap: true, errorTileUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGOQsvICAAEQAJ+lYp46AAAAAElFTkSuQmCC' }).addTo(this.map);
+    var icon = document.getElementById('game-map-toggle-icon');
+    var label = document.getElementById('game-map-toggle-label');
+    if (icon) icon.textContent = this.currentStyle === 'atlas' ? '🗺' : '🛰';
+    if (label) label.textContent = this.currentStyle === 'atlas' ? 'ATLAS' : 'SATELITE';
   },
 
   async _loadPois() {
@@ -98,7 +127,7 @@ const GAME = {
 
   _clearMarkers() { if (this.playerMarker) { this.map.removeLayer(this.playerMarker); this.playerMarker = null; } if (this.targetMarker) { this.map.removeLayer(this.targetMarker); this.targetMarker = null; } if (this.resultLine) { this.map.removeLayer(this.resultLine); this.resultLine = null; } },
 
-  restart() { this.currentRound = 0; this.totalScore = 0; this.roundPois = this._shuffle(this.allPois).slice(0, this.totalRounds); document.getElementById('game-final').style.display = 'none'; document.getElementById('game-score').textContent = '0'; this._startRound(); },
+  restart() { this.currentRound = 0; this.totalScore = 0; this.roundPois = this._shuffle(this.allPois).slice(0, this.totalRounds); document.getElementById('game-final').style.display = 'none'; document.getElementById('game-score').textContent = '0'; this.showStartup(); },
 
   exit() { window.location.href = '/MapMhnkPD'; }
 };

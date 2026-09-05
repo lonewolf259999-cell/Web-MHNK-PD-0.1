@@ -812,7 +812,7 @@ body {
 
   height: 38px;
 
-  border: 1.5px solid rgba(0, 229, 255, 0.75);
+  border: 1.5px solid rgba(255, 0, 0, 0.75);
 
   border-radius: 50%;
 
@@ -838,9 +838,9 @@ body {
 
   border-radius: 50%;
 
-  background: var(--cyan);
+  background: var(--rad);
 
-  box-shadow: 0 0 8px var(--cyan);
+  box-shadow: 0 0 8px var(--rad);
 
 }
 
@@ -858,11 +858,11 @@ body {
 
   height: 1.5px;
 
-  background: rgba(0, 229, 255, 0.85);
+  background: rgba(255, 0, 0, 0.85);
 
   transform: translate(-50%, -50%);
 
-  box-shadow: 0 0 8px rgba(0, 229, 255, 0.6);
+  box-shadow: 0 0 8px rgba(255, 0, 0, 0.85);
 
 }
 
@@ -880,11 +880,11 @@ body {
 
   height: 22px;
 
-  background: rgba(0, 229, 255, 0.85);
+  background: rgba(255, 0, 0, 0.85);
 
   transform: translate(-50%, -50%);
 
-  box-shadow: 0 0 8px rgba(0, 229, 255, 0.6);
+  box-shadow: 0 0 8px rgba(255, 0, 0, 0.85);
 
 }
 

@@ -1,4 +1,173 @@
 /* MHNK GEO-CHALLENGE - Game Styles */
+/* STARTUP POPUP */
+.game-startup-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(2, 4, 10, 0.92);
+  backdrop-filter: blur(8px);
+  animation: startupFadeIn 0.4s ease-out;
+}
+
+.game-startup-overlay.hidden {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+@keyframes startupFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.game-startup-box {
+  width: 480px;
+  max-width: 92vw;
+  background: linear-gradient(170deg, rgba(11, 20, 40, 0.96), rgba(6, 11, 22, 0.98));
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  border-radius: 16px;
+  box-shadow: 0 30px 80px rgba(00, 0, 0, 0.7), 0 0 40px rgba(0, 229, 255, 0.12), inset 0 0 30px rgba(0, 229, 255, 0.03);
+  animation: startupScale 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  overflow: hidden;
+}
+
+@keyframes startupScale {
+  from { transform: scale(0.92); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.game-startup-header {
+  padding: 28px 32px 20px;
+  text-align: center;
+  border-bottom: 1px solid rgba(0, 229, 255, 0.1);
+}
+
+.game-startup-logo img {
+  width: 80px;
+  height: 80px;
+  filter: drop-shadow(0 0 18px rgba(0, 229, 255, 0.5));
+  margin-bottom: 12px;
+}
+
+.game-startup-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 22px;
+  font-weight: 800;
+  color: #eaf4ff;
+  letter-spacing: 3px;
+  margin-bottom: 6px;
+}
+
+.game-startup-sub {
+  font-family: 'Prompt', sans-serif;
+  font-size: 14px;
+  color: #7d8fb3;
+}
+
+.game-startup-body {
+  padding: 24px 32px;
+}
+
+.game-startup-section {
+  margin-bottom: 20px;
+}
+
+.game-startup-section:last-child {
+  margin-bottom: 0;
+}
+
+.game-startup-label {
+  font-family: 'Orbitron', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: #00e5ff;
+  margin-bottom: 10px;
+}
+
+.game-startup-text {
+  font-family: 'Prompt', sans-serif;
+  font-size: 13px;
+  color: #c8d6ec;
+  line-height: 1.7;
+}
+
+.game-startup-score-table {
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 8px;
+  padding: 12px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.game-startup-row {
+  display: flex;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.game-startup-row:last-child {
+  border-bottom: none;
+}
+
+.game-startup-grade {
+  font-family: 'Orbitron', monospace;
+  font-size: 16px;
+  font-weight: 800;
+  width: 30px;
+  text-align: center;
+}
+
+.game-startup-cond {
+  font-family: 'Orbitron', monospace;
+  font-size: 11px;
+  color: #c8d6ec;
+  flex: 1;
+  text-align: center;
+}
+
+.game-startup-pct {
+  font-family: 'Orbitron', monospace;
+  font-size: 11px;
+  color: #7d8fb3;
+  width: 60px;
+  text-align: right;
+}
+
+.game-startup-footer {
+  padding: 20px 32px 28px;
+  border-top: 1px solid rgba(0, 229, 255, 0.1);
+}
+
+.game-startup-btn {
+  width: 100%;
+  padding: 14px 24px;
+  background: linear-gradient(120deg, rgba(0, 229, 255, 0.15), rgba(0, 229, 255, 0.08));
+  border: 1px solid rgba(0, 229, 255, 0.5);
+  color: #00e5ff;
+  font-family: 'Prompt', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.25s ease;
+}
+
+.game-startup-btn:hover {
+  background: linear-gradient(120deg, rgba(0, 229, 255, 0.25), rgba(0, 229, 255, 0.15));
+  border-color: #00e5ff;
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.game-startup-btn:active {
+  transform: translateY(0);
+}
+
+/* ============ EXISTING STYLES ============ */
 .game-page { height: 100vh; display: flex; flex-direction: column; background: #02040a; }
 .game-topbar { position: absolute; top: 20px; right: 20px; display: flex; align-items: center; padding: 12px 20px; background: rgba(8,14,28,0.92); border: 1px solid rgba(0,229,255,0.2); border-radius: 10px; gap: 20px; z-index: 100; backdrop-filter: blur(10px); }
 .game-brand { display: flex; align-items: center; gap: 10px; background: transparent; }
@@ -11,6 +180,34 @@
 .game-stat { display: flex; flex-direction: column; align-items: center; }
 .game-stat-label { font-family: 'Orbitron', monospace; font-size: 8px; letter-spacing: 1px; color: #7d8fb3; }
 .game-stat-value { font-family: 'Orbitron', monospace; font-size: 18px; font-weight: 700; color: #00e5ff; text-shadow: 0 0 10px rgba(0,229,255,0.4); }
+.game-map-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(0, 229, 255, 0.08);
+  border: 1px solid rgba(0, 229, 255, 0.25);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.game-map-toggle:hover {
+  background: rgba(0, 229, 255, 0.15);
+  border-color: rgba(0, 229, 255, 0.5);
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.2);
+}
+
+.game-map-toggle-icon {
+  font-size: 14px;
+}
+
+.game-map-toggle-label {
+  font-family: 'Orbitron', monospace;
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: #00e5ff;
+}
 .game-exit-btn { padding: 6px 14px; background: rgba(255,45,85,0.1); border: 1px solid rgba(255,45,85,0.3); color: #ff2d55; font-family: 'Orbitron', monospace; font-size: 10px; letter-spacing: 1px; cursor: pointer; border-radius: 4px; transition: all 0.2s; }
 .game-exit-btn:hover { background: rgba(255,45,85,0.2); border-color: #ff2d55; }
 .game-main { flex: 1; position: relative; }
