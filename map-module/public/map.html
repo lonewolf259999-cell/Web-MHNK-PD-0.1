@@ -16,6 +16,9 @@
   <!-- Map Module Styles -->
   <link rel="icon" href="data:," />
   <link rel="stylesheet" href="/map-module/src/map-style.css?v=8" />
+  <link rel="stylesheet" href="/map-module/overlay/src/overlay-style.css?v=2" />
+  <!-- Leaflet.draw CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
 </head>
 <body>
   <!-- ═══════════ BOOT SCREEN ═══════════ -->
@@ -138,14 +141,45 @@
     <div id="mhnk-modal-body"></div>
   </div>
 
+  <!-- Overlay Controls -->
+  <div class="mhnk-overlay-panel" id="overlay-panel">
+    <div class="mhnk-overlay-title" onclick="MHNK_OVERLAY.togglePanel()">◢ ZONES</div>
+    <div class="mhnk-overlay-content" id="overlay-content">
+      <div class="mhnk-overlay-colors">
+        <div class="mhnk-overlay-color-btn active" data-color="#ff2d55" style="--oc:#ff2d55" onclick="MHNK_OVERLAY.setColor('#ff2d55')"></div>
+        <div class="mhnk-overlay-color-btn" data-color="#2aff9b" style="--oc:#2aff9b" onclick="MHNK_OVERLAY.setColor('#2aff9b')"></div>
+        <div class="mhnk-overlay-color-btn" data-color="#00e5ff" style="--oc:#00e5ff" onclick="MHNK_OVERLAY.setColor('#00e5ff')"></div>
+      </div>
+      <div class="mhnk-overlay-tools">
+        <div class="mhnk-overlay-tool" onclick="MHNK_OVERLAY.startDraw('polygon')" title="วาด">✏</div>
+        <div class="mhnk-overlay-tool" onclick="MHNK_OVERLAY.startEdit()" title="แก้ไข">✎</div>
+        <div class="mhnk-overlay-tool" onclick="MHNK_OVERLAY.startDelete()" title="ลบ">✕</div>
+        <div class="mhnk-overlay-tool" onclick="MHNK_OVERLAY.finishDraw()" title="เสร็จสิ้น">✓</div>
+      </div>
+      <div class="mhnk-overlay-btns">
+        <div class="mhnk-overlay-btn" id="overlay-btn-all" onclick="MHNK_OVERLAY.toggleAll()" style="--oc:#00e5ff">
+          <div class="mhnk-overlay-dot"></div>
+          <div class="mhnk-overlay-label">เปิด/ปิด ทั้งหมด</div>
+        </div>
+      </div>
+      <div class="mhnk-overlay-clear" onclick="MHNK_OVERLAY.clearDrawn()">CLEAR DRAWN</div>
+    </div>
+  </div>
+
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <!-- Leaflet.draw JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
 
   <!-- Map Module Scripts -->
   <script src="/map-module/src/map-categories.js?v=9"></script>
   <script src="/map-module/src/map-core.js?v=9"></script>
   <script src="/map-module/src/map-poi.js?v=9"></script>
   <script src="/map-module/src/map-dc.js?v=9"></script>
+
+  <!-- Overlay Module -->
+  <script src="/map-module/overlay/src/overlay-data.js?v=1"></script>
+  <script src="/map-module/overlay/src/overlay-core.js?v=1"></script>
 
   <script>
     // ══════════ BOOT SCREEN ANIMATION ══════════
@@ -184,6 +218,10 @@
       try {
         MHNK_MAP.init('mhnk-map-container');
         console.log('[MHNK] Map init called');
+
+        // Init Overlay
+        MHNK_OVERLAY.init(MHNK_MAP.map, OVERLAY_ZONES);
+        console.log('[MHNK] Overlay init called');
       } catch (e) {
         console.error('[MHNK] Map init error:', e);
       }

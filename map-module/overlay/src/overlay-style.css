@@ -1,0 +1,173 @@
+/* MHNK Overlay - Styles */
+.mhnk-overlay-panel {
+  position: fixed;
+  bottom: 80px;
+  left: 20px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background: rgba(8, 14, 28, 0.9);
+  border: 1px solid rgba(0, 229, 255, 0.2);
+  border-radius: 10px;
+  backdrop-filter: blur(10px);
+}
+
+.mhnk-overlay-title {
+  font-family: "Orbitron", monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: #00e5ff;
+  margin-bottom: 4px;
+}
+
+.mhnk-overlay-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mhnk-overlay-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mhnk-overlay-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.mhnk-overlay-btn.active {
+  border-color: var(--oc, #00e5ff);
+  box-shadow: 0 0 12px var(--oc, #00e5ff);
+}
+
+.mhnk-overlay-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--oc, #00e5ff);
+  opacity: 0.3;
+  transition: all 0.2s ease;
+}
+
+.mhnk-overlay-btn.active .mhnk-overlay-dot {
+  opacity: 1;
+  box-shadow: 0 0 8px var(--oc, #00e5ff);
+}
+
+.mhnk-overlay-label {
+  font-family: "Prompt", sans-serif;
+  font-size: 12px;
+  color: #7d8fb3;
+  transition: all 0.2s ease;
+}
+
+.mhnk-overlay-btn.active .mhnk-overlay-label {
+  color: #eaf4ff;
+}
+
+.mhnk-overlay-colors {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.mhnk-overlay-color-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--oc, #00e5ff);
+  border: 2px solid transparent;
+  cursor: pointer;
+  opacity: 0.4;
+  transition: all 0.2s ease;
+}
+
+.mhnk-overlay-color-btn:hover {
+  opacity: 0.7;
+}
+
+.mhnk-overlay-color-btn.active {
+  opacity: 1;
+  border-color: #eaf4ff;
+  box-shadow: 0 0 10px var(--oc, #00e5ff);
+}
+
+.mhnk-overlay-clear {
+  font-family: "Orbitron", monospace;
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: #ff2d55;
+  text-align: center;
+  padding: 6px;
+  margin-top: 4px;
+  cursor: pointer;
+  border: 1px solid rgba(255, 45, 85, 0.3);
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.mhnk-overlay-panel.collapsed {
+  padding-bottom: 0;
+}
+
+.mhnk-overlay-panel.collapsed .mhnk-overlay-title {
+  margin-bottom: 0;
+}
+
+.mhnk-overlay-panel.collapsed::after {
+  display: none;
+}
+
+.mhnk-overlay-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mhnk-overlay-tools {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.mhnk-overlay-tool {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #7d8fb3;
+  transition: all 0.2s ease;
+}
+
+.mhnk-overlay-tool:hover {
+  background: rgba(0, 229, 255, 0.1);
+  border-color: rgba(0, 229, 255, 0.3);
+  color: #00e5ff;
+}
+
+.mhnk-overlay-tool.active {
+  background: rgba(0, 229, 255, 0.2);
+  border-color: #00e5ff;
+  color: #00e5ff;
+  box-shadow: 0 0 8px rgba(0, 229, 255, 0.3);
+}
+
+/* Hide Leaflet.draw default toolbar */
+.leaflet-draw-toolbar {
+  display: none !important;
+}

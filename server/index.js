@@ -117,6 +117,7 @@ try {
   app.use('/map-module/map-styles', express.static(path.join(mapModuleDir, 'map-styles'), staticOptions));
   app.use('/map-module/blips', express.static(path.join(mapModuleDir, 'blips'), staticOptions));
   app.use('/map-module/Challenge/src', express.static(path.join(mapModuleDir, 'Challenge', 'src'), staticOptions));
+  app.use('/map-module/overlay/src', express.static(path.join(mapModuleDir, 'overlay', 'src'), staticOptions));
 } catch (e) {
   // map-module not present
 }
