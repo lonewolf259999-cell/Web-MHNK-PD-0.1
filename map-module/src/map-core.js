@@ -52,7 +52,9 @@ const MHNK_MAP = {
       layers: [this.tileLayers[this.currentStyle]],
       center: this.config.center,
       zoom: this.config.zoom,
-      zoomControl: false
+      zoomControl: false,
+      scrollWheelZoom: 'center',
+      doubleClickZoom: true
     };
 
     if (this.config.maxBounds) {
