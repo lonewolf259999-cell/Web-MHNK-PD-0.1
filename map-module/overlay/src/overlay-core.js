@@ -42,6 +42,9 @@ const MHNK_OVERLAY = {
 
     // Make panel draggable
     this._makeDraggable();
+
+    // Collapse panel by default
+    this.togglePanel();
   },
 
   _makeDraggable() {
