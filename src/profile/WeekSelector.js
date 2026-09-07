@@ -109,6 +109,13 @@ class WeekSelector {
                 this.updateButtonStyle(weekName, false, 0, true);
             }
         }));
+
+        // Auto-check all unpaid weeks after status check completes
+        setTimeout(() => {
+            document.querySelectorAll('.week-checkbox').forEach(cb => cb.checked = true);
+            if (this.paymentManager) this.paymentManager.updateSummary();
+        }, 100);
+
     }
 
     /**
