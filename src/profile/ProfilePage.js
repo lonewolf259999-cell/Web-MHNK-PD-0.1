@@ -54,6 +54,7 @@ class ProfilePage {
 
     async loadProfileData() {
         try {
+            if (window.__pageLoader) window.__pageLoader.stage(1); // connecting to database
             const [weeks, officers] = await Promise.all([
                 ApiService.getWeeks(),
                 ApiService.getOfficers()
@@ -62,16 +63,20 @@ class ProfilePage {
             this.weeks = weeks;
             this.officer = officers.find(o => this._isNameMatch(o));
             if (!this.officer) {
+                if (window.__pageLoader) window.__pageLoader.hide();
                 this.showError();
                 return;
             }
 
-            this.renderProfile(this.officer, weeks);
+            if (window.__pageLoader) window.__pageLoader.stage(2); // officer data loaded
+            await this.renderProfile(this.officer, weeks);
 
-            // Load cumulative stats from all weeks in background
-            this.loadCumulativeStats();
+            // Load cumulative stats from all weeks, then declare the page ready
+            await this.loadCumulativeStats();
+            if (window.__pageLoader) window.__pageLoader.setReady();
         } catch (error) {
             profileLogger.error(`Error loading profile: ${error.message}`);
+            if (window.__pageLoader) window.__pageLoader.hide();
             this.showError();
         }
     }
@@ -112,7 +117,7 @@ class ProfilePage {
         }
     }
 
-    renderProfile(officer, weeks) {
+    async renderProfile(officer, weeks) {
         if (this.ui.loading) this.ui.loading.style.display = 'none';
         if (this.ui.content) {
             this.ui.content.style.display = 'block';
@@ -177,12 +182,14 @@ class ProfilePage {
 
         // Select first week by default
         if (weeks.length > 0 && !this.currentActiveWeek) {
-            this.selectWeek(weeks[0]);
+            if (window.__pageLoader) window.__pageLoader.stage(2);
+            await this.selectWeek(weeks[0]);
         }
 
-        // Check all weeks' payment status in background
+        // Check all weeks' payment status
         // Pass _paidWeeks so already-paid weeks skip server fetch (avoid GViz stale data)
-        this.weekSelector.checkAllStatus(weeks, this.officerName, this._paidWeeks);
+        if (window.__pageLoader) window.__pageLoader.stage(3);
+        await this.weekSelector.checkAllStatus(weeks, this.officerName, this._paidWeeks);
     }
 
     async selectWeek(weekName) {
@@ -226,6 +233,7 @@ class ProfilePage {
     }
 
     showError() {
+        if (window.__pageLoader) window.__pageLoader.hide();
         if (this.ui.loading) this.ui.loading.style.display = 'none';
         if (this.ui.error) this.ui.error.style.display = 'block';
     }

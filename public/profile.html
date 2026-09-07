@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="th">
 <head>
     <meta charset="UTF-8">
@@ -11,6 +11,28 @@
     <link rel="stylesheet" href="src/styles/admin.css" />
 </head>
 <body>
+<!-- Full-page boot / loading screen (stays until profile data is ready) -->
+    <div id="pageLoader" class="page-loader" role="status" aria-live="polite">
+<div class="pl-panel">
+        <div class="pl-crest">
+            <div class="pl-ring pl-ring--outer"></div>
+            <div class="pl-ring pl-ring--mid"></div>
+            <div class="pl-core">
+                <img class="pl-logo" src="logo.gif" alt="MHNK PD Logo" onerror="this.src='logo.png'">
+            </div>
+        </div>
+        <div class="pl-brand">MHNK</div>
+        <div class="pl-desc">POLICE DEPARTMENT &middot; MAHAHORN DIWA</div>
+        <div class="pl-progress">
+            <div class="pl-track"><div class="pl-fill" id="plFill"></div></div>
+            <div class="pl-meta">
+                <span class="pl-status" id="plStatus">กำลังเริ่มระบบ…</span>
+                <span class="pl-percent" id="plPercent">0%</span>
+            </div>
+        </div>
+        <div class="pl-dots"><i></i><i></i><i></i></div>
+</div>
+    </div>
     <div class="scanner-line"></div>
     <div class="bg-glow"></div>
     <div class="bg-dots"></div>
@@ -119,6 +141,7 @@
         window.__PRODUCTION__ = !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1');
     </script>
     
+    <script src="src/profile/PageLoader.js?v=2.1.0"></script>
     <script src="src/utils/html.js?v=2.1.0"></script>
     <script src="src/utils/api.js?v=2.1.0"></script>
     <script src="src/utils/NotificationSystem.js?v=2.1.0"></script>
