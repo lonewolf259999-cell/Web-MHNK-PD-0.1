@@ -184,7 +184,11 @@ class PaymentManager {
                 results.failed++;
                 let reason = result.error;
                 if (!reason) {
-                    if (response.status === 401) reason = 'PIN ไม่ถูกต้อง';
+                    if (response.status === 401) {
+                        reason = 'PIN ไม่ถูกต้อง';
+                        // ล้างรหัสใน sessionStorage เพื่อให้ถามใหม่ครั้งต่อไป
+                        sessionStorage.removeItem('mhnk_payment_pin');
+                    }
                     else if (response.status === 400) reason = 'ข้อมูลไม่ถูกต้อง';
                     else reason = `เกิดข้อผิดพลาด (HTTP ${response.status})`;
                 }
