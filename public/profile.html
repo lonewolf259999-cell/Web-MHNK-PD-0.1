@@ -149,8 +149,7 @@
     <script src="src/components/shared/PinModal.js"></script>
     <script src="src/profile/WeekSelector.js?v=2.1.0"></script>
     <script src="src/profile/WeekStatsRenderer.js?v=2.1.0"></script>
-    <script src="src/profile/PaymentManager.js?v=2.1.0"></script>
-    <script src="src/profile/PaymentManager.js?v=2.1.0"></script>
+    <script src="src/profile/PaymentManager.js?v=2.9.0"></script>
     <script src="src/profile/ProfilePage.js?v=2.1.0"></script>
 
     <!-- Admin Button Handler for Profile Page -->
@@ -159,42 +158,45 @@
             const btn = document.getElementById('adminToggleBtn');
             if (!btn) return;
 
-            function updateButtonState() {
+            function isAdminMode() {
                 const storedData = localStorage.getItem('mhnk_payment_pin');
                 if (storedData) {
                     try {
                         const { timestamp } = JSON.parse(storedData);
                         const ageMinutes = (Date.now() - timestamp) / 60000;
                         if (ageMinutes < 30) {
-                            btn.classList.remove('btn-toggle-admin-disabled');
-                            btn.classList.add('btn-toggle-admin', 'active');
-                            return;
+                            return true;
                         }
-                    } catch (_) {}
+                        localStorage.removeItem('mhnk_payment_pin');
+                    } catch (_) {
+                        localStorage.removeItem('mhnk_payment_pin');
+                    }
                 }
-                btn.classList.add('btn-toggle-admin-disabled');
-                btn.classList.remove('btn-toggle-admin', 'active');
+                return false;
+            }
+
+            function updateButtonState() {
+                if (isAdminMode()) {
+                    btn.classList.remove('btn-toggle-admin-disabled');
+                    btn.classList.add('btn-toggle-admin', 'active');
+                } else {
+                    btn.classList.add('btn-toggle-admin-disabled');
+                    btn.classList.remove('btn-toggle-admin', 'active');
+                }
             }
 
             btn.addEventListener('click', async () => {
-                const storedData = localStorage.getItem('mhnk_payment_pin');
-                if (storedData) {
-                    try {
-                        const { timestamp } = JSON.parse(storedData);
-                        const ageMinutes = (Date.now() - timestamp) / 60000;
-                        if (ageMinutes < 30) {
-                            btn.classList.remove('btn-toggle-admin-disabled');
-                            btn.classList.add('btn-toggle-admin', 'active');
-                            return;
-                        }
-                    } catch (_) {}
-                }
-
-                const pin = await PinModal.request('🔐 กรุณาระบุรหัสผ่านเพื่อเข้าโหมดผู้ดูแล');
-                if (pin) {
-                    localStorage.setItem('mhnk_payment_pin', JSON.stringify({ pin, timestamp: Date.now() }));
-                    btn.classList.remove('btn-toggle-admin-disabled');
-                    btn.classList.add('btn-toggle-admin', 'active');
+                if (isAdminMode()) {
+                    // ออกจากโหมด Admin
+                    localStorage.removeItem('mhnk_payment_pin');
+                    updateButtonState();
+                } else {
+                    // เข้าโหมด Admin
+                    const pin = await PinModal.request('🔐 กรุณาระบุรหัสผ่านเพื่อเข้าโหมดผู้ดูแล');
+                    if (pin) {
+                        localStorage.setItem('mhnk_payment_pin', JSON.stringify({ pin, timestamp: Date.now() }));
+                        updateButtonState();
+                    }
                 }
             });
 

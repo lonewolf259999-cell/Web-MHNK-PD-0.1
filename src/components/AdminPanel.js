@@ -113,11 +113,14 @@ const adminPanelLogger = window.getLogger('AdminPanel');
                 const ageMinutes = (Date.now() - timestamp) / 60000;
                 if (ageMinutes < 30) {
                     btn.className = 'btn-toggle-admin active';
+                    _adminMode = true;
                 } else {
                     btn.className = 'btn-toggle-admin';
+                    localStorage.removeItem('mhnk_payment_pin');
                 }
             } catch (_) {
                 btn.className = 'btn-toggle-admin';
+                localStorage.removeItem('mhnk_payment_pin');
             }
         } else {
             btn.className = 'btn-toggle-admin';
@@ -161,6 +164,7 @@ const adminPanelLogger = window.getLogger('AdminPanel');
                 _adminPin = null;
                 _adminMode = false;
                 btn.classList.remove('active');
+                localStorage.removeItem('mhnk_payment_pin');
 
                 adminPanelLogger.info('Admin mode: OFF');
 
