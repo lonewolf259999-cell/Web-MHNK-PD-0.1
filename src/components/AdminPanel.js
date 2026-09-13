@@ -113,6 +113,8 @@ const adminPanelLogger = window.getLogger('AdminPanel');
 
                 _adminPin = pin;
                 _adminMode = true;
+                // เก็บรหัสลง localStorage เพื่อใช้ร่วมกับหน้า Profile
+                localStorage.setItem('mhnk_payment_pin', JSON.stringify({ pin, timestamp: Date.now() }));
                 btn.classList.add('active');
 
                 adminPanelLogger.info('Admin mode: ON');
