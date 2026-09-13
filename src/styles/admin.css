@@ -3,6 +3,20 @@
     - Extracted from AdminPanel.js
     ======================================== */
 
+.btn-toggle-admin-disabled {
+    background: rgba(136, 136, 136, 0.2);
+    color: #888;
+    border: 1px solid rgba(136, 136, 136, 0.3);
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Kanit', sans-serif;
+}
+.btn-toggle-admin-disabled:hover { background: rgba(136, 136, 136, 0.3); }
+
 .btn-toggle-admin {
     background: rgba(247, 127, 7, 0.2);
     color: #f77f07;
