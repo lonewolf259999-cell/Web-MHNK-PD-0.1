@@ -94,19 +94,30 @@ class PaymentManager {
 
     /**
      * Show PIN modal dialog (using shared PinModal)
-     * ใช้รหัสจาก sessionStorage ถ้ามี ไม่งั้นถามใหม่แล้วเก็บไว้
+     * ใช้รหัสจาก localStorage ถ้ามีและยังไม่หมดอายุ ไม่งั้นถามใหม่แล้วเก็บไว้
      * @returns {Promise<string|null>} - PIN string or null if cancelled
      */
     async requestPin() {
-        // ใช้รหัสจาก sessionStorage ถ้ามี ไม่ต้องถามซ้ำ
-        const storedPin = sessionStorage.getItem('mhnk_payment_pin');
-        if (storedPin) {
-            return storedPin;
+        // ใช้รหัสจาก localStorage ถ้ามีและยังไม่หมดอายุ (30 นาที)
+        const storedData = localStorage.getItem('mhnk_payment_pin');
+        if (storedData) {
+            try {
+                const { pin, timestamp } = JSON.parse(storedData);
+                const ageMinutes = (Date.now() - timestamp) / 60000;
+                if (ageMinutes < 30) {
+                    return pin;
+                }
+                // หมดอายุ → ลบออก
+                localStorage.removeItem('mhnk_payment_pin');
+            } catch (_) {
+                localStorage.removeItem('mhnk_payment_pin');
+            }
         }
 
         const pin = await PinModal.request('กรุณาระบุรหัสผ่านเพื่อยืนยันการจ่าย');
         if (pin) {
-            sessionStorage.setItem('mhnk_payment_pin', pin);
+            const data = JSON.stringify({ pin, timestamp: Date.now() });
+            localStorage.setItem('mhnk_payment_pin', data);
         }
         return pin;
     }
@@ -186,8 +197,8 @@ class PaymentManager {
                 if (!reason) {
                     if (response.status === 401) {
                         reason = 'PIN ไม่ถูกต้อง';
-                        // ล้างรหัสใน sessionStorage เพื่อให้ถามใหม่ครั้งต่อไป
-                        sessionStorage.removeItem('mhnk_payment_pin');
+                        // ล้างรหัสใน localStorage เพื่อให้ถามใหม่ครั้งต่อไป
+                        localStorage.removeItem('mhnk_payment_pin');
                     }
                     else if (response.status === 400) reason = 'ข้อมูลไม่ถูกต้อง';
                     else reason = `เกิดข้อผิดพลาด (HTTP ${response.status})`;
