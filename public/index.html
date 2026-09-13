@@ -231,18 +231,6 @@
     <!-- Application entry point -->
     <script defer src="src/app.js?v=4.0"></script>
     
-    <!-- Performance: Register service worker for offline cache (future) -->
-    <script>
-        // Measure page load performance (optional analytics)
-        if (window.performance) {
-            window.addEventListener('load', () => {
-                setTimeout(() => {
-                    const perfData = window.performance.timing;
-                    const loadTime = perfData.loadEventEnd - perfData.navigationStart;
-                    console.log(`⏱️ Page loaded in ${loadTime}ms`);
-                }, 0);
-            });
-        }
-    </script>
+    
 </body>
 </html>

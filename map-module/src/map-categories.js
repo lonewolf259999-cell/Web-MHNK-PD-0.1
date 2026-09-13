@@ -41,8 +41,6 @@ async function loadCategories() {
       // ไม่มีไฟล์ ใช้ค่า default
       Object.assign(MAP_CATEGORIES, DEFAULT_CATEGORIES);
     }
-    
-    console.log('[MHNK-CAT] Loaded', Object.keys(MAP_CATEGORIES).length, 'categories');
   } catch (err) {
     console.error('[MHNK-CAT] Load failed, using defaults:', err.message);
     // fallback

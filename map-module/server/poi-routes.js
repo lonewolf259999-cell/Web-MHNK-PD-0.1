@@ -224,7 +224,6 @@ function createPoiRoutes(getSheetsFn) {
       if (!sid) {
         const cached = readLocalCache();
         if (cached) {
-          console.log('[POI] No MAP_SHEET_ID/SHEET_ID, serving local cache (' + cached.length + ' poi)');
           return res.json({ success: true, data: cached });
         }
         return res.json({ success: true, data: [] });
@@ -271,7 +270,6 @@ function createPoiRoutes(getSheetsFn) {
       // Sheets ล้มเหลว (เช่น credentials ไม่ถูกต้อง) → ให้ข้อมูลจาก local cache แทน เพื่อให้หน้าไม่ว่าง
       const cached = readLocalCache();
       if (cached) {
-        console.log('[POI] Sheets error, falling back to local cache (' + cached.length + ' poi)');
         return res.json({ success: true, data: cached });
       }
       res.status(500).json({ success: false, error: err.message });
@@ -412,7 +410,6 @@ function createPoiRoutes(getSheetsFn) {
         if (name !== undefined && name !== null) cached[idx].name = String(name).trim() || cached[idx].name;
         if (description !== undefined) cached[idx].description = description;
         if (!writeLocalCache(cached)) return res.status(500).json({ success: false, error: 'บันทึกไฟล์สำรองไม่สำเร็จ' });
-        console.log('[POI] Updated (local cache):', id);
         return res.json({ success: true, data: cached[idx] });
       }
 
@@ -464,7 +461,6 @@ function createPoiRoutes(getSheetsFn) {
       const sid = config.MAP_SHEET_ID || config.SHEET_ID;
       if (!sid) return;
       const result = await repairSheet(sheets, sid);
-      console.log(`[POI] Sheet repair done. recovered=${result.recovered}, total=${result.total}`);
     } catch (err) {
       console.error('[POI] Sheet auto-repair failed:', err.message);
     }

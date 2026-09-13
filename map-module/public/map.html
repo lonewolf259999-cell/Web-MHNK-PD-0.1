@@ -217,24 +217,20 @@
     document.addEventListener('DOMContentLoaded', function () {
       try {
         MHNK_MAP.init('mhnk-map-container');
-        console.log('[MHNK] Map init called');
 
         // Init Overlay
         MHNK_OVERLAY.init(MHNK_MAP.map, OVERLAY_ZONES);
-        console.log('[MHNK] Overlay init called');
       } catch (e) {
         console.error('[MHNK] Map init error:', e);
       }
 
       var startPoi = function () {
         try {
-          console.log('[MHNK] Starting POI...');
           MHNK_POI.init();
-          console.log('[MHNK] POI started');
         } catch (e) {
           console.error('[MHNK] POI init error:', e);
           setTimeout(function () {
-            try { MHNK_POI.init(); console.log('[MHNK] POI retry OK'); } catch (e2) { console.error('[MHNK] POI retry error:', e2); }
+            try { MHNK_POI.init(); } catch (e2) { console.error('[MHNK] POI retry error:', e2); }
           }, 1000);
         }
       };
@@ -242,7 +238,6 @@
       // Initialize DC Auth
       if (typeof MHNK_DC !== 'undefined') {
         MHNK_DC.init(function(isConnected, dcId, dcName) {
-          console.log('[MHNK] DC status:', isConnected ? 'connected (' + dcId + ')' : 'disconnected');
           // Re-load POIs to update authorized IDs and re-render
           if (typeof MHNK_POI !== 'undefined' && MHNK_POI.pois) {
             MHNK_POI.loadPois();

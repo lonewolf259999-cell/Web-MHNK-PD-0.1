@@ -37,7 +37,6 @@ const MHNK_POI = {
 
   _bindEvents() {
     document.addEventListener('mhnk-map-click', (e) => {
-      console.log('[MHNK-POI] Map click received:', e.detail);
 
       // ตรวจสอบว่าสามารถเพิ่มจุดได้ (login + มี ID ในคอลัมน์ J)
       if (typeof MHNK_DC !== 'undefined' && !MHNK_DC.canAdd()) {
@@ -88,11 +87,7 @@ const MHNK_POI = {
           var authorizedIds = this.pois
             .map(function(poi) { return poi.dcId; })
             .filter(function(id) { return id && String(id).trim() !== ''; });
-          console.log('[MHNK-POI] Authorized IDs from column J:', authorizedIds);
-          console.log('[MHNK-POI] Current user DC ID:', MHNK_DC.getDcId());
           MHNK_DC.setAuthorizedIds(authorizedIds);
-          console.log('[MHNK-POI] canAdd:', MHNK_DC.canAdd());
-          console.log('[MHNK-POI] canEdit:', MHNK_DC.canEdit());
         }
 
         this._renderPoiList();
