@@ -10,7 +10,6 @@ class PaymentManager {
         this.weekSelector = weekSelector;
         this.officerName = uiElements.officerName || null;
         this.onPaymentComplete = null; // callback: () => void, called after successful payment
-        this._sessionPin = null; // เก็บ PIN ไว้ในเซสชัน ไม่ต้องกรอกซ้ำจนกว่าจะรีเฟรช
     }
 
     /**
@@ -95,18 +94,19 @@ class PaymentManager {
 
     /**
      * Show PIN modal dialog (using shared PinModal)
-     * ใช้รหัสจากเซสชันถ้ามี ไม่งั้นถามใหม่แล้วเก็บไว้
+     * ใช้รหัสจาก sessionStorage ถ้ามี ไม่งั้นถามใหม่แล้วเก็บไว้
      * @returns {Promise<string|null>} - PIN string or null if cancelled
      */
     async requestPin() {
-        // ใช้รหัสจากเซสชันถ้ามี ไม่ต้องถามซ้ำ
-        if (this._sessionPin) {
-            return this._sessionPin;
+        // ใช้รหัสจาก sessionStorage ถ้ามี ไม่ต้องถามซ้ำ
+        const storedPin = sessionStorage.getItem('mhnk_payment_pin');
+        if (storedPin) {
+            return storedPin;
         }
 
         const pin = await PinModal.request('กรุณาระบุรหัสผ่านเพื่อยืนยันการจ่าย');
         if (pin) {
-            this._sessionPin = pin; // เก็บรหัสไว้ในเซสชัน
+            sessionStorage.setItem('mhnk_payment_pin', pin);
         }
         return pin;
     }
