@@ -103,8 +103,25 @@ const adminPanelLogger = window.getLogger('AdminPanel');
 
         const btn = document.createElement('button');
         btn.id = 'adminToggleBtn';
-        btn.className = 'btn-toggle-admin';
         btn.textContent = '♛ Admin';
+
+        // ตรวจสอบว่ามี PIN ใน localStorage หรือไม่ เพื่อกำหนดสีปุ่ม
+        const storedData = localStorage.getItem('mhnk_payment_pin');
+        if (storedData) {
+            try {
+                const { timestamp } = JSON.parse(storedData);
+                const ageMinutes = (Date.now() - timestamp) / 60000;
+                if (ageMinutes < 30) {
+                    btn.className = 'btn-toggle-admin active';
+                } else {
+                    btn.className = 'btn-toggle-admin';
+                }
+            } catch (_) {
+                btn.className = 'btn-toggle-admin';
+            }
+        } else {
+            btn.className = 'btn-toggle-admin';
+        }
         btn.onclick = async function() {
             if (!_adminMode) {
                 // Turning ON — request PIN first
