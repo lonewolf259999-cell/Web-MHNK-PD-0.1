@@ -70,4 +70,67 @@ router.post('/api/roster/outdc', verifyPin, asyncHandler(rosterController.getOut
 router.put('/api/roster/status/:row', verifyPin, asyncHandler(rosterController.updateStatus));
 router.post('/api/roster/move-out/:row', verifyPin, asyncHandler(rosterController.moveToOutDC));
 
+// ===== TEMP DEBUG (DELETE BEFORE COMMIT) ============================
+// จุดช่วยตรวจสอบทำไม "เชื่อมต่อ Discord" ไม่ติดบนโฮสใดโฮสหนึ่ง
+// ใช้แล้วให้ลบ 2 route นี้และรีสตาร์ทเซิร์ฟเวอร์ทันที — เป็นข้อมูลบนเซิร์ฟเท่านั้น ไม่เปิดเผย secret
+const https = require('https');
+const { URLSearchParams } = require('url');
+const config = require('../config');
+
+// 1) เซิร์ฟเวอร์มองเห็นอะไรบ้าง (ไม่พิมพ์ค่าลับ แค่ความยาว + URL)
+router.get('/debug/discord-config', (req, res) => {
+    res.json({
+        DISCORD_CLIENT_ID_set: !!config.DISCORD_CLIENT_ID,
+        DISCORD_CLIENT_SECRET_len: (config.DISCORD_CLIENT_SECRET || '').length,
+        APP_URL: config.APP_URL,
+        REDIRECT_URI: `${config.APP_URL}/auth/discord/callback`
+    });
+});
+
+// 2) ลองแลก code เป็น token อย่างเต็มที่แล้วคืน JSON ดวลของ Discord กลับมาดีๆ
+//    วิธีใช้: เปิด /auth/discord ในเบราว์เซอร์ -> อนุญาต -> คัด code จาก URL แล้วให้มาที่นี่
+//    - error:"invalid_client"  => CLIENT_SECRET ผิดบนโฮสนี้
+//    - error:"invalid_grant"   => secret ถูกแต่ code เท่ากับหาย/ใช้แล้ว (ปกติไม่มี)
+//    - ไม่มี error และมี access_token => การแลก token สำเร็จ (ปัญหาอยู่ฝั่งหน้าเว็บ/แคช)
+router.get('/debug/discord-exchange', asyncHandler(async (req, res) => {
+    const code = req.query.code;
+    if (!code) {
+        return res.status(400).json({ error: 'ใส่พารามิเตอร์ ?code=<discord_code> มา' });
+    }
+
+    const body = new URLSearchParams({
+        client_id: config.DISCORD_CLIENT_ID,
+        client_secret: config.DISCORD_CLIENT_SECRET,
+        grant_type: 'authorization_code',
+        code: code,
+        redirect_uri: `${config.APP_URL}/auth/discord/callback`
+    });
+
+    const req2 = https.request({
+        hostname: 'discord.com',
+        path: '/api/oauth2/token',
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Content-Length': Buffer.byteLength(body.toString())
+        }
+    }, (r) => {
+        let data = '';
+        r.on('data', (c) => { data += c; });
+        r.on('end', () => {
+            let parsed;
+            try { parsed = JSON.parse(data); } catch (_) {
+                return res.status(502).json({ http_status: r.statusCode, raw: data.slice(0, 500) });
+            }
+            // ซ่อน access_token ไม่ให้โค้ม (ไม่จำเป็นให้เห็น)
+            if (parsed.access_token) parsed.access_token = '[PRESENT]';
+            res.json({ http_status: r.statusCode, ...parsed });
+        });
+    });
+    req2.on('error', (e) => res.status(500).json({ error: 'request_failed', message: e.message }));
+    req2.write(body.toString());
+    req2.end();
+}));
+// ===== END TEMP DEBUG ================================================
+
 module.exports = router;
