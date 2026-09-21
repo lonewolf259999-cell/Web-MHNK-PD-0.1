@@ -82,7 +82,43 @@ async function discordCallback(req, res, next) {
     }
 }
 
+/**
+ * Exchange code for token + user info (for proxy use by Inwcloud)
+ * This endpoint allows another server (e.g., Inwcloud) to delegate
+ * the Discord token exchange to Render, avoiding shared-IP rate limits.
+ */
+async function discordExchange(req, res) {
+    const { code } = req.body;
+
+    if (!code) {
+        return res.status(400).json({ error: 'Authorization code is required' });
+    }
+
+    try {
+        logger.debug('Discord token exchange requested (proxy mode)');
+
+        const accessToken = await discordAuth.exchangeCode(code);
+        const userInfo = await discordAuth.getUserInfo(accessToken);
+
+        const discordId = userInfo.discriminator && userInfo.discriminator !== '0'
+            ? `${userInfo.username}#${userInfo.discriminator}`
+            : userInfo.username;
+
+        logger.debug(`Discord exchange successful for user: ${discordId}`);
+        res.json({
+            discord_id: discordId,
+            discord_userId: userInfo.id,
+            discord_name: userInfo.displayName,
+            discord_avatar: userInfo.avatar || ''
+        });
+    } catch (err) {
+        logger.error(`Discord exchange error: ${err.message}`, { error_code: err.code });
+        res.status(502).json({ error: err.message });
+    }
+}
+
 module.exports = {
     discordLogin,
-    discordCallback
+    discordCallback,
+    discordExchange
 };
