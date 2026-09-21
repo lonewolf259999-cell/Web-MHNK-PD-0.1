@@ -1,0 +1,58 @@
+<!-- TEMP DEBUG - DELETE BEFORE COMMIT (and remove the /debug/* routes in server/routes/index.js) -->
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DEBUG - Discord Connect (TEMP)</title>
+<style>
+  body { font-family: ui-sans-serif, system-ui, sans-serif; margin: 24px; color: #1f2937; }
+  h2 { margin-bottom: 4px; }
+  .note { color: #6b7280; font-size: 13px; margin-bottom: 14px; }
+  button { background: #111827; color: #fff; border: 0; padding: 9px 14px; border-radius: 8px; cursor: pointer; }
+  button:hover { background: #1f2937; }
+  input { width: 100%; padding: 8px; box-sizing: border-box; margin-top: 6px; }
+  pre { background: #0b1220; color: #7ee797; padding: 12px; border-radius: 8px; overflow:auto; white-space: pre-wrap; word-break: break-all; margin-top: 8px; min-height: 28px; }
+  pre.muted { color: #9ca3af; }
+</style>
+</head>
+<body>
+  <h2>DEBUG — Discord Connect (ชั่วคราว)</h2>
+  <div class="note">หน้านี้ใช้ตรวจเซิร์ฟเวอร์เท่านั้น ใช้เสร็จกด <b>ลบ</b> ออก</div>
+
+  <h3>1) เซิร์ฟเวอร์เห็น env อย่างไร</h3>
+  <button id="cfgBtn">โหลด /debug/discord-config</button>
+  <pre id="cfg" class="muted">กดปุ่มเพื่อโหลด</pre>
+
+  <h3 style="margin-top:18px">2) ลองแลก code → token</h3>
+  <div class="note">ใส่ code ที่ได้จากขั้นตอน OAuth (เปิด /auth/discord → อนุญาต → คัด code จาก URL ที่กลับมา) หรือใช้ FAKE_CODE เพื่อทดสอบว่า secret ผิดหรือไม่</div>
+  <input id="codeIn" placeholder="ใส่ code ที่นี่ (เช่น FAKE_CODE)" />
+  <button id="exBtn" style="margin-top:8px">เรียก /debug/discord-exchange</button>
+  <pre id="ex" class="muted">รอการเรียก</pre>
+
+<script>
+document.getElementById('cfgBtn').onclick = async () => {
+  const pre = document.getElementById('cfg');
+  try {
+    const r = await fetch('/debug/discord-config');
+    const j = await r.json();
+    pre.textContent = JSON.stringify(j, null, 2);
+  } catch (e) {
+    pre.textContent = 'error: ' + e;
+  }
+};
+document.getElementById('exBtn').onclick = async () => {
+  const pre = document.getElementById('ex');
+  const code = document.getElementById('codeIn').value.trim();
+  if (!code) { pre.textContent = 'ใส่ code ก่อน'; return; }
+  try {
+    const r = await fetch('/debug/discord-exchange?code=' + encodeURIComponent(code));
+    const t = await r.text();
+    pre.textContent = 'HTTP ' + r.status + '\n' + t;
+  } catch (e) {
+    pre.textContent = 'error: ' + e;
+  }
+};
+</script>
+</body>
+</html>
