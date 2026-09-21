@@ -4,6 +4,7 @@
 
 const discordAuth = require('../services/discordAuth');
 const { createLogger } = require('../utils/logger');
+const config = require('../config');
 
 const logger = createLogger('AuthController');
 
@@ -49,23 +50,46 @@ async function discordCallback(req, res, next) {
             return res.redirect(`${fallbackPage}?auth=failed`);
         }
 
-        // แลก code เป็น access token
-        const accessToken = await discordAuth.exchangeCode(code);
-        
-        // ดึงข้อมูล user
-        const userInfo = await discordAuth.getUserInfo(accessToken);
+        // ใช้ proxy ถ้ามีการกำหนดค่า (สำหรับ Inwcloud ที่ใช้ IP ร่วมกัน)
+        let discordId, discordUserId, discordName, discordAvatar;
 
-        // สร้าง Discord ID string
-        const discordId = userInfo.discriminator && userInfo.discriminator !== '0' 
-            ? `${userInfo.username}#${userInfo.discriminator}`
-            : userInfo.username;
+        if (config.DISCORD_PROXY_URL) {
+            const response = await fetch(config.DISCORD_PROXY_URL + '/api/discord/exchange', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code, state })
+            });
+            if (!response.ok) {
+                const err = await response.json();
+                throw new Error(err.error || 'Discord proxy failed');
+            }
+            const data = await response.json();
+            discordId = data.discord_id;
+            discordUserId = data.discord_userId;
+            discordName = data.discord_name;
+            discordAvatar = data.discord_avatar || '';
+        } else {
+            // แลก code เป็น access token
+            const accessToken = await discordAuth.exchangeCode(code);
+
+            // ดึงข้อมูล user
+            const userInfo = await discordAuth.getUserInfo(accessToken);
+
+            // สร้าง Discord ID string
+            discordId = userInfo.discriminator && userInfo.discriminator !== '0'
+                ? `${userInfo.username}#${userInfo.discriminator}`
+                : userInfo.username;
+            discordUserId = userInfo.id;
+            discordName = userInfo.displayName;
+            discordAvatar = userInfo.avatar || '';
+        }
 
         // สร้าง URL parameters
         const params = new URLSearchParams({
             discord_id: discordId,
-            discord_userId: userInfo.id,
-            discord_name: userInfo.displayName,
-            discord_avatar: userInfo.avatar || '',
+            discord_userId: discordUserId,
+            discord_name: discordName,
+            discord_avatar: discordAvatar,
             auth: 'success'
         });
 
