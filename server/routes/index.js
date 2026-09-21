@@ -131,6 +131,15 @@ router.get('/debug/discord-exchange', asyncHandler(async (req, res) => {
     req2.write(body.toString());
     req2.end();
 }));
+// เส้นทางเวลาจริงของขั้นตอนเชื่อมต่อ Discord
+router.get('/debug/timeline', (req, res) => {
+    res.json(require('../debug/trace').get());
+});
+router.get('/debug/timeline/clear', (req, res) => {
+    const t = require('../debug/trace');
+    t.clear();
+    res.json({ cleared: true });
+});
 // ===== END TEMP DEBUG ================================================
 
 module.exports = router;

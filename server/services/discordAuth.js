@@ -6,11 +6,13 @@
 const https = require('https');
 const config = require('../config');
 const { createLogger } = require('../utils/logger');
+const trace = require('../debug/trace');
 
 const logger = createLogger('DiscordAuth');
 const REDIRECT_URI = `${config.APP_URL}/auth/discord/callback`;
 
 logger.info(`Config loaded - APP_URL: ${config.APP_URL}, REDIRECT_URI: ${REDIRECT_URI}`);
+trace.add({ step: 'discord_auth_module_loaded', redirect_uri: REDIRECT_URI });
 
 /**
  * สร้าง URL สำหรับ Discord OAuth2 Login
@@ -46,7 +48,8 @@ function getAuthUrl(state = '') {
  */
 function exchangeCode(code) {
     logger.debug('Exchanging authorization code');
-    
+    trace.add({ step: 'exchange_start' });
+
     return new Promise((resolve, reject) => {
         const data = new URLSearchParams({
             client_id: config.DISCORD_CLIENT_ID,
@@ -66,20 +69,30 @@ function exchangeCode(code) {
             }
         };
 
-        const request = https.request(options, (res) => {
+                const request = https.request(options, (res) => {
             let body = '';
             res.on('data', chunk => body += chunk);
             res.on('end', () => {
+                trace.add({ step: 'exchange', http_status: res.statusCode });
                 try {
                     const json = JSON.parse(body);
                     if (json.access_token) {
+                        trace.add({ step: 'exchange', outcome: 'ok' });
                         logger.debug('Token exchange successful');
                         resolve(json.access_token);
                     } else {
-                        reject(new Error(json.error_description || 'Failed to get access token'));
+                        trace.add({ step: 'exchange', outcome: 'failed', error: json.error_description || 'Failed to get access token' });
+                        const e = new Error(json.error_description || 'Failed to get access token');
+                        e.discordStatus = res.statusCode;
+                        e.discordError = json.error;
+                        reject(e);
                     }
                 } catch (err) {
-                    reject(new Error('Invalid response from Discord'));
+                    trace.add({ step: 'exchange', outcome: 'failed', note: 'Invalid response from Discord', raw: body.slice(0, 300) });
+                    const e = new Error('Invalid response from Discord');
+                    e.discordStatus = res.statusCode;
+                    e.discordRaw = body.slice(0, 300);
+                    reject(e);
                 }
             });
         });
@@ -94,6 +107,7 @@ function exchangeCode(code) {
  * ดึงข้อมูล User จาก Discord API
  */
 function getUserInfo(accessToken) {
+    trace.add({ step: 'userinfo_start' });
     return new Promise((resolve, reject) => {
         const options = {
             hostname: 'discord.com',
@@ -107,10 +121,12 @@ function getUserInfo(accessToken) {
         const request = https.request(options, (res) => {
             let body = '';
             res.on('data', chunk => body += chunk);
-            res.on('end', () => {
+                        res.on('end', () => {
+                trace.add({ step: 'userinfo', http_status: res.statusCode });
                 try {
                     const json = JSON.parse(body);
                     if (json.id) {
+                        trace.add({ step: 'userinfo', outcome: 'ok', discord_id: json.id });
                         resolve({
                             id: json.id,
                             username: json.username,
@@ -119,9 +135,11 @@ function getUserInfo(accessToken) {
                             displayName: json.global_name || json.username
                         });
                     } else {
+                        trace.add({ step: 'userinfo', outcome: 'failed', note: 'Failed to get user info' });
                         reject(new Error('Failed to get user info'));
                     }
                 } catch (err) {
+                    trace.add({ step: 'userinfo', outcome: 'failed', note: 'Invalid response from Discord' });
                     reject(new Error('Invalid response from Discord'));
                 }
             });

@@ -1,57 +1,99 @@
-<!-- TEMP DEBUG - DELETE BEFORE COMMIT (and remove the /debug/* routes in server/routes/index.js) -->
+<!-- TEMP DEBUG - DELETE BEFORE COMMIT (and remove the /debug/* routes in server/routes/index.js + the trace.js util) -->
 <!DOCTYPE html>
 <html lang="th">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>DEBUG - Discord Connect (TEMP)</title>
+<title>DEBUG - เวลาการเชื่อมต่อ Discord</title>
 <style>
-  body { font-family: ui-sans-serif, system-ui, sans-serif; margin: 24px; color: #1f2937; }
-  h2 { margin-bottom: 4px; }
-  .note { color: #6b7280; font-size: 13px; margin-bottom: 14px; }
-  button { background: #111827; color: #fff; border: 0; padding: 9px 14px; border-radius: 8px; cursor: pointer; }
-  button:hover { background: #1f2937; }
-  input { width: 100%; padding: 8px; box-sizing: border-box; margin-top: 6px; }
-  pre { background: #0b1220; color: #7ee797; padding: 12px; border-radius: 8px; overflow:auto; white-space: pre-wrap; word-break: break-all; margin-top: 8px; min-height: 28px; }
-  pre.muted { color: #9ca3af; }
+  body { font-family: ui-sans-serif, system-ui, sans-serif; margin: 18px 16px; color: #111827; }
+  h1 { font-size: 18px; margin: 0 0 4px; }
+  .sub { color: #6b7280; font-size: 13px; margin-bottom: 14px; }
+  .bar { display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; align-items:center; }
+  button { background:#111827; color:#fff; border:0; padding:9px 14px; border-radius:8px; cursor:pointer; font-size:14px; }
+  button.outline { background:#fff; border:1px solid #d1d5db; color:#111827; }
+  .status { font-size:13px; font-weight:600; padding:6px 10px; border-radius:8px; display:inline-block; }
+  .ok { background:#dcfce7; color:#14532d; }
+  .fail { background:#fee2e2; color:#7f1d1d; }
+  .idle { background:#f3f4f6; color:#374151; }
+  .running { background:#fef9c3; color:#714e15; }
+  pre { background:#0b1220; color:#d1fae5; padding:12px; border-radius:8px; overflow:auto; font-size:12.5px; line-height:1.5; max-height:72vh; }
+  .empty { color:#9ca3af; }
+  table { width:100%; border-collapse:collapse; }
+  td, th { text-align:left; padding:4px 6px; font-size:12.5px; border-bottom:1px solid #1f2937; }
+  th { color:#9ca3af; }
 </style>
 </head>
 <body>
-  <h2>DEBUG — Discord Connect (ชั่วคราว)</h2>
-  <div class="note">หน้านี้ใช้ตรวจเซิร์ฟเวอร์เท่านั้น ใช้เสร็จกด <b>ลบ</b> ออก</div>
+  <h1>DEBUG — เวลาการเชื่อมต่อ Discord</h1>
+  <div class="sub">บันทึกเหตุการณ์เรียกจากเซิร์ฟเวอร์ (server → discord) แบบเรียนว่างี้ ใช้ debug ชั่วคราว</div>
 
-  <h3>1) เซิร์ฟเวอร์เห็น env อย่างไร</h3>
-  <button id="cfgBtn">โหลด /debug/discord-config</button>
-  <pre id="cfg" class="muted">กดปุ่มเพื่อโหลด</pre>
+  <div class="bar">
+    <button id="openOAuth">เปิดหน้าเชื่อมต่อ Discord (หน้าต่างใหม่)</button>
+    <button class="outline" id="clearBtn">ล้าง Log</button>
+    <span id="status" class="status idle">ยังไม่มีการเชื่อมต่อ</span>
+  </div>
 
-  <h3 style="margin-top:18px">2) ลองแลก code → token</h3>
-  <div class="note">ใส่ code ที่ได้จากขั้นตอน OAuth (เปิด /auth/discord → อนุญาต → คัด code จาก URL ที่กลับมา) หรือใช้ FAKE_CODE เพื่อทดสอบว่า secret ผิดหรือไม่</div>
-  <input id="codeIn" placeholder="ใส่ code ที่นี่ (เช่น FAKE_CODE)" />
-  <button id="exBtn" style="margin-top:8px">เรียก /debug/discord-exchange</button>
-  <pre id="ex" class="muted">รอการเรียก</pre>
+  <pre id="box"><div class="empty">ยังไม่มีเหตุการณ์ — กด “เปิดหน้าเชื่อมต่อ Discord” แล้วอนุญาตต่อ</div></pre>
 
 <script>
-document.getElementById('cfgBtn').onclick = async () => {
-  const pre = document.getElementById('cfg');
+let poll = null;
+const box = document.getElementById('box');
+const statusEl = document.getElementById('status');
+
+function fmt(ms) {
+  const d = new Date(ms);
+  return d.toLocaleTimeString('th-TH', { hour12:false, hour:'2-digit', minute:'2-digit', second:'2-digit' }) + '.' + String(d.getMilliseconds()).padStart(3,'0');
+}
+
+function renderLog(events) {
+  if (!events || !events.length) { box.textContent = 'ยังไม่มีเหตุการณ์ — กด “เปิดหน้าเชื่อมต่อ Discord” แล้วอนุญาตต่อ'; return; }
+  const rows = events.map(e => {
+    const kv = Object.entries(e).filter(([k]) => k !== 't').map(([k,v]) => k+'='+ (typeof v === 'object' ? JSON.stringify(v) : v));
+    let cls='';
+    if (e.outcome === 'ok') cls='ok'; else if (e.outcome === 'failed') cls='fail';
+    return '<tr><td>'+fmt(e.t)+'</td><td>'+(e.step||'')+'</td><td class="'+cls+'">'+kv.join(' | ')+'</td></tr>';
+  });
+  box.innerHTML = '<table><thead><tr><th>เวลา</th><th>ขั้นตอน</th><th>รายละเอียด/สถานะ</th></tr></thead><tbody>'+rows.join('')+'</tbody></table>';
+  box.scrollTop = box.scrollHeight;
+}
+
+function refreshStatus(events) {
+  const last = events[events.length-1];
+  if (!last) { statusEl.textContent = 'ยังไม่มีการเชื่อมต่อ'; statusEl.className='status idle'; return; }
+  if (last.step === 'redirect' && last.outcome === 'success') {
+    statusEl.textContent = 'เชื่อมต่อสำเร็จแล้ว'; statusEl.className='status ok';
+  } else if (last.step === 'redirect' && last.outcome === 'failed') {
+    statusEl.textContent = 'เชื่อมต่อล้มเหลว (ดู Log)'; statusEl.className='status fail';
+  } else if (last.step === 'callback_error' || (last.step==='exchange' && last.outcome==='failed')) {
+    statusEl.textContent = 'เซิร์ฟเวอร์เชื่อมต่อ Discord ผิดพลาด (ดู Log)'; statusEl.className='status fail';
+  } else {
+    statusEl.textContent = 'กำลังเชื่อมต่อ... ('+last.step+')'; statusEl.className='status running';
+  }
+}
+
+async function pollOnce() {
   try {
-    const r = await fetch('/debug/discord-config');
+    const r = await fetch('/debug/timeline', { cache: 'no-store' });
     const j = await r.json();
-    pre.textContent = JSON.stringify(j, null, 2);
+    renderLog(j);
+    refreshStatus(j);
   } catch (e) {
-    pre.textContent = 'error: ' + e;
+    box.textContent = 'โหลด timeline ไม่ได้: ' + e;
+    statusEl.textContent='เกิดข้อผิดพลาด'; statusEl.className='status fail';
   }
+}
+
+poll = setInterval(pollOnce, 500);
+pollOnce();
+
+document.getElementById('openOAuth').onclick = () => {
+  window.open('https://mhnk-pd.inwcloud.com/auth/discord?state=register', '_blank', 'width=480,height=720,noopener=0,noreferrer=0');
 };
-document.getElementById('exBtn').onclick = async () => {
-  const pre = document.getElementById('ex');
-  const code = document.getElementById('codeIn').value.trim();
-  if (!code) { pre.textContent = 'ใส่ code ก่อน'; return; }
-  try {
-    const r = await fetch('/debug/discord-exchange?code=' + encodeURIComponent(code));
-    const t = await r.text();
-    pre.textContent = 'HTTP ' + r.status + '\n' + t;
-  } catch (e) {
-    pre.textContent = 'error: ' + e;
-  }
+document.getElementById('clearBtn').onclick = async () => {
+  await fetch('/debug/timeline/clear');
+  box.textContent = ''; statusEl.textContent='ล้างแล้ว'; statusEl.className='status idle';
+  pollOnce();
 };
 </script>
 </body>
