@@ -13,14 +13,15 @@ const logger = createLogger('AuthController');
 function discordLogin(req, res) {
     const state = req.query.state || '';
     const redirectTo = req.query.redirect || getFallbackPage(state);
-    
+
     try {
         const authUrl = discordAuth.getAuthUrl(state);
         res.redirect(authUrl);
     } catch (err) {
-        // ถ้า Discord OAuth ไม่ได้ configure ให้ redirect กลับพร้อม error message
         logger.error(`Discord login error: ${err.message}`);
-        res.redirect(`${redirectTo}?auth=failed&error=discord_not_configured`);
+        if (!res.headersSent) {
+            return res.redirect(`${redirectTo}?auth=failed&error=discord_not_configured`);
+        }
     }
 }
 
@@ -38,7 +39,7 @@ function getFallbackPage(state) {
 /**
  * จัดการ Callback จาก Discord
  */
-async function discordCallback(req, res) {
+async function discordCallback(req, res, next) {
     try {
         const { code, error, state } = req.query;
 
@@ -72,9 +73,12 @@ async function discordCallback(req, res) {
         res.redirect(`${fallbackPage}?${params.toString()}`);
 
     } catch (err) {
-        logger.error(`Discord auth error: ${err.message}`);
+        logger.error(`Discord auth error: ${err.message}`, { error_code: err.code });
         const redirectTo = getFallbackPage(req.query.state);
-        res.redirect(`${redirectTo}?auth=failed`);
+        if (!res.headersSent) {
+            return res.redirect(`${redirectTo}?auth=failed&error=${encodeURIComponent(err.message)}`);
+        }
+        next(err);
     }
 }
 
