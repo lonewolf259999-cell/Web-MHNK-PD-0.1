@@ -54,9 +54,6 @@ router.get('/api/register/fetch/:messageId', asyncHandler(registrationController
 router.get('/auth/discord', authController.discordLogin);
 router.get('/auth/discord/callback', asyncHandler(authController.discordCallback));
 
-// Discord token exchange proxy endpoint (for Inwcloud to delegate Discord API calls to Render)
-router.post('/api/discord/exchange', asyncHandler(authController.discordExchange));
-
 // ==================== Medical Registration ====================
 router.post('/api/medical', asyncHandler(registrationController.registerMedical));
 router.patch('/api/medical/edit', asyncHandler(registrationController.editMedical));
