@@ -1,0 +1,85 @@
+/* ========================================
+   Header Component
+   ======================================== */
+.site-header {
+    position: relative;
+    z-index: 10;
+    background: linear-gradient(180deg, rgba(15,23,42,0.98) 0%, rgba(10,15,30,0.95) 100%);
+    border-bottom: 1px solid var(--color-border);
+    padding: 16px 24px 20px;
+}
+
+.header-top {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.header-logo {
+    width: 72px; height: 72px;
+    object-fit: cover;
+    flex-shrink: 0;
+    transition: transform var(--transition-normal);
+}
+.header-logo:hover { transform: scale(1.05); }
+
+.header-title h1 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    text-align: center;
+}
+.header-subtitle {
+    font-size: 0.6rem;
+    color: var(--color-text-secondary);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    text-align: center;
+    margin-top: 2px;
+}
+.header-subtitle span { color: var(--color-accent); }
+
+.header-badges {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+}
+.header-badge {
+    font-size: 0.55rem;
+    font-weight: 700;
+    color: var(--color-accent);
+    background: var(--color-accent-soft);
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(29,201,183,0.15);
+    letter-spacing: 0.5px;
+}
+
+/* Back link (profile page) */
+.back-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--color-text-secondary);
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: all var(--transition-fast);
+}
+.back-link:hover {
+    color: var(--color-accent);
+    background: var(--color-accent-soft);
+}
+.back-icon { font-size: 1.2rem; }
+.back-text { font-size: 0.9rem; font-weight: 600; }
+
+@media (max-width: 768px) {
+    .site-header { padding: 12px 16px 16px; }
+    .header-top { gap: 10px; margin-bottom: 14px; }
+    .header-logo { width: 56px; height: 56px; }
+    .header-badges { display: none; }
+    .header-title h1 { font-size: 0.95rem; }
+    .header-subtitle { font-size: 0.55rem; letter-spacing: 2px; }
+}

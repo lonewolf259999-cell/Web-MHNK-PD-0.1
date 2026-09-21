@@ -1,0 +1,65 @@
+/* ========================================
+   Fines Page (อัตราค่าปรับ)
+   ======================================== */
+.fines-container {
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    backdrop-filter: blur(12px);
+}
+
+.fine-category { margin-bottom: 28px; }
+.fine-category:last-child { margin-bottom: 0; }
+
+.fine-category-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-accent);
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--color-border-subtle);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.fine-list { display: flex; flex-direction: column; gap: 6px; }
+
+.fine-item {
+    display: grid;
+    grid-template-columns: 1fr 120px 90px;
+    align-items: start;
+    gap: 24px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.02);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    transition: background var(--transition-fast);
+}
+.fine-item:hover { background: rgba(255,255,255,0.04); }
+
+.fine-text {
+    color: var(--color-text-secondary);
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+.fine-amount {
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+.fine-time {
+    font-weight: 500;
+    font-size: 0.9rem;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 768px) {
+    .fines-container { padding: 16px; }
+    .fine-category-title { font-size: 0.9rem; }
+    .fine-item { padding: 8px 10px; font-size: 0.85rem; }
+}

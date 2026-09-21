@@ -1,0 +1,34 @@
+/* ========================================
+   Main Layout
+   ======================================== */
+
+.app-layout {
+    position: relative;
+    z-index: 10;
+    max-width: var(--content-max-width);
+    margin: 0 auto;
+    padding: 28px 24px 60px;
+    display: flex;
+    gap: 28px;
+    align-items: flex-start;
+}
+
+.main-content {
+    flex: 1;
+    min-width: 0;
+}
+
+@media (max-width: 1024px) {
+    .app-layout {
+        flex-direction: column;
+        padding: 20px 16px 40px;
+        gap: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .app-layout {
+        padding: 16px 14px 40px;
+        gap: 16px;
+    }
+}
