@@ -2,7 +2,7 @@
    The v2 file cache is gone: serverless containers have no shared writable
    disk, so it never survived a cold start anyway. */
 
-import { config } from './config';
+import { config } from '@/server/config';
 
 interface Entry {
   data: unknown;

@@ -1,6 +1,6 @@
 /* Sheets data layer — ported from server/services/sheetsService.js */
 
-import { config } from './config';
+import { config } from '@/server/config';
 import { cached, invalidate, clearAll } from './cache';
 import { getSheets } from './googleAuth';
 import { parseCSV, mapOfficers, mapWeekData, mapWeekNames } from './csv';

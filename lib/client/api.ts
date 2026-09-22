@@ -1,9 +1,10 @@
 'use client';
 
-/* Client-side API access with a small shared cache,
-   replacing the v2 ApiService singleton. */
+/* Data-fetching hook with a small shared cache.
+   Fetchers come from lib/client/queries.ts, so results stay typed
+   end-to-end from the Elysia server. */
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 const CACHE_TTL = 60_000;
 
@@ -24,45 +25,6 @@ export function clearApiCache(prefix?: string): void {
   }
 }
 
-export async function apiGet<T>(url: string, cacheKey?: string): Promise<T> {
-  if (cacheKey) {
-    const hit = cache.get(cacheKey);
-    if (hit && Date.now() - hit.timestamp < CACHE_TTL) return hit.data as T;
-  }
-
-  const res = await fetch(url);
-  if (!res.ok) {
-    let message = `HTTP ${res.status}`;
-    try {
-      const body = await res.json();
-      if (body?.error) message = body.error;
-    } catch {
-      /* response had no JSON body */
-    }
-    throw new Error(message);
-  }
-
-  const data = (await res.json()) as T;
-  if (cacheKey) cache.set(cacheKey, { data, timestamp: Date.now() });
-  return data;
-}
-
-export async function apiSend<T>(
-  url: string,
-  method: 'POST' | 'PUT' | 'DELETE',
-  body: unknown
-): Promise<T> {
-  const res = await fetch(url, {
-    method,
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
-
-  const payload = await res.json().catch(() => null);
-  if (!res.ok) throw new Error(payload?.error || `HTTP ${res.status}`);
-  return payload as T;
-}
-
 export interface AsyncState<T> {
   data: T | null;
   error: string | null;
@@ -70,21 +32,39 @@ export interface AsyncState<T> {
   reload: () => void;
 }
 
-/** Fetches once on mount and exposes a manual reload that bypasses the cache. */
-export function useApi<T>(url: string, cacheKey?: string): AsyncState<T> {
+/**
+ * Runs `fetcher` on mount, caching by `cacheKey`.
+ *
+ * The fetcher is held in a ref so callers can pass an inline arrow without
+ * retriggering on every render; `cacheKey` is the real dependency.
+ */
+export function useApi<T>(fetcher: () => Promise<T>, cacheKey: string): AsyncState<T> {
   const [data, setData] = useState<T | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [nonce, setNonce] = useState(0);
 
+  const fetcherRef = useRef(fetcher);
+  fetcherRef.current = fetcher;
+
   useEffect(() => {
     let active = true;
+
+    const hit = cache.get(cacheKey);
+    if (nonce === 0 && hit && Date.now() - hit.timestamp < CACHE_TTL) {
+      setData(hit.data as T);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
-    apiGet<T>(url, nonce === 0 ? cacheKey : undefined)
+    fetcherRef
+      .current()
       .then((result) => {
         if (!active) return;
+        cache.set(cacheKey, { data: result, timestamp: Date.now() });
         setData(result);
         setLoading(false);
       })
@@ -97,10 +77,10 @@ export function useApi<T>(url: string, cacheKey?: string): AsyncState<T> {
     return () => {
       active = false;
     };
-  }, [url, cacheKey, nonce]);
+  }, [cacheKey, nonce]);
 
   const reload = useCallback(() => {
-    if (cacheKey) clearApiCache(cacheKey);
+    cache.delete(cacheKey);
     setNonce((n) => n + 1);
   }, [cacheKey]);
 

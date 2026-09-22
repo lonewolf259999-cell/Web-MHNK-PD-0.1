@@ -12,27 +12,20 @@ import { CasesView } from '@/components/views/CasesView';
 import { ScheduleView } from '@/components/views/ScheduleView';
 import { ErrorState, Loading } from '@/components/ui/States';
 import { useApi } from '@/lib/client/api';
+import { queries } from '@/lib/client/queries';
 import { filterByQuery } from '@/lib/format';
-import type {
-  CaseItem,
-  ConductItem,
-  FineItem,
-  Officer,
-  RuleItem,
-  ScheduleConfig,
-} from '@/lib/types';
 
 export default function HomePage() {
   const [page, setPage] = useState<PageId>('roster');
   const [query, setQuery] = useState('');
 
-  const officers = useApi<Officer[]>('/api/officers', 'officers');
-  const weeks = useApi<string[]>('/api/weeks', 'weeks');
-  const cases = useApi<CaseItem[]>('/api/rules-data/cases', 'cases_data');
-  const conduct = useApi<ConductItem[]>('/api/rules-data/conduct', 'conduct_data');
-  const rules = useApi<RuleItem[]>('/api/rules-data/rules', 'rules_data');
-  const fines = useApi<FineItem[]>('/api/rules-data/fines', 'fines_data');
-  const schedule = useApi<ScheduleConfig>('/api/schedule-config', 'schedule_config');
+  const officers = useApi(queries.officers, 'officers');
+  const weeks = useApi(queries.weeks, 'weeks');
+  const cases = useApi(queries.cases, 'cases_data');
+  const conduct = useApi(queries.conduct, 'conduct_data');
+  const rules = useApi(queries.rules, 'rules_data');
+  const fines = useApi(queries.fines, 'fines_data');
+  const schedule = useApi(queries.scheduleConfig, 'schedule_config');
 
   const allOfficers = useMemo(() => officers.data ?? [], [officers.data]);
 

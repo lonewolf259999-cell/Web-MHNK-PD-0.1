@@ -48,16 +48,17 @@
 
 ## ▲ Deploy บน Vercel
 
-โปรเจคนี้รองรับ Vercel แบบ zero-config: `api/index.js` export Express app (`server/app.js`) เป็น serverless function ส่วนไฟล์ static ทั้งหมด (`public/`) ถูก serve โดยตรงจาก Vercel CDN โดยไม่ผ่าน function
+Vercel ตรวจจับ Next.js ให้อัตโนมัติ ไม่ต้องตั้งค่า Build Command / Output Directory / `vercel.json` ใดๆ
 
 ### ขั้นตอน
 
-1. Import repository เข้า Vercel (New Project → เลือก repo นี้) — ไม่ต้องตั้งค่า Build Command / Output Directory (ปล่อยว่างไว้)
-2. ตั้งค่า Environment Variables ใน Vercel Dashboard ให้ครบตามหัวข้อ [Environment Variables](#️-environment-variables-env) ด้านบน (`SHEET_ID`, `CASES_SHEET_ID`, `RULES_SHEET_ID`, `ADMIN_PIN`, `DISCORD_CLIENT_ID`, `DISCORD_CLIENT_SECRET`, `DISCORD_*_WEBHOOK_URL`, `GOOGLE_JSON_KEY`, `APP_URL`)
-3. `APP_URL` ให้ตั้งเป็นโดเมนที่ Vercel ให้ (เช่น `https://mhnk-pd.vercel.app`)
-4. Deploy — `vercel.json` จะ rewrite `/api/*`, `/auth/*` และหน้า clean-URL (`/profile`, `/register`, `/proctor`, `/MapMhnkPD`, `/Challenge`) ไปยัง serverless function ให้อัตโนมัติ
+1. Import repository เข้า Vercel (New Project → เลือก repo นี้)
+2. **Framework Preset** ต้องขึ้นเป็น **Next.js** และ **Root Directory** ต้องเว้นว่าง (repo root)
+3. ตั้งค่า Environment Variables ใน Vercel Dashboard ให้ครบตามหัวข้อ [Environment Variables](#️-environment-variables-env) ด้านบน
+4. `APP_URL` ให้ตั้งเป็นโดเมนจริง (เช่น `https://mhnk-pd.online`)
+5. Deploy
 
-> **หมายเหตุ:** File cache (`data/.officers-cache.json` เดิม) ใช้ `os.tmpdir()` แทน เพราะ serverless function ของ Vercel เขียนไฟล์ลง project directory ไม่ได้ (เขียนได้เฉพาะ `/tmp` และไม่ persist ข้าม container)
+> **หมายเหตุ:** memory cache อยู่ใน instance เดียวเท่านั้น — serverless ไม่มี disk ที่เขียนร่วมกันได้ file cache เดิมจึงถูกตัดออก
 
 ---
 
@@ -78,39 +79,53 @@ npm start
 
 ## 🗂️ โครงสร้างโปรเจค
 
+Stack: **Next.js 15 (App Router) · React 19 · TypeScript · Tailwind v4 · Elysia**
+
 ```
 mhnk-police-department/
-├── api/
-│   └── index.js             # Vercel serverless entry (exports server/app.js)
-├── server/                  # Backend (Express.js)
-│   ├── app.js               # Express app (middleware, routes, static) — no listener
-│   ├── index.js             # Local dev entry point (node server/index.js)
-│   ├── config/              # Environment config
-│   ├── controllers/         # Route handlers
-│   ├── middleware/           # Error handler, auth, cache headers
-│   ├── routes/              # Route definitions
-│   ├── services/            # Discord OAuth, Webhook, Google Sheets
-│   └── utils/               # Logger
-├── map-module/
-│   └── server/               # POI API (backend only, not statically served)
-├── public/                  # Everything served as static files (also served
-│   │                         # directly by Vercel's CDN in production)
-│   ├── index.html           # Main SPA
-│   ├── profile.html         # หน้าข้อมูลเจ้าหน้าที่ + จ่ายเงิน
-│   ├── register.html        # หน้าสมัครตำรวจ
-│   ├── proctor.html         # หน้าบันทึกคุมสอบ
-│   ├── src/                 # Frontend (Vanilla JS SPA)
-│   │   ├── app.js           # Main app entry
-│   │   ├── components/      # Navigation, Search, Sidebar
-│   │   ├── pages/           # Roster, Rules, Conduct, Fines, Schedule
-│   │   ├── profile/         # Profile page (payment)
-│   │   ├── styles/          # CSS
-│   │   └── utils/           # API service, HTML helpers
-│   └── map-module/          # Map + Challenge game assets (JS, CSS, tiles, blips)
-├── data/                    # Fallback/seed data (poi-cache.json, schedule.json)
-├── vercel.json               # Vercel rewrites (api/auth routes + clean URLs)
-└── render.yaml               # Render deploy config
+├── app/                      # Next.js App Router
+│   ├── api/[[...slugs]]/     # Elysia mounted as one catch-all function
+│   ├── layout.tsx            # Root layout (fonts, background effects)
+│   ├── page.tsx              # Main SPA
+│   └── globals.css           # Tailwind v4 @theme design tokens
+├── server/                   # Elysia backend (TypeScript)
+│   ├── app.ts                # Root instance + error handling; exports type Api
+│   ├── config.ts             # Environment configuration
+│   ├── errors.ts             # ApiError + admin PIN guard
+│   ├── routes/               # roster, rules, admin, poi
+│   └── services/             # Google Sheets, cache, CSV, auth, payment store
+├── components/               # React components
+│   ├── ui/                   # Loading, empty and error states
+│   └── views/                # Roster, Cases, Rules, Fines, Schedule
+├── lib/                      # Shared code
+│   ├── client/               # Eden typed client, queries, fetch hook
+│   ├── types.ts              # Data models
+│   ├── format.ts             # Ranks, currency, grouping, search
+│   └── sanitize.ts           # Allowlist sanitizer for Sheets rich text
+├── public/                   # Static assets served at /
+│   ├── logo.gif, vs.png
+│   └── map-module/           # Leaflet map + Challenge game (still vanilla)
+├── data/                     # schedule.json, poi-cache.json
+└── legacy/                   # v2 code, kept for reference during the port
+    ├── express/              # Old Express backend
+    ├── html/                 # Old HTML pages
+    ├── src/                  # Old vanilla JS/CSS frontend
+    ├── map-module-server/    # Old POI routes
+    └── deploy/               # Old vercel.json / render.yaml / serverless entry
 ```
+
+### Why Elysia behind Next.js
+
+Elysia is normally a Bun framework, but Vercel's serverless runtime is Node. It
+is mounted through `api.handle(request)` instead of `.listen()` — Elysia and
+Next route handlers both speak the standard `Request`/`Response` pair, so no Bun
+runtime is required and the whole app still deploys as one Next.js project.
+
+The payoff is **Eden Treaty**: `lib/client/eden.ts` derives a fully typed client
+from the server's `Api` type, so routes, params and response shapes are checked
+at compile time. Renaming a route breaks the build instead of 404-ing in
+production. Request bodies and query strings are validated by Elysia's schemas
+before reaching handler code.
 
 ---
 

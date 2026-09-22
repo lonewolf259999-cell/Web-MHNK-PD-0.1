@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { apiGet } from '@/lib/client/api';
+import { queries } from '@/lib/client/queries';
 import { parseCases } from '@/lib/format';
-import type { Officer, WeekData, WeekTop10 } from '@/lib/types';
+import type { Officer } from '@/lib/types';
 
 interface Entry {
   name: string;
@@ -91,7 +91,8 @@ export function WeeklyTop10({ weeks }: { weeks: string[] }) {
     let active = true;
     setStatus('loading');
 
-    apiGet<WeekData>(`/api/week-data?name=${encodeURIComponent(selected)}`, `week_${selected}`)
+    queries
+      .weekData(selected)
       .then((data) => {
         if (!active) return;
         const top = Object.values(data)
@@ -163,5 +164,3 @@ export function AllTimeTop10({ officers }: { officers: Officer[] }) {
     </Panel>
   );
 }
-
-export type { WeekTop10 };

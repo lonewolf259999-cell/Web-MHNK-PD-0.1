@@ -17,3 +17,6 @@ credentials.json
 # Logs / runtime artifacts
 *.log
 *.pid
+
+# TypeScript build info
+*.tsbuildinfo
