@@ -2,8 +2,13 @@
 
 import { config } from '@/server/config';
 
+/**
+ * Must match a redirect registered in the Discord Developer Portal
+ * character for character. A trailing slash on APP_URL would otherwise
+ * produce a double slash here and Discord would reject every login.
+ */
 export function redirectUri(): string {
-  return `${config.APP_URL}/auth/discord/callback`;
+  return `${config.APP_URL.replace(/\/+$/, '')}/auth/discord/callback`;
 }
 
 /** Where to send the browser back to after auth, keyed by the state param. */
