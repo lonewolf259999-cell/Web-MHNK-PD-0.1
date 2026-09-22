@@ -45,4 +45,42 @@ export const mutations = {
   /** Used to resolve a payment whose response was lost to a timeout. */
   paymentStatus: (key: string) =>
     unwrap(client.api['mark-paid'].status.get({ query: { key } })),
+
+  register: (input: Parameters<typeof client.api.register.post>[0]) =>
+    unwrap(client.api.register.post(input)),
+
+  editRegister: (input: Parameters<(typeof client.api.register)['edit']['patch']>[0]) =>
+    unwrap(client.api.register.edit.patch(input)),
+
+  fetchRegister: (messageId: string, discordUserId?: string) =>
+    unwrap(client.api.register.fetch({ messageId }).get({ query: { discordUserId } })),
+
+  medical: (input: Parameters<typeof client.api.medical.post>[0]) =>
+    unwrap(client.api.medical.post(input)),
+
+  editMedical: (input: Parameters<(typeof client.api.medical)['edit']['patch']>[0]) =>
+    unwrap(client.api.medical.edit.patch(input)),
+
+  fetchMedical: (messageId: string, discordUserId?: string) =>
+    unwrap(client.api.medical.fetch({ messageId }).get({ query: { discordUserId } })),
+
+  /* ---- admin ---- */
+
+  listPending: (pin: string) => unwrap(client.api.pending.post({ pin })),
+
+  approvePending: (row: number, input: { pin: string; proctorDiscordId: string; proctorDiscordName?: string }) =>
+    unwrap(client.api.pending.approve({ row }).post(input)),
+
+  rejectPending: (row: number, pin: string) =>
+    unwrap(client.api.pending.reject({ row }).post({ pin })),
+
+  namePD: (pin: string) => unwrap(client.api.roster.namepd.post({ pin })),
+
+  outDC: (pin: string) => unwrap(client.api.roster.outdc.post({ pin })),
+
+  setRosterStatus: (row: number, pin: string, status: string) =>
+    unwrap(client.api.roster.status({ row }).put({ pin, status })),
+
+  moveOut: (row: number, pin: string, reason: string) =>
+    unwrap(client.api.roster['move-out']({ row }).post({ pin, reason })),
 };

@@ -85,6 +85,13 @@ Stack: **Next.js 15 (App Router) · React 19 · TypeScript · Tailwind v4 · Ely
 mhnk-police-department/
 ├── app/                      # Next.js App Router
 │   ├── api/[[...slugs]]/     # Elysia mounted as one catch-all function
+│   ├── auth/discord/         # OAuth login + callback (plain route handlers)
+│   ├── profile/              # หน้าข้อมูลเจ้าหน้าที่ + จ่ายเงิน
+│   ├── register/             # สมัครตำรวจ
+│   ├── medical/              # สมัครหน่วยแพทย์
+│   ├── proctor/              # Admin: ตรวจใบสมัคร
+│   ├── rostermanage/         # Admin: จัดการสถานะสมาชิก
+│   ├── regulation/           # ข้อปฏิบัติเจ้าหน้าที่ (อ่านอย่างเดียว)
 │   ├── layout.tsx            # Root layout (fonts, background effects)
 │   ├── page.tsx              # Main SPA
 │   └── globals.css           # Tailwind v4 @theme design tokens
@@ -95,8 +102,10 @@ mhnk-police-department/
 │   ├── routes/               # roster, rules, admin, poi
 │   └── services/             # Google Sheets, cache, CSV, auth, payment store
 ├── components/               # React components
-│   ├── ui/                   # Loading, empty and error states
-│   └── views/                # Roster, Cases, Rules, Fines, Schedule
+│   ├── ui/                   # States, modals, toasts
+│   ├── views/                # Roster, Cases, Rules, Fines, Schedule
+│   ├── profile/              # Week selector, stats, payment flow
+│   └── forms/                # Register, Medical, Proctor, Roster admin
 ├── lib/                      # Shared code
 │   ├── client/               # Eden typed client, queries, fetch hook
 │   ├── types.ts              # Data models
