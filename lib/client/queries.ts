@@ -37,10 +37,12 @@ export const queries = {
 export const mutations = {
   refresh: (pin: string) => unwrap(client.api.refresh.post({ pin })),
 
-  markPaid: (input: {
-    pin: string;
-    weekName: string;
-    officerName: string;
-    idempotencyKey?: string;
-  }) => unwrap(client.api['mark-paid'].post(input)),
+  markPaid: (
+    input: { pin: string; weekName: string; officerName: string; idempotencyKey?: string },
+    signal?: AbortSignal
+  ) => unwrap(client.api['mark-paid'].post(input, { fetch: { signal } })),
+
+  /** Used to resolve a payment whose response was lost to a timeout. */
+  paymentStatus: (key: string) =>
+    unwrap(client.api['mark-paid'].status.get({ query: { key } })),
 };

@@ -5,7 +5,9 @@
    (legacy/src/styles/variables.css)
    ======================================== */
 @theme {
-  --color-base: #0a0f1e;
+  /* Named "night" rather than "base": a --color-base token would generate a
+     text-base utility that collides with Tailwind's font-size scale. */
+  --color-night: #0a0f1e;
   --color-panel: #111827;
   --color-accent: #1dc9b7;
   --color-accent-dark: #15a893;
@@ -44,7 +46,7 @@
 
   body {
     font-family: var(--font-thai);
-    background: var(--color-base);
+    background: var(--color-night);
     color: var(--color-ink);
     min-height: 100vh;
     overflow-x: hidden;

@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Kanit, Inter } from 'next/font/google';
+import { ToastProvider } from '@/components/ui/Toast';
 import './globals.css';
 
 const kanit = Kanit({
@@ -33,7 +34,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <div className="scanner-line" />
         <div className="bg-glow" />
         <div className="bg-dots" />
-        <div className="relative z-1">{children}</div>
+        <ToastProvider>
+          <div className="relative z-1">{children}</div>
+        </ToastProvider>
       </body>
     </html>
   );
