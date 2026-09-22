@@ -9,6 +9,7 @@ npm run dev        # next dev
 npm run build      # next build — run before assuming a change is deployable
 npm run typecheck  # tsc --noEmit — the fastest correctness check
 npm run lint       # next lint
+npm run package    # assemble .next/standalone for self-hosting (see below)
 ```
 
 There is no test suite. `typecheck` plus a build is the only automated verification, so both matter.
@@ -60,6 +61,17 @@ Large read-only sheets come through Google's GViz CSV export; writes and the rul
 ### Google Sheets lags its own writes
 
 The GViz export is CDN-cached, so re-reading a week immediately after marking it paid can still report it unpaid. `components/profile/ProfileClient.tsx` keeps a `paidThisSession` ref that overrides re-fetched data. Payments also carry idempotency keys, and a request lost to the 10s timeout is resolved by querying `/api/mark-paid/status` rather than being reported as a failure — that machinery exists to avoid double-paying someone, so do not simplify it away.
+
+### Self-hosting outside Vercel
+
+`next.config.mjs` sets `output: 'standalone'`, so a build emits `.next/standalone` — the server plus only the dependencies it traced, runnable with `node server.js` and no install or build on the target host. That matters for panel hosting (DirectAdmin, cPanel), where `next build` routinely exceeds the available memory.
+
+`next build` deliberately leaves two things out of that folder, because on Vercel the CDN serves them:
+
+- `.next/static` — omitting it serves the site with **no CSS or JS**
+- `public/` — omitting it 404s the logo and the whole legacy map
+
+`npm run package` copies both in, and also deletes the `.env` that `next build` bundles into `.next/standalone/.env` **with real secret values** — the host's own environment settings should supply those instead. Run `build` then `package`; uploading a bundle assembled by hand is how the missing-CSS failure reappears.
 
 ## Configuration
 
