@@ -45,7 +45,7 @@ function writeLocalCache(data) {
 
 /** สแกนไฟล์ PNG ใน blips/custom/ */
 function scanCustomIcons() {
-  const iconsDir = path.join(__dirname, '..', 'blips', 'custom');
+  const iconsDir = path.join(__dirname, '..', '..', 'public', 'map-module', 'blips', 'custom');
   try {
     if (!fs.existsSync(iconsDir)) return [];
     return fs.readdirSync(iconsDir)

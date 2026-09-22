@@ -3,6 +3,7 @@
    ======================================== */
 
 const path = require('path');
+const os = require('os');
 const { createLogger } = require('../utils/logger');
 
 const logger = createLogger('Config');
@@ -49,7 +50,10 @@ module.exports = {
     CREDENTIALS_PATH,
     CACHE_TTL: 15000,          // 15 seconds memory cache
     FILE_CACHE_TTL: 600000,    // 10 minutes file cache
-    CACHE_FILE: path.join(__dirname, '..', '..', 'data', '.officers-cache.json'),
+    // os.tmpdir() works on both a persistent disk (Render) and a
+    // serverless container's writable /tmp (Vercel, which has no
+    // writable project directory at runtime)
+    CACHE_FILE: path.join(os.tmpdir(), 'mhnk-pd-officers-cache.json'),
     MAX_CACHE_KEYS: 100,       // prevent memory leak
     COMPRESSION_THRESHOLD: 512, // bytes
     COMPRESSION_LEVEL: 6,

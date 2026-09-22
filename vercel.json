@@ -1,0 +1,11 @@
+{
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "/api/index" },
+    { "source": "/auth/:path*", "destination": "/api/index" },
+    { "source": "/profile", "destination": "/profile.html" },
+    { "source": "/register", "destination": "/register.html" },
+    { "source": "/proctor", "destination": "/proctor.html" },
+    { "source": "/MapMhnkPD", "destination": "/map-module/map.html" },
+    { "source": "/Challenge", "destination": "/map-module/Challenge/game.html" }
+  ]
+}

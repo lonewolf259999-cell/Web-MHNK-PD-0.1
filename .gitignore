@@ -8,9 +8,7 @@ node_modules/
 *.json
 !package.json
 !data/*.json
-
-# Cache files
-data/.officers-cache.json
+!vercel.json
 
 # Old build artifacts (unused - no build step needed)
 dist/

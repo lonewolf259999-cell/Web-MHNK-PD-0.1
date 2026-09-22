@@ -46,6 +46,21 @@
 
 ---
 
+## ▲ Deploy บน Vercel
+
+โปรเจคนี้รองรับ Vercel แบบ zero-config: `api/index.js` export Express app (`server/app.js`) เป็น serverless function ส่วนไฟล์ static ทั้งหมด (`public/`) ถูก serve โดยตรงจาก Vercel CDN โดยไม่ผ่าน function
+
+### ขั้นตอน
+
+1. Import repository เข้า Vercel (New Project → เลือก repo นี้) — ไม่ต้องตั้งค่า Build Command / Output Directory (ปล่อยว่างไว้)
+2. ตั้งค่า Environment Variables ใน Vercel Dashboard ให้ครบตามหัวข้อ [Environment Variables](#️-environment-variables-env) ด้านบน (`SHEET_ID`, `CASES_SHEET_ID`, `RULES_SHEET_ID`, `ADMIN_PIN`, `DISCORD_CLIENT_ID`, `DISCORD_CLIENT_SECRET`, `DISCORD_*_WEBHOOK_URL`, `GOOGLE_JSON_KEY`, `APP_URL`)
+3. `APP_URL` ให้ตั้งเป็นโดเมนที่ Vercel ให้ (เช่น `https://mhnk-pd.vercel.app`)
+4. Deploy — `vercel.json` จะ rewrite `/api/*`, `/auth/*` และหน้า clean-URL (`/profile`, `/register`, `/proctor`, `/MapMhnkPD`, `/Challenge`) ไปยัง serverless function ให้อัตโนมัติ
+
+> **หมายเหตุ:** File cache (`data/.officers-cache.json` เดิม) ใช้ `os.tmpdir()` แทน เพราะ serverless function ของ Vercel เขียนไฟล์ลง project directory ไม่ได้ (เขียนได้เฉพาะ `/tmp` และไม่ persist ข้าม container)
+
+---
+
 ## 🧑‍💻 คำสั่งสำหรับพัฒนา
 
 ```bash
@@ -65,28 +80,36 @@ npm start
 
 ```
 mhnk-police-department/
+├── api/
+│   └── index.js             # Vercel serverless entry (exports server/app.js)
 ├── server/                  # Backend (Express.js)
-│   ├── index.js             # Entry point (middleware, helmet, rate limit)
+│   ├── app.js               # Express app (middleware, routes, static) — no listener
+│   ├── index.js             # Local dev entry point (node server/index.js)
 │   ├── config/              # Environment config
 │   ├── controllers/         # Route handlers
 │   ├── middleware/           # Error handler, auth, cache headers
 │   ├── routes/              # Route definitions
 │   ├── services/            # Discord OAuth, Webhook, Google Sheets
 │   └── utils/               # Logger
-├── src/                     # Frontend (Vanilla JS SPA)
-│   ├── app.js               # Main app entry
-│   ├── components/          # Navigation, Search, Sidebar
-│   ├── pages/               # Roster, Rules, Conduct, Fines, Schedule
-│   ├── profile/             # Profile page (payment)
-│   ├── styles/              # CSS
-│   └── utils/               # API service, HTML helpers
-├── public/                  # Static HTML files
+├── map-module/
+│   └── server/               # POI API (backend only, not statically served)
+├── public/                  # Everything served as static files (also served
+│   │                         # directly by Vercel's CDN in production)
 │   ├── index.html           # Main SPA
 │   ├── profile.html         # หน้าข้อมูลเจ้าหน้าที่ + จ่ายเงิน
 │   ├── register.html        # หน้าสมัครตำรวจ
-│   └── proctor.html         # หน้าบันทึกคุมสอบ
-├── data/                    # Cache files
-└── render.yaml              # Render deploy config
+│   ├── proctor.html         # หน้าบันทึกคุมสอบ
+│   ├── src/                 # Frontend (Vanilla JS SPA)
+│   │   ├── app.js           # Main app entry
+│   │   ├── components/      # Navigation, Search, Sidebar
+│   │   ├── pages/           # Roster, Rules, Conduct, Fines, Schedule
+│   │   ├── profile/         # Profile page (payment)
+│   │   ├── styles/          # CSS
+│   │   └── utils/           # API service, HTML helpers
+│   └── map-module/          # Map + Challenge game assets (JS, CSS, tiles, blips)
+├── data/                    # Fallback/seed data (poi-cache.json, schedule.json)
+├── vercel.json               # Vercel rewrites (api/auth routes + clean URLs)
+└── render.yaml               # Render deploy config
 ```
 
 ---
