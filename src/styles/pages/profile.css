@@ -1,0 +1,438 @@
+/* ========================================
+   Profile Page
+   ======================================== */
+.profile-main {
+    max-width: 800px;
+    margin: 30px auto;
+    padding: 0 20px;
+}
+
+.profile-card {
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--card-padding);
+    backdrop-filter: blur(10px);
+}
+
+.profile-hero {
+    text-align: center;
+    padding: 30px 20px;
+    margin-bottom: 20px;
+}
+
+.profile-name { color: var(--color-text-primary); font-size: 1.8rem; margin: 0 0 10px; }
+
+.profile-dept {
+    display: inline-block;
+    padding: 6px 16px;
+    background: var(--color-accent-soft);
+    border: 1px solid var(--color-accent);
+    border-radius: 20px;
+    color: var(--color-accent);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.week-selector-container {
+    margin-top: 25px;
+    padding: 0 10px;
+}
+
+.fade-in {
+    animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.profile-body { padding: 0 10px; }
+
+.selector-header {
+    width: 100%;
+    text-align: center;
+    color: var(--color-text-secondary);
+    font-size: 0.75rem;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+}
+
+.week-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+}
+
+.week-btn {
+    padding: 8px 16px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: 8px;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all var(--transition-fast);
+}
+.week-btn:hover {
+    background: var(--color-accent-soft);
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+}
+.week-btn.active {
+    background: #3b82f6;   /* กำลังดูสัปดาห์นี้อยู่ (blue) - ตรงกับ semantic color ใน JS */
+    border-color: #3b82f6;
+    color: var(--color-bg-primary);
+    font-weight: 600;
+}
+
+.week-info {
+    background: rgba(255,255,255,0.03);
+    border-radius: 12px;
+    border: 1px solid var(--color-border-subtle);
+    padding: 20px;
+}
+
+.week-header {
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--color-border-subtle);
+}
+.week-tag {
+    font-size: 0.65rem;
+    letter-spacing: 1px;
+    color: var(--color-accent);
+    font-weight: 800;
+    display: block;
+    margin-bottom: 4px;
+}
+.week-header h4 { color: var(--color-text-primary); font-size: 1.2rem; margin: 0; }
+
+.week-rank-badge {
+    font-size: 0.75rem;
+    background: rgba(255,255,255,0.05);
+    padding: 4px 10px;
+    border-radius: 6px;
+    color: var(--color-accent);
+    border: 1px solid var(--color-accent-soft);
+}
+
+.week-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+/* การ์ดสถิติรายการ (ย้ายจาก inline style ใน JS มาเป็น class เดียว - ทำให้ responsive ทำงานจริง) */
+.stat-mini {
+    flex: 1;
+    min-width: 65px;
+    padding: 10px 5px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    transition: 0.25s;
+}
+.stat-mini p { font-size: 0.75rem; margin-bottom: 5px; opacity: 0.7; }
+.stat-mini .stat-number { font-size: 1.1rem; font-weight: 800; color: #fff; }
+
+.stat-mini.blue { border-color: #3b82f6; background: rgba(59, 130, 246, 0.05); }
+.stat-mini.yellow { border-color: #fbbf24; background: rgba(251, 191, 36, 0.05); }
+.stat-mini.yellow .stat-number { color: #fbbf24; }
+
+/* ===== ข้อมูลเจ้าหน้าที่เพิ่มเติม (NamePD: I, L, M) ===== */
+.officer-stats {
+    display: flex;
+    gap: 10px;
+    margin: 20px 0;
+}
+.officer-stats .stat-mini { flex: 1; min-width: 0; }
+.stat-mini.steam .stat-number { font-size: 0.8rem; word-break: break-all; }
+
+/* ===== ตารางเวร (จันทร์-อาทิตย์) ===== */
+.profile-section-title {
+    color: var(--color-accent);
+    font-size: 1.1rem;
+    margin: 0 0 15px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--color-border-subtle);
+}
+.duty-table-wrapper { margin-bottom: 30px; }
+.duty-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+.duty-table th,
+.duty-table td {
+    border: 1px solid var(--color-border-subtle);
+    padding: 8px 4px;
+    text-align: center;
+}
+.duty-table th {
+    color: var(--color-text-secondary);
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: rgba(255,255,255,0.03);
+}
+.duty-table td.duty-total {
+    font-weight: 800;
+    color: var(--color-accent);
+}
+/* ช่อง "รวม" ให้มีกรอบเป็นกล่องแบบเดียวกับช่องวันที่มีค่า (.sched-shift) */
+.duty-total-chip {
+    display: inline-block;
+    padding: 4px 10px;
+    background: var(--color-accent-soft);
+    border: 1px solid var(--color-accent);
+    border-radius: 6px;
+    color: var(--color-accent);
+    font-weight: 800;
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+.payment-status-card {
+    margin-top: 20px;
+    padding: 20px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid var(--color-border);
+}
+.status-paid { border-color: #22c55e; background: rgba(34, 197, 94, 0.05); color: #4ade80; }
+.status-unpaid { border-color: #ef4444; background: rgba(239, 68, 68, 0.05); color: #f87171; }
+.status-value { font-weight: 800; font-size: 1.2rem; }
+
+.no-data-alert {
+    text-align: center;
+    padding: 40px;
+    color: var(--color-text-secondary);
+    background: rgba(255,255,255,0.01);
+    border-radius: 12px;
+    border: 1px dashed var(--color-border);
+}
+
+/* Profile Loading & Error */
+.profile-loading { text-align: center; padding: 60px 20px; }
+.profile-loading p { color: var(--color-text-secondary); margin-top: 15px; }
+.profile-error { text-align: center; padding: 60px 20px; }
+.profile-error p { color: var(--color-text-secondary); font-size: 1.1rem; margin-bottom: 20px; }
+
+.error-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.btn {
+    display: inline-block;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all var(--transition-fast);
+    cursor: pointer;
+    font-size: 1rem;
+    border: none;
+    font-family: inherit;
+}
+.btn-primary {
+    background: var(--color-accent);
+    color: var(--color-bg-primary);
+}
+.btn-primary:hover {
+    background: var(--color-accent-dark);
+    transform: translateY(-1px);
+}
+
+/* Mini spinner สำหรับปุ่ม "กำลังประมวลผล" (PaymentManager) */
+.loader-mini {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    margin-right: 6px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    vertical-align: middle;
+}
+
+@media (max-width: 768px) {
+    .profile-main { margin: 15px auto; padding: 0 10px; }
+    .profile-name { font-size: 1.4rem; }
+    .week-stats { grid-template-columns: 1fr; }
+    .stat-mini .stat-number { font-size: 1.3rem; }
+}
+
+/* ===== Full-page boot / loading screen (PageLoader) ===== */
+.page-loader {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Transparent backdrop: let the normal profile.html page show through.
+       Adjust the last number (0.18) lower to make it fully see-through. */
+    background: rgba(5, 10, 20, 0.18);
+    color: var(--color-text-primary);
+}
+.page-loader::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--color-accent), transparent);
+    animation: plScan 2.6s ease-in-out infinite;
+    opacity: 0.95;
+}
+.page-loader.is-ready {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.8s ease;
+}
+
+/* Borderless floating loader: no frame, only a soft radial gradient
+   that fades out to fully transparent at the edges */
+.pl-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 22px;
+    padding: 34px 44px;
+    background: radial-gradient(
+        circle at 50% 42%,
+        rgba(29, 201, 183, 0.22) 0%,
+        rgba(17, 24, 39, 0.42) 45%,
+        rgba(17, 24, 39, 0) 100%
+    );
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    animation: plPanelIn 0.4s ease, plFadeFlow 3.6s ease-in-out infinite;
+}
+@keyframes plPanelIn {
+    from { transform: scale(0.92); opacity: 0; }
+    to   { transform: scale(1);    opacity: 1; }
+}
+/* Gradient lights drift in / out, breathing down to transparent */
+@keyframes plFadeFlow {
+    0%, 100% { opacity: 0.8; }
+    50%      { opacity: 1; }
+}
+
+@media (max-width: 560px) {
+    .pl-panel { padding: 24px 22px; }
+}
+
+.pl-crest { position: relative; width: 132px; height: 132px; }
+.pl-ring { position: absolute; border-radius: 50%; }
+.pl-ring--outer {
+    inset: 0;
+    border: 2px solid rgba(251,191,36,0.5);
+    border-top-color: var(--color-accent);
+    border-right-color: var(--color-accent);
+    animation: plSpin 3s linear infinite;
+}
+.pl-ring--mid {
+    inset: 15px;
+    border: 2px dashed rgba(29,201,183,0.8);
+    animation: plSpinRev 6s linear infinite;
+}
+.pl-core {
+    position: absolute;
+    inset: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+.pl-logo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid rgba(29,201,183,0.8);
+    box-shadow: 0 0 18px rgba(29,201,183,0.5);
+    animation: plPulse 1.5s ease-in-out infinite;
+    background: transparent;
+}
+
+.pl-brand {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: 5px;
+    color: var(--color-accent);
+    text-shadow: 0 0 16px rgba(29,201,183,0.6);
+    font-family: var(--font-eng);
+}
+.pl-desc {
+    font-size: 0.72rem;
+    letter-spacing: 2px;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+}
+.pl-progress { width: 280px; max-width: 82vw; }
+.pl-track {
+    height: 6px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.2);
+    overflow: hidden;
+}
+.pl-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 6px;
+    background: linear-gradient(90deg, #15a893, #1dc9b7, #fbbf24);
+    box-shadow: 0 0 10px rgba(29,201,183,0.85);
+    transition: width 0.2s linear;
+}
+.pl-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+    font-size: 0.85rem;
+}
+.pl-status { color: var(--color-text-primary); font-weight: 600; }
+.pl-percent { color: var(--color-accent); font-weight: 800; font-variant-numeric: tabular-nums; }
+.pl-dots { display: inline-flex; gap: 6px; margin-top: 4px; }
+.pl-dots i {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--color-accent);
+    opacity: 0.9;
+    animation: plDot 1.1s ease-in-out infinite;
+}
+.pl-dots i:nth-child(1) { animation-delay: 0s; }
+.pl-dots i:nth-child(2) { animation-delay: 0.18s; }
+.pl-dots i:nth-child(3) { animation-delay: 0.36s; }
+
+@keyframes plSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes plSpinRev { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
+@keyframes plPulse { 0%,100% { transform: scale(1); opacity: 0.85; } 50% { transform: scale(1.22); opacity: 1; } }
+@keyframes plDot { 0%,100% { transform: scale(0.8); opacity: 0.75; } 50% { transform: scale(1.25); opacity: 1; } }
+@keyframes plScan { 0% { top: -2px; opacity: 0; } 12% { opacity: 0.85; } 88% { opacity: 0.85; } 100% { top: 100%; opacity: 0; } }
+
+@media (max-width: 560px) {
+    .pl-crest { transform: scale(0.85); }
+    .pl-brand { font-size: 1.5rem; }
+    .pl-progress { width: 92%; }
+}

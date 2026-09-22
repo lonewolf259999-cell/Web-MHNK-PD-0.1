@@ -1,0 +1,207 @@
+﻿<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ประวัติเจ้าหน้าที่ - MHNK Police Department</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" />
+    <link rel="stylesheet" href="src/styles/main.css" />
+    <link rel="stylesheet" href="src/styles/admin.css" />
+</head>
+<body>
+<!-- Full-page boot / loading screen (stays until profile data is ready) -->
+    <div id="pageLoader" class="page-loader" role="status" aria-live="polite">
+<div class="pl-panel">
+        <div class="pl-crest">
+            <div class="pl-ring pl-ring--outer"></div>
+            <div class="pl-ring pl-ring--mid"></div>
+            <div class="pl-core">
+                <img class="pl-logo" src="logo.gif" alt="MHNK PD Logo" onerror="this.src='logo.png'">
+            </div>
+        </div>
+        <div class="pl-brand">MHNK</div>
+        <div class="pl-desc">POLICE DEPARTMENT &middot; MAHAHORN DIWA</div>
+        <div class="pl-progress">
+            <div class="pl-track"><div class="pl-fill" id="plFill"></div></div>
+            <div class="pl-meta">
+                <span class="pl-status" id="plStatus">กำลังเริ่มระบบ…</span>
+                <span class="pl-percent" id="plPercent">0%</span>
+            </div>
+        </div>
+        <div class="pl-dots"><i></i><i></i><i></i></div>
+</div>
+    </div>
+    <div class="scanner-line"></div>
+    <div class="bg-glow"></div>
+    <div class="bg-dots"></div>
+
+    <header class="site-header">
+        <div class="header-top">
+            <a href="index.html" class="back-link">
+                <span class="back-icon">&#8592;</span>
+                <span class="back-text">กลับ</span>
+            </a>
+            <img src="logo.gif" alt="MHNK PD Logo" class="header-logo" onerror="this.src='logo.png'">
+            <div class="header-title">
+                <h1>ประวัติเจ้าหน้าที่</h1>
+                <div class="header-subtitle">กรมตำรวจ <span>MHNK</span> &mdash; Mahahorn Diwa</div>
+            </div>
+            <div class="header-badges">
+                <button id="adminToggleBtn" class="btn-toggle-admin-disabled">♛ Admin</button>
+                <span class="header-badge">&#9670; PROFILE</span>
+                <span class="header-badge">&#9878; POLICE</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="profile-main">
+        <div class="profile-card">
+            <div class="profile-loading" id="profileLoading">
+                <div class="loader"></div>
+                <p>กำลังโหลดข้อมูล...</p>
+            </div>
+
+            <div id="profileContent" style="display: none;">
+                <div class="profile-hero">
+                    <h2 class="profile-name" id="profileName">-</h2>
+                    <span class="profile-dept" id="profileDept">-</span>
+                    <div class="profile-phone" id="profilePhone" style="display:none; margin-top: 4px; font-size: 0.95rem;">
+                        <span class="phone-icon">☎</span>
+                        <span id="phoneNumber">-</span>
+                        <span id="copyPhoneBtn" title="คัดลอกเบอร์" style="cursor: pointer; margin-left: 5px; opacity: 0.8;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        </span>
+                    </div>
+                    <div class="officer-stats">
+                        <div class="stat-mini">
+                            <p>วันที่ทำงาน</p>
+                            <div class="stat-number" id="statWorkDays">-</div>
+                        </div>
+                        <div class="stat-mini yellow">
+                            <p>ไม่ได้เข้าเวร</p>
+                            <div class="stat-number" id="statDaysAway">-</div>
+                        </div>
+                        <div class="stat-mini blue steam">
+                            <p>SteamKey</p>
+                            <div class="stat-number" id="statSteamKey">-</div>
+                        </div>
+                    </div>
+
+                    <div class="profile-total-stats" id="profileTotalStats" style="display:none;">
+                        <div class="total-stats-row">
+                            <div class="total-stat-item">
+                                <span class="total-stat-label">รวมคดีทั้งหมด</span>
+                                <span class="total-stat-value" id="totalCasesAll">0</span>
+                            </div>
+                            <div class="total-stat-item">
+                                <span class="total-stat-label">รวม Take 2</span>
+                                <span class="total-stat-value" id="totalTake2All">0</span>
+                            </div>
+                            <div class="total-stat-item">
+                                <span class="total-stat-label">รวมคุมสอบ</span>
+                                <span class="total-stat-value" id="totalInterAll">0</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="week-selector-container" id="weekSelector"></div>
+                </div>
+
+                <div class="profile-body">
+                    <div class="week-data-wrapper">
+                        <div id="weekData"></div>
+                    </div>
+
+                    <div class="duty-table-wrapper">
+                        <h3 class="profile-section-title">ตารางเวร (จันทร์-อาทิตย์)</h3>
+                        <div id="dutyTable"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-error" id="profileError" style="display: none;">
+                <p>ไม่พบข้อมูลเจ้าหน้าที่</p>
+                <div class="error-actions">
+                    <a href="index.html" class="btn btn-primary">กลับหน้าหลัก</a>
+                    <button onclick="location.reload()" class="btn btn-primary">รีเฟรช</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <p>&copy; 2026 <span>MHNK POLICE DEPARTMENT</span> &mdash; FiveM Server</p>
+    </footer>
+
+    <!-- Logger utility (must load first -- used by all profile modules) -->
+    <script src="src/utils/logger.js"></script>
+
+    <!-- Production flag -->
+    <script>
+        window.__PRODUCTION__ = !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1');
+    </script>
+    
+    <script src="src/profile/PageLoader.js?v=2.1.0"></script>
+    <script src="src/utils/html.js?v=2.1.0"></script>
+    <script src="src/utils/api.js?v=2.1.0"></script>
+    <script src="src/utils/NotificationSystem.js?v=2.1.0"></script>
+    <script src="src/components/shared/PinModal.js"></script>
+    <script src="src/profile/WeekSelector.js?v=2.1.0"></script>
+    <script src="src/profile/WeekStatsRenderer.js?v=2.1.0"></script>
+    <script src="src/profile/PaymentManager.js?v=2.9.0"></script>
+    <script src="src/profile/ProfilePage.js?v=2.1.0"></script>
+
+    <!-- Admin Button Handler for Profile Page -->
+    <script>
+        (function() {
+            const btn = document.getElementById('adminToggleBtn');
+            if (!btn) return;
+
+            function isAdminMode() {
+                const storedData = localStorage.getItem('mhnk_payment_pin');
+                if (storedData) {
+                    try {
+                        const { timestamp } = JSON.parse(storedData);
+                        const ageMinutes = (Date.now() - timestamp) / 60000;
+                        if (ageMinutes < 30) {
+                            return true;
+                        }
+                        localStorage.removeItem('mhnk_payment_pin');
+                    } catch (_) {
+                        localStorage.removeItem('mhnk_payment_pin');
+                    }
+                }
+                return false;
+            }
+
+            function updateButtonState() {
+                if (isAdminMode()) {
+                    btn.classList.remove('btn-toggle-admin-disabled');
+                    btn.classList.add('btn-toggle-admin', 'active');
+                } else {
+                    btn.classList.add('btn-toggle-admin-disabled');
+                    btn.classList.remove('btn-toggle-admin', 'active');
+                }
+            }
+
+            btn.addEventListener('click', async () => {
+                if (isAdminMode()) {
+                    // ออกจากโหมด Admin
+                    localStorage.removeItem('mhnk_payment_pin');
+                    updateButtonState();
+                } else {
+                    // เข้าโหมด Admin
+                    const pin = await PinModal.request('🔐 กรุณาระบุรหัสผ่านเพื่อเข้าโหมดผู้ดูแล');
+                    if (pin) {
+                        localStorage.setItem('mhnk_payment_pin', JSON.stringify({ pin, timestamp: Date.now() }));
+                        updateButtonState();
+                    }
+                }
+            });
+
+            updateButtonState();
+        })();
+    </script>
+</body>
+</html>
