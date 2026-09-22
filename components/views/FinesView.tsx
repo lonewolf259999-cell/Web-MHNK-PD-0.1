@@ -9,6 +9,12 @@ function formatTime(minutes: string): string {
   return `${minutes} นาที`;
 }
 
+/** Amounts are baht, but some rows hold a multiplier like "x10" instead. */
+function formatAmount(amount: string): string {
+  const value = formatCurrency(amount);
+  return /^\d/.test(value.trim()) ? `฿${value}` : value;
+}
+
 export function FinesView({
   items,
   loading,
@@ -58,7 +64,7 @@ export function FinesView({
                   >
                     <span className="min-w-0 text-ink/90">{entry.text}</span>
                     <span className="text-right font-bold text-gold tabular-nums">
-                      ฿{formatCurrency(entry.amount)}
+                      {formatAmount(entry.amount)}
                     </span>
                     <span className="col-span-2 text-right text-xs text-ink-dim sm:col-span-1">
                       {formatTime(entry.time)}
