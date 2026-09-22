@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { queries } from '@/lib/client/queries';
 import { parseCases } from '@/lib/format';
 import type { Officer } from '@/lib/types';
@@ -78,7 +78,9 @@ export function WeeklyTop10({ weeks }: { weeks: string[] }) {
   const [entries, setEntries] = useState<Entry[]>([]);
   const [status, setStatus] = useState<'idle' | 'loading' | 'error'>('loading');
 
-  const realWeeks = weeks.filter((w) => w.toLowerCase() !== 'test');
+  // Memoised because it is an effect dependency: a fresh array every render
+  // would re-run that effect on every render.
+  const realWeeks = useMemo(() => weeks.filter((w) => w.toLowerCase() !== 'test'), [weeks]);
 
   // Default to the newest week as soon as the list arrives.
   useEffect(() => {
@@ -146,10 +148,16 @@ export function WeeklyTop10({ weeks }: { weeks: string[] }) {
 
 /** Right panel: all-time TOP 10 from the roster sheet. */
 export function AllTimeTop10({ officers }: { officers: Officer[] }) {
-  const entries = [...officers]
-    .sort((a, b) => parseCases(b.cases) - parseCases(a.cases))
-    .slice(0, 10)
-    .map((o) => ({ name: o.name, rank: o.rank, cases: parseCases(o.cases) }));
+  // Sorting the full roster on every keystroke in the search box is wasted
+  // work — the ranking only depends on the officer list.
+  const entries = useMemo(
+    () =>
+      [...officers]
+        .sort((a, b) => parseCases(b.cases) - parseCases(a.cases))
+        .slice(0, 10)
+        .map((o) => ({ name: o.name, rank: o.rank, cases: parseCases(o.cases) })),
+    [officers]
+  );
 
   return (
     <Panel

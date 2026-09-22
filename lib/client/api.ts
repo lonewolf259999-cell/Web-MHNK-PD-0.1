@@ -33,21 +33,30 @@ export interface AsyncState<T> {
 }
 
 /**
- * Runs `fetcher` on mount, caching by `cacheKey`.
+ * Runs `fetcher` when `enabled`, caching by `cacheKey`.
  *
  * The fetcher is held in a ref so callers can pass an inline arrow without
  * retriggering on every render; `cacheKey` is the real dependency.
+ *
+ * `enabled` lets a caller defer a request until its data is actually needed —
+ * each one here is a Google Sheets round trip, so fetching every tab up front
+ * costs real latency for data most visitors never look at.
  */
-export function useApi<T>(fetcher: () => Promise<T>, cacheKey: string): AsyncState<T> {
+export function useApi<T>(
+  fetcher: () => Promise<T>,
+  cacheKey: string,
+  enabled = true
+): AsyncState<T> {
   const [data, setData] = useState<T | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(enabled);
   const [nonce, setNonce] = useState(0);
 
   const fetcherRef = useRef(fetcher);
   fetcherRef.current = fetcher;
 
   useEffect(() => {
+    if (!enabled) return;
     let active = true;
 
     const hit = cache.get(cacheKey);
@@ -77,7 +86,7 @@ export function useApi<T>(fetcher: () => Promise<T>, cacheKey: string): AsyncSta
     return () => {
       active = false;
     };
-  }, [cacheKey, nonce]);
+  }, [cacheKey, nonce, enabled]);
 
   const reload = useCallback(() => {
     cache.delete(cacheKey);

@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { SiteFooter, SiteHeader } from '@/components/SiteHeader';
 import { NavTabs, type PageId } from '@/components/NavTabs';
 import { SearchBar } from '@/components/SearchBar';
@@ -19,13 +19,26 @@ export default function HomePage() {
   const [page, setPage] = useState<PageId>('roster');
   const [query, setQuery] = useState('');
 
+  /* Each tab's data is a separate Google Sheets round trip, so a tab is
+     fetched the first time it is opened and kept from then on — switching
+     back is instant, and tabs nobody visits are never requested. */
+  const [visited, setVisited] = useState<Set<PageId>>(() => new Set<PageId>(['roster']));
+
+  const openPage = useCallback((next: PageId) => {
+    setPage(next);
+    setVisited((prev) => (prev.has(next) ? prev : new Set(prev).add(next)));
+  }, []);
+
+  const seen = (id: PageId) => visited.has(id);
+
+  // The roster feeds both the officer list and the schedule table.
   const officers = useApi(queries.officers, 'officers');
   const weeks = useApi(queries.weeks, 'weeks');
-  const cases = useApi(queries.cases, 'cases_data');
-  const conduct = useApi(queries.conduct, 'conduct_data');
-  const rules = useApi(queries.rules, 'rules_data');
-  const fines = useApi(queries.fines, 'fines_data');
-  const schedule = useApi(queries.scheduleConfig, 'schedule_config');
+  const cases = useApi(queries.cases, 'cases_data', seen('cases'));
+  const conduct = useApi(queries.conduct, 'conduct_data', seen('conduct'));
+  const rules = useApi(queries.rules, 'rules_data', seen('rules'));
+  const fines = useApi(queries.fines, 'fines_data', seen('fines'));
+  const schedule = useApi(queries.scheduleConfig, 'schedule_config', seen('schedule'));
 
   const allOfficers = useMemo(() => officers.data ?? [], [officers.data]);
 
@@ -44,7 +57,7 @@ export default function HomePage() {
             resultCount={filteredOfficers.length}
             totalCount={allOfficers.length}
           />
-          <NavTabs active={page} onChange={setPage} />
+          <NavTabs active={page} onChange={openPage} />
         </div>
       </SiteHeader>
 

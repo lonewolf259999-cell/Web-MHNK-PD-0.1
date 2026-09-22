@@ -105,11 +105,12 @@ export function ProfileClient() {
 
     const running: Totals = { cases: 0, take2: 0, interrogations: 0 };
 
-    await Promise.all(
-      weeks.map(async (week) => {
+    /* Collected first and committed once. Setting state per week would
+       re-render the page as many times as there are weeks. */
+    const resolved = await Promise.all(
+      weeks.map(async (week): Promise<[string, WeekStatus]> => {
         if (paidThisSession.current.has(week)) {
-          setStatuses((prev) => ({ ...prev, [week]: { state: 'paid', amount: 0 } }));
-          return;
+          return [week, { state: 'paid', amount: 0 }];
         }
 
         try {
@@ -122,18 +123,19 @@ export function ProfileClient() {
             running.interrogations += parseInt(entry.interrogations, 10) || 0;
           }
 
-          setStatuses((prev) => ({
-            ...prev,
-            [week]: entry
+          return [
+            week,
+            entry
               ? toWeekStatus(entry.paid, Number(entry.totalAmount) || 0)
               : { state: 'unpaid-zero', amount: 0 },
-          }));
+          ];
         } catch {
-          setStatuses((prev) => ({ ...prev, [week]: { state: 'error', amount: 0 } }));
+          return [week, { state: 'error', amount: 0 }];
         }
       })
     );
 
+    setStatuses((prev) => ({ ...prev, ...Object.fromEntries(resolved) }));
     setTotals(running);
   }, [weeks, officerName]);
 
