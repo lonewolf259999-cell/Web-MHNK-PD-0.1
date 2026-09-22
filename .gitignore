@@ -20,3 +20,6 @@ credentials.json
 
 # TypeScript build info
 *.tsbuildinfo
+
+# Deploy bundle (build output)
+*.zip
