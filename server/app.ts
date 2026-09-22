@@ -4,6 +4,8 @@ import { rosterRoutes } from './routes/roster';
 import { rulesRoutes } from './routes/rules';
 import { adminRoutes } from './routes/admin';
 import { poiRoutes } from './routes/poi';
+import { registrationRoutes } from './routes/registration';
+import { rosterAdminRoutes } from './routes/rosterAdmin';
 
 /**
  * The API, mounted into Next.js at app/api/[[...slugs]]/route.ts.
@@ -37,6 +39,8 @@ export const api = new Elysia({ prefix: '/api' })
   .use(rosterRoutes)
   .use(rulesRoutes)
   .use(adminRoutes)
+  .use(registrationRoutes)
+  .use(rosterAdminRoutes)
   .use(poiRoutes);
 
 /** Consumed by Eden Treaty on the client for end-to-end types. */
