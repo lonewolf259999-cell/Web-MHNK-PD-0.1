@@ -1,18 +1,19 @@
-# Dependency
+# Dependencies
 node_modules/
+
+# Next.js
+.next/
+out/
+next-env.d.ts
+.vercel
 
 # Environment variables
 .env
+.env*.local
 
-# Google Cloud Credentials
-*.json
-!package.json
-!data/*.json
-!vercel.json
+# Google Cloud credentials
+credentials.json
 
-# Old build artifacts (unused - no build step needed)
-dist/
-
-# Background test-run artifacts (logs + PID files)
+# Logs / runtime artifacts
 *.log
 *.pid
