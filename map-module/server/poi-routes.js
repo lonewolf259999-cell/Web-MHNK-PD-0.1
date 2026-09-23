@@ -151,11 +151,15 @@ async function repairSheet(sheets, sid) {
     // แถวว่าง/ขยะ (ไม่มี id ทั้ง col A และ col D) → ข้าม
   }
 
-  // ล้างเฉพาะคอลัมน์ A-G (ไม่ล้าง H-J)
-  await sheets.spreadsheets.values.clear({
-    spreadsheetId: sid,
-    range: `${SHEET_NAME}!A:G`
-  });
+  // ⚠️ กันข้อมูลหาย (1): ถ้าอ่านไม่ได้สักแถวเลย แปลว่าผิดปกติ — ห้ามแตะชีตเด็ดขาด
+  // ของเดิมจะ clear ทิ้งแล้วไม่เขียนอะไรกลับ (เพราะ values.length === 1) = ข้อมูลหายเกลี้ยง
+  if (normalized.length === 0) {
+    return {
+      recovered: 0,
+      total: 0,
+      skipped: 'ไม่พบแถวที่อ่านได้ — ยกเลิกการซ่อมเพื่อกันข้อมูลหาย'
+    };
+  }
 
   // เขียน header + ข้อมูลที่กู้ได้ กลับเป็น A-G ติดกัน (ไม่รวม dcId)
   const values = [
@@ -163,12 +167,21 @@ async function repairSheet(sheets, sid) {
     ...normalized.map(row => row.slice(0, 7)) // ตัดเหลือ 7 columns
   ];
 
-  if (values.length > 1) {
-    await sheets.spreadsheets.values.update({
+  // ⚠️ กันข้อมูลหาย (2): เขียนทับลงไปก่อน แล้วค่อยล้างส่วนเกิน
+  // ของเดิม clear ก่อนแล้วค่อย update ถ้า process ตายคั่นกลาง (เน็ตหลุด/timeout/ถูก kill)
+  // ชีตจะเหลือว่างเปล่า — ลำดับใหม่นี้ไม่มีช่วงเวลาที่ข้อมูลหายไปจากชีต
+  await sheets.spreadsheets.values.update({
+    spreadsheetId: sid,
+    range: `${SHEET_NAME}!A1`,
+    valueInputOption: 'USER_ENTERED',
+    requestBody: { values }
+  });
+
+  // ล้างเฉพาะแถวส่วนเกินที่ค้างอยู่ท้ายตาราง (ตอนนี้ข้อมูลจริงเขียนเสร็จแล้ว)
+  if (rows.length > values.length) {
+    await sheets.spreadsheets.values.clear({
       spreadsheetId: sid,
-      range: `${SHEET_NAME}!A1`,
-      valueInputOption: 'USER_ENTERED',
-      requestBody: { values }
+      range: `${SHEET_NAME}!A${values.length + 1}:G${rows.length}`
     });
   }
 
@@ -296,27 +309,33 @@ function createPoiRoutes(getSheetsFn) {
       // ตรวจสอบ/สร้าง sheet ถ้ายังไม่มี
       await ensureSheetExists(sheets, sid);
 
-      // เพิ่มข้อมูล (A:G + dcId ที่ column J)
-      await sheets.spreadsheets.values.append({
+      // ⚠️ ห้ามใช้ values.append เด็ดขาด — นี่คือต้นตอของปัญหาข้อมูลเพี้ยน
+      //    append จะให้ Google "เดา" ขอบเขตตารางเอง พอชีตนี้มีข้อมูลอื่นอยู่คอลัมน์ I/J ด้วย
+      //    มันเคยเดาผิดแล้วเขียนจุดใหม่ลงคอลัมน์ D-K แทน A-G (ดูคอมเมนต์ของ repairSheet ด้านบน)
+      //    แถวที่เพี้ยนจะมีคอลัมน์ A ว่าง → repairSheet มองเป็นขยะ → ข้อมูลหาย
+      //
+      //    วิธีใหม่: คำนวณเลขแถวเองแล้วเขียนลงตำแหน่งที่ระบุชัดเจน ไม่มีการเดาอีกต่อไป
+      const colA = await sheets.spreadsheets.values.get({
         spreadsheetId: sid,
-        range: `${SHEET_NAME}!A:G`,
+        range: `${SHEET_NAME}!A:A`
+      });
+      const nextRow = (colA.data.values || []).length + 1;
+
+      await sheets.spreadsheets.values.update({
+        spreadsheetId: sid,
+        range: `${SHEET_NAME}!A${nextRow}:G${nextRow}`,
         valueInputOption: 'USER_ENTERED',
-        insertDataOption: 'INSERT_ROWS',
         requestBody: {
           values: [[id, name, category, description || '', x, y, new Date().toISOString()]]
         }
       });
 
-      // ถ้ามี dcId ให้เขียนลง column J
+      // ถ้ามี dcId ให้เขียนลง column J ของ "แถวเดียวกัน"
+      // (ของเดิมนับจำนวนเซลล์ในคอลัมน์ A มาใช้เป็นเลขแถว ซึ่งคลาดเคลื่อนได้ → เขียนทับแถวอื่น)
       if (dcId) {
-        const result = await sheets.spreadsheets.values.get({
-          spreadsheetId: sid,
-          range: `${SHEET_NAME}!A:A`
-        });
-        const rowCount = (result.data.values || []).length;
         await sheets.spreadsheets.values.update({
           spreadsheetId: sid,
-          range: `${SHEET_NAME}!J${rowCount}`,
+          range: `${SHEET_NAME}!J${nextRow}`,
           valueInputOption: 'USER_ENTERED',
           requestBody: { values: [[dcId]] }
         });
@@ -452,19 +471,15 @@ function createPoiRoutes(getSheetsFn) {
     }
   });
 
-  // ==================== AUTO-REPAIR ON MOUNT ====================
-  // ซ่อมชีต MapPOI ครั้งเดียวเมื่อ server เริ่ม (idempotent) ให้ข้อมูลกลับเป็น A-G ติดกัน
-  (async () => {
-    try {
-      const sheets = getSheetsFn();
-      const config = require('../../server/config');
-      const sid = config.MAP_SHEET_ID || config.SHEET_ID;
-      if (!sid) return;
-      const result = await repairSheet(sheets, sid);
-    } catch (err) {
-      console.error('[POI] Sheet auto-repair failed:', err.message);
-    }
-  })();
+  // ==================== AUTO-REPAIR ON MOUNT (ปิดถาวร) ====================
+  // ⛔ เดิมตรงนี้สั่งซ่อมชีตเองทุกครั้งที่ server เริ่มทำงาน โดยไม่มีใครสั่งและไม่มีเงื่อนไข
+  //    ซึ่งแปลว่า "เปิดเว็บ 1 ครั้ง = แตะข้อมูลจริง 1 ครั้ง" และเคยทำข้อมูลหายทั้งแผ่นมาแล้ว
+  //    (กู้คืนจาก Google Sheets > ไฟล์ > ประวัติเวอร์ชัน)
+  //    หมายเหตุ: ระบบรหัสผ่านกันจุดนี้ไม่ได้ เพราะมันรันตอน mount router
+  //    ซึ่งเกิดก่อนจะมี HTTP request ใดๆ เข้ามา
+  //
+  //    ถ้าต้องการซ่อมชีตจริงๆ ให้เรียกมือผ่าน POST /api/poi/repair แทน
+  //    (ซึ่งตอนนี้ต้องใส่รหัสก่อนด้วย)
 
   return router;
 }

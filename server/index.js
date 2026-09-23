@@ -82,11 +82,26 @@ app.use('/auth/discord', authLimiter);
 // ==================== API ROUTES ====================
 app.use(routes);
 
-// ==================== MAP MODULE (optional) ====================
+// ==================== MAP MODULE (อ่านอย่างเดียว) ====================
+// แผนที่ย้ายไปเป็นเว็บแยกแล้ว (Wed-Map-Mhnk-PD) ที่นี่เหลือไว้แค่ 'ดู' ไม่ให้ 'แก้'
+//
+// ⛔ เดิม /api/poi ที่นี่ mount ทิ้งไว้โดยไม่มี middleware ตรวจสิทธิ์เลยสักตัว
+//    (ต่างจาก endpoint อื่นในเว็บนี้ที่มี verifyPin หมด) แปลว่าใครก็ยิง
+//    DELETE /api/poi/:id หรือ POST /api/poi/repair เข้ามาลบข้อมูลบนชีตได้
+//    ตอนนี้บล็อกทุกคำสั่งที่เขียนข้อมูล — แก้จุดได้ที่เว็บแผนที่ซึ่งมีรหัสผ่านเท่านั้น
+app.use('/api/poi', (req, res, next) => {
+  if (req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS') return next();
+  logger.warn(`[MapModule] ปฏิเสธ ${req.method} ${req.originalUrl} — เว็บนี้อ่านอย่างเดียว`);
+  return res.status(403).json({
+    success: false,
+    error: 'แผนที่ย้ายไปเว็บใหม่แล้ว — เพิ่ม/แก้/ลบจุดได้ที่เว็บแผนที่เท่านั้น'
+  });
+});
+
 try {
   const createPoiRoutes = require('../map-module/server/poi-routes');
   app.use('/api/poi', createPoiRoutes(() => getSheets()));
-  logger.info('[MapModule] POI API mounted at /api/poi');
+  logger.info('[MapModule] POI API mounted at /api/poi (อ่านอย่างเดียว)');
 } catch (e) {
   logger.warn('[MapModule] POI API not loaded: ' + e.message);
 }
